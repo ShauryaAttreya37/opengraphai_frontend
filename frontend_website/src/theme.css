@@ -65,6 +65,62 @@
   --code-arg-dark: #d7f2b4;
 }
 
+/* Warm paper ground. The neutral canvas keeps the existing instrument-like
+   layout intact while orange marks active relationships and blue remains
+   reserved for sources and citations. */
+[data-theme="paper"] {
+  --ground: #f4f2ed;
+  --ground-ink: #111317;
+  --ground-ink-rgb: 17 19 23;
+  --ground-veil-rgb: 244 242 237;
+  --ground-glass-rgb: 255 255 255;
+
+  --wash-hi-rgb: 255 255 255;
+  --wash-lo-rgb: 203 194 178;
+
+  --stripe-1: 255 255 255;
+  --stripe-2: 205 196 180;
+  --stripe-3: 220 230 255;
+  --stripe-4: 229 84 53;
+
+  --paper: #fffaf1;
+  --paper-active: #ffffff;
+  --paper-ink: #111317;
+  --paper-ink-rgb: 17 19 23;
+  --paper-ink-dim: #716d65;
+  --paper-ink-strong: #252932;
+
+  --panel: #111317;
+  --panel-deep: #0b0d10;
+  --panel-edge: #050608;
+  --console: #090b0e;
+  --panel-ink: #f5f3ee;
+  --panel-ink-rgb: 245 243 238;
+  --panel-ink-bright: #ffffff;
+
+  --signal: #e55435;
+  --signal-rgb: 229 84 53;
+  --signal-contrast: #2b0c05;
+
+  --cited: #2457d6;
+  --cited-rgb: 36 87 214;
+  --cited-contrast: #ffffff;
+  --cited-ink: #c9d7ff;
+
+  --structure-rgb: 104 119 160;
+  --shadow-rgb: 60 52 40;
+
+  --code-obj: #716d65;
+  --code-fn: #c43f24;
+  --code-punct: #aaa49a;
+  --code-arg: #2457d6;
+
+  --code-obj-dark: #a9b5d5;
+  --code-fn-dark: #ff866b;
+  --code-punct-dark: #65708f;
+  --code-arg-dark: #c9d7ff;
+}
+
 /* Ultramarine ground. Blue already carries "sourced and cited" in the product
    language, so making it the canvas states provenance as the base condition
    and frees the warm half of the wheel for active relationships. */
