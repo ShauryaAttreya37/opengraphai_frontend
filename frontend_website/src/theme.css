@@ -1,0 +1,122 @@
+/* Palette layer.
+   styles.css never names a colour — it only reads the tokens below. Flip the
+   whole site by changing data-theme on <html> in index.html.
+
+   Roles, because the old --canvas was doing three jobs at once:
+     --ground   page canvas behind the hero
+     --paper    light card surface inside the compiler rail
+     --panel    dark instrument surface (graph workbench, console)
+     --signal   active relationship / primary accent
+     --cited    evidence and citation path
+   In the lime theme --signal and --cited are the same value, which is exactly
+   why that theme cannot distinguish a relation from a citation. */
+
+:root,
+[data-theme="lime"] {
+  --ground: #a2f649;
+  --ground-ink: #000;
+  --ground-ink-rgb: 0 0 0;
+  --ground-veil-rgb: 162 246 73;
+  --ground-glass-rgb: 255 255 255;
+
+  --wash-hi-rgb: 235 255 205;
+  --wash-lo-rgb: 56 126 0;
+
+  --stripe-1: 223 255 187;
+  --stripe-2: 72 151 0;
+  --stripe-3: 219 255 180;
+  --stripe-4: 38 108 0;
+
+  --paper: #cfffa2;
+  --paper-active: #e5ffc8;
+  --paper-ink: #080a07;
+  --paper-ink-rgb: 8 10 7;
+  --paper-ink-dim: #5d7845;
+  --paper-ink-strong: #24401a;
+
+  --panel: #0d100b;
+  --panel-deep: #080a07;
+  --panel-edge: #070806;
+  --console: #090b08;
+  --panel-ink: #f5f7f0;
+  --panel-ink-rgb: 245 247 240;
+  --panel-ink-bright: #f4ffe4;
+
+  --signal: #a2f649;
+  --signal-rgb: 162 246 73;
+  --signal-contrast: #0d100b;
+
+  --cited: #a2f649;
+  --cited-rgb: 162 246 73;
+  --cited-contrast: #0d100b;
+  --cited-ink: #eaffcd;
+
+  --structure-rgb: 162 246 73;
+  --shadow-rgb: 34 78 0;
+
+  --code-obj: #5d7845;
+  --code-fn: #b8410a;
+  --code-punct: #93aa80;
+  --code-arg: #24401a;
+
+  --code-obj-dark: #8fab74;
+  --code-fn-dark: #ff9152;
+  --code-punct-dark: #5f7050;
+  --code-arg-dark: #d7f2b4;
+}
+
+/* Ultramarine ground. Blue already carries "sourced and cited" in the product
+   language, so making it the canvas states provenance as the base condition
+   and frees the warm half of the wheel for active relationships. */
+[data-theme="cyanotype"] {
+  --ground: #1430c4;
+  --ground-ink: #f2efe6;
+  --ground-ink-rgb: 242 239 230;
+  --ground-veil-rgb: 20 48 196;
+  --ground-glass-rgb: 226 234 255;
+
+  --wash-hi-rgb: 150 185 255;
+  --wash-lo-rgb: 4 12 70;
+
+  --stripe-1: 126 162 255;
+  --stripe-2: 6 18 88;
+  --stripe-3: 142 180 255;
+  --stripe-4: 4 14 74;
+
+  --paper: #f2efe6;
+  --paper-active: #fffdf7;
+  --paper-ink: #0b1020;
+  --paper-ink-rgb: 11 16 32;
+  --paper-ink-dim: #585e70;
+  --paper-ink-strong: #16213f;
+
+  --panel: #0b1020;
+  --panel-deep: #070b16;
+  --panel-edge: #05080f;
+  --console: #080d1a;
+  --panel-ink: #eef1fa;
+  --panel-ink-rgb: 238 241 250;
+  --panel-ink-bright: #ffffff;
+
+  --signal: #ff8a3d;
+  --signal-rgb: 255 138 61;
+  --signal-contrast: #2a1200;
+
+  --cited: #7de3d2;
+  --cited-rgb: 125 227 210;
+  --cited-contrast: #06302a;
+  --cited-ink: #c9f6ee;
+
+  --structure-rgb: 143 163 232;
+  --shadow-rgb: 8 20 92;
+
+  --code-obj: #585e70;
+  --code-fn: #c2410c;
+  --code-punct: #a4a9b8;
+  --code-arg: #16213f;
+
+  --code-obj-dark: #8fa3e8;
+  --code-fn-dark: #ff8a3d;
+  --code-punct-dark: #55608a;
+  --code-arg-dark: #d8e3ff;
+}
