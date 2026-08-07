@@ -3,6 +3,9 @@ import "./styles.css";
 
 const glyphs = {
   A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
+  // C and S mirror O's rounded corners so the tagline sits with the same weight
+  // as the wordmark did. T and X stay open-countered at display size.
+  C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
   E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
   // G matches O's rounded top-left; N steps its diagonal one cell at a time.
   // The old forms squared G off and doubled N's diagonal, which filled in the
@@ -14,6 +17,9 @@ const glyphs = {
   O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
   P: ["11110", "10001", "10001", "11110", "10000", "10000", "10000"],
   R: ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
+  S: ["01111", "10000", "10000", "01110", "00001", "10001", "01110"],
+  T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+  X: ["10001", "10001", "01010", "00100", "01010", "10001", "10001"],
 };
 
 // Colours live in theme.css so a palette flip is one data-theme attribute.
@@ -25,6 +31,17 @@ function themeToken(name, fallback) {
 
 const groundInk = () => themeToken("--ground-ink", "#000000");
 const groundInkRgb = () => themeToken("--ground-ink-rgb", "0 0 0").replace(/\s+/g, ", ");
+const signalInk = () => themeToken("--signal", "#e55435");
+const signalInkRgb = () => themeToken("--signal-rgb", "229 84 53").replace(/\s+/g, ", ");
+
+// The tagline's dots leave orange and land on an ink-coloured heading, so the
+// morph has to carry the colour across or it snaps at the end.
+function mixInk(progress) {
+  const from = signalInkRgb().split(",").map(Number);
+  const to = groundInkRgb().split(",").map(Number);
+  const channel = (index) => Math.round(from[index] + (to[index] - from[index]) * progress);
+  return `rgb(${channel(0)}, ${channel(1)}, ${channel(2)})`;
+}
 
 function seededRandom(seed = 0x0a11ce) {
   let value = seed >>> 0;
@@ -99,7 +116,7 @@ function revealPixelTitle() {
   const target = document.querySelector("#title-pixels");
   if (!title || !target) return;
 
-  const { glyphElements, pixelElements, width } = buildPixelTitle("OPENGRAPH AI", target);
+  const { glyphElements, pixelElements, width } = buildPixelTitle("CONTEXT GRAPHS", target);
   const layoutWidth = width + 6;
   target.setAttribute("transform", `translate(${(layoutWidth - width) / 2} 0)`);
   title.setAttribute("viewBox", `0 0 ${layoutWidth} 7`);
@@ -135,7 +152,7 @@ function revealPixelTitle() {
       translateX: [Math.cos(angle) * distance, 0],
       translateY: [Math.sin(angle) * distance, 0],
       scale: [0.2 + random() * 0.35, 1],
-      fill: ["rgba(0, 0, 0, 0)", groundInk()],
+      fill: ["rgba(0, 0, 0, 0)", signalInk()],
       strokeWidth: [0.28, 0],
       strokeOpacity: [1, 0],
       duration: 460,
@@ -147,7 +164,7 @@ function revealPixelTitle() {
   window.setTimeout(() => {
     pixelElements.forEach((pixel) => {
       pixel.style.opacity = "1";
-      pixel.style.fill = groundInk();
+      pixel.style.fill = signalInk();
       pixel.style.strokeOpacity = "0";
       pixel.style.removeProperty("transform");
     });
@@ -212,7 +229,7 @@ function initialisePixelMorph(titleSvg) {
     });
   }
 
-  // The bitmap font has nine glyphs, so the heading cannot be spelled with it.
+  // The bitmap font has thirteen glyphs, so the heading cannot be spelled with it.
   // Draw the real heading offscreen instead and read back where its ink lands.
   function readHeadingPoints(step) {
     const box = heading.getBoundingClientRect();
@@ -307,15 +324,18 @@ function initialisePixelMorph(titleSvg) {
 
     const titleTop = source.reduce((min, point) => Math.min(min, point.y), Infinity);
     const headingTop = target.reduce((min, point) => Math.min(min, point.y), Infinity);
-    scrollStart = titleTop - window.innerHeight * 0.25;
-    scrollEnd = headingTop - window.innerHeight * 0.45;
+    // Only ~585px of scroll separates the title from the heading, and both
+    // offsets eat into it. Keep them small or the dissolve is over before the
+    // gesture that started it ends.
+    scrollStart = Math.max(0, titleTop - window.innerHeight * 0.6);
+    scrollEnd = headingTop - window.innerHeight * 0.1;
     if (scrollEnd - scrollStart < 200) scrollEnd = scrollStart + 200;
   }
 
   function render(progress) {
     context.setTransform(devicePixels, 0, 0, devicePixels, 0, 0);
     context.clearRect(0, 0, viewWidth, viewHeight);
-    context.fillStyle = groundInk();
+    context.fillStyle = mixInk(progress);
 
     const offsetX = window.scrollX;
     const offsetY = window.scrollY;
@@ -472,18 +492,20 @@ function smoothScrollToElement(target, options = {}) {
 function initialiseMorphicNavbar() {
   const links = [...document.querySelectorAll(".morphic-link")];
   if (!links.length) return;
+  const hero = document.querySelector("#home");
   const targets = links.map((link, index) => {
     const selector = link.getAttribute("href");
     const element = selector?.startsWith("#") ? document.querySelector(selector) : null;
-    return element ? { element, index, selector } : null;
-  }).filter(Boolean);
+    return element ? { element, index } : null;
+  }).filter(Boolean).sort((a, b) => a.element.offsetTop - b.element.offsetTop);
 
   const setActiveLink = (activeIndex) => {
+    const hasActiveLink = activeIndex >= 0;
     links.forEach((item, index) => {
-      const isActive = index === activeIndex;
+      const isActive = hasActiveLink && index === activeIndex;
       item.classList.toggle("is-active", isActive);
-      item.classList.toggle("is-before-active", index === activeIndex - 1);
-      item.classList.toggle("is-after-active", index === activeIndex + 1);
+      item.classList.toggle("is-before-active", hasActiveLink && index === activeIndex - 1);
+      item.classList.toggle("is-after-active", hasActiveLink && index === activeIndex + 1);
 
       if (isActive) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
@@ -506,17 +528,23 @@ function initialiseMorphicNavbar() {
     });
   });
 
-  // Keep the morphic active state tied to the section actually under the
-  // reading line, including when the user scrolls without using the navbar.
+  // The hero has no section heading to select, so its tiles remain joined.
+  // After that, the split pill follows the section under the fixed navbar.
   let navUpdateFrame = 0;
   const updateFromScroll = () => {
     navUpdateFrame = 0;
-    const readingLine = window.scrollY + window.innerHeight * 0.34;
-    const ordered = [...targets].sort((a, b) => a.element.offsetTop - b.element.offsetTop);
-    const current = ordered.reduce((match, item) => (
+    if (!hero) return;
+    const navigation = document.querySelector(".morphic-navbar");
+    const readingLine = window.scrollY + (navigation?.offsetHeight || 52) + 28;
+    if (readingLine < hero.offsetTop + hero.offsetHeight) {
+      setActiveLink(-1);
+      return;
+    }
+
+    const current = targets.reduce((match, item) => (
       item.element.offsetTop <= readingLine ? item : match
     ), null);
-    if (current) setActiveLink(current.index);
+    setActiveLink(current?.index ?? -1);
   };
 
   window.addEventListener("scroll", () => {
@@ -538,7 +566,6 @@ function initialiseMorphicNavbar() {
     });
   });
 
-  setActiveLink(Math.max(links.findIndex((link) => link.classList.contains("is-active")), 0));
   updateFromScroll();
 }
 
@@ -842,15 +869,16 @@ function initialiseCompilerRail() {
   const graphLinks = graph.links;
   const evidenceLinks = graph.links.filter((link) => link.classList.contains("evidence-link"));
   const sourceIndicators = [...rail.querySelectorAll(".source-card i")];
-  const traceHops = [...rail.querySelectorAll(".trace-hop, .trace-arrow")];
-  const toolCall = rail.querySelector(".tool-call");
-  const answerHead = rail.querySelector(".claude-answer-head");
-  const resultRows = [...rail.querySelectorAll(".result-row")];
-  const resultMeters = [...rail.querySelectorAll(".result-meter i")];
-  const evidenceSummary = rail.querySelector(".evidence-summary");
+  const toolCall = rail.querySelector("[data-query-working]");
+  const answerHead = rail.querySelector(".claude-mockup-result-heading");
+  const resultRows = [...rail.querySelectorAll(".claude-mockup-result")];
+  const resultMeters = [...rail.querySelectorAll(".claude-mockup-result > i b")];
+  const evidenceSummary = [...rail.querySelectorAll(".claude-mockup-followup, .claude-mockup-timing")];
+  const commandCaret = rail.querySelector(".claude-mockup-command-caret");
+  const activePrompt = rail.querySelector(".claude-mockup-prompt");
   const pipelinePath = rail.querySelector(".pipeline-path");
   const pipelineTracer = rail.querySelector(".pipeline-tracer");
-  const queryText = rail.querySelector("[data-query-text]");
+  const queryText = rail.querySelector("[data-query-prompt]");
   const queryValue = queryText?.textContent ?? "";
 
   const counters = {
@@ -877,7 +905,7 @@ function initialiseCompilerRail() {
     [...queryValue].forEach((character) => {
       const characterNode = document.createElement("span");
       characterNode.textContent = character === " " ? "\u00a0" : character;
-      characterNode.className = "query-character";
+      characterNode.className = "query-character claude-prompt-character";
       queryText.append(characterNode);
     });
   }
@@ -1076,32 +1104,41 @@ function initialiseCompilerRail() {
       ease: "inOutSine",
     }, 3900)
     .call(() => activateStage(2, "QUERYING"), 4850)
+    .add(commandCaret, {
+      opacity: [0, 1],
+      duration: 120,
+      ease: "outQuad",
+    }, 4870)
     .add(queryCharacters, {
       opacity: [0, 1],
       translateY: [8, 0],
-      duration: 260,
-      delay: stagger(28),
+      duration: 220,
+      delay: stagger(14),
       ease: "outQuad",
     }, 4930)
+    .add(commandCaret, {
+      opacity: [1, 0],
+      duration: 140,
+      ease: "outQuad",
+    }, 5530)
     .add(toolCall, {
       opacity: [0, 1],
       translateX: [-8, 0],
-      duration: 380,
+      duration: 260,
       ease: "outExpo",
-    }, 5440)
-    .add(traceHops, {
-      opacity: [0, 1],
-      translateX: [-8, 0],
-      duration: 340,
-      delay: stagger(90),
-      ease: "outExpo",
-    }, 5700)
+    }, 5570)
+    .add(toolCall, {
+      opacity: [1, 0],
+      translateY: [0, -4],
+      duration: 200,
+      ease: "inQuad",
+    }, 5980)
     .add(answerHead, {
       opacity: [0, 1],
       translateY: [6, 0],
       duration: 360,
       ease: "outExpo",
-    }, 5980)
+    }, 6000)
     .add(resultRows, {
       opacity: [0, 1],
       translateY: [10, 0],
@@ -1118,9 +1155,15 @@ function initialiseCompilerRail() {
     .add(evidenceSummary, {
       opacity: [0, 1],
       translateY: [8, 0],
-      duration: 460,
+      duration: 380,
+      delay: stagger(120),
       ease: "outExpo",
-    }, 6820)
+    }, 6800)
+    .add(activePrompt, {
+      opacity: [0, 1],
+      duration: 260,
+      ease: "outQuad",
+    }, 7040)
     .call(() => {
       if (flowState) flowState.textContent = "CITED";
     }, 7200)

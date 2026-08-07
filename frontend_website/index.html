@@ -17,6 +17,15 @@
     />
   </head>
   <body>
+    <nav class="morphic-navbar" aria-label="Primary navigation">
+      <div class="morphic-glass">
+        <a class="morphic-link" href="#how-it-works">How it works</a>
+        <a class="morphic-link" href="#use-cases">Use cases</a>
+        <a class="morphic-link" href="#resources">Resources</a>
+        <a class="morphic-link" href="#about">About</a>
+      </div>
+    </nav>
+
     <main class="site-main">
     <section class="hero" id="home">
       <div class="gradient-stripes" aria-hidden="true">
@@ -26,6 +35,8 @@
         <span class="stripe stripe-four"></span>
       </div>
 
+      <a class="corner-label corner-top" href="/">OpenGraph AI</a>
+
       <div class="pixel-grid" aria-hidden="true"></div>
       <canvas
         class="graph-background"
@@ -33,31 +44,24 @@
         aria-hidden="true"
       ></canvas>
 
-      <nav class="morphic-navbar" aria-label="Primary navigation">
-        <div class="morphic-glass">
-          <a class="morphic-link is-active" href="#use-cases" aria-current="page">Use cases</a>
-          <a class="morphic-link" href="#resources">Resources</a>
-          <a class="morphic-link" href="#about">About</a>
-          <a class="morphic-link" href="#how-it-works">How it works</a>
-        </div>
-      </nav>
-
       <section class="hero-content" aria-labelledby="hero-title">
         <p class="category">MULTIMODAL CONTEXT INFRASTRUCTURE</p>
 
         <h1 id="hero-title" class="hero-title">
-          <span class="visually-hidden">OpenGraph AI</span>
-          <span class="title-fallback" aria-hidden="true">OpenGraph AI</span>
-          <svg
-            class="drawable-title"
-            id="drawable-title"
-            viewBox="0 0 82 7"
-            preserveAspectRatio="xMidYMid meet"
-            aria-hidden="true"
-            tabindex="-1"
-          >
-            <g id="title-pixels"></g>
-          </svg>
+          <span class="visually-hidden">Context graphs for agents that need to reason.</span>
+          <span class="hero-title-pixels" aria-hidden="true">
+            <span class="title-fallback">Context graphs</span>
+            <svg
+              class="drawable-title"
+              id="drawable-title"
+              viewBox="0 0 82 7"
+              preserveAspectRatio="xMidYMid meet"
+              tabindex="-1"
+            >
+              <g id="title-pixels"></g>
+            </svg>
+          </span>
+          <span class="tagline-tail" aria-hidden="true">for agents that need to reason.</span>
         </h1>
 
         <p class="hero-description">
@@ -129,16 +133,6 @@
         </header>
 
         <div class="compiler-rail" data-active-stage="0">
-          <div class="rail-status">
-            <span class="compiler-live"><i aria-hidden="true"></i> GRAPH_COMPILER</span>
-            <div class="rail-metrics" aria-label="Live graph metrics">
-              <span><b data-source-count>0</b> SOURCES</span>
-              <span><b data-node-count>0</b> NODES</span>
-              <span><b data-edge-count>0</b> EDGES</span>
-            </div>
-            <span class="flow-state" data-flow-state>INGESTING</span>
-          </div>
-
           <div class="pipeline-orbit" aria-hidden="true">
             <svg class="pipeline-svg" viewBox="0 0 1200 96" preserveAspectRatio="xMidYMid meet">
               <path
@@ -214,86 +208,93 @@
                 <p>Traverse relationships, rank the subgraph and return the citation path.</p>
               </div>
               <div class="query-console claude-code-window" aria-label="Claude Code querying OpenGraph AI">
-                <div class="claude-titlebar">
-                  <div class="claude-brand">
-                    <span class="claude-mark" aria-hidden="true">C</span>
-                    <span>
-                      <b>Claude Code</b>
-                      <small>opengraph-ai</small>
-                    </span>
-                  </div>
-                  <div class="claude-session">
-                    <span class="session-dot" aria-hidden="true"></span>
-                    <span>LOCAL</span>
-                    <kbd>⌘ K</kbd>
-                  </div>
+                <div class="claude-mockup-welcome">
+                  <span class="claude-mockup-welcome-label">Claude Code</span>
+                  <h4>Welcome back User!</h4>
+                  <svg
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-labelledby="claude-clawd-title"
+                  >
+                    <title id="claude-clawd-title">Claude clawd</title>
+                    <path d="M4.5 6h15v5H22v2h-2.5v3h-1v2H17v-2h-1v2h-1.5v-2h-5v2H8v-2H7v2H5.5v-2h-1v-3H2v-2h2.5ZM7 8v3h1V8Zm9 0v3h1V8Z"></path>
+                  </svg>
+                  <p>
+                    <span>Sonnet 5 with medium effort</span>
+                    <span>Claude Pro</span>
+                    <span>C:\Users\User</span>
+                  </p>
                 </div>
 
-                <div class="claude-contextbar">
-                  <span class="context-branch"><i aria-hidden="true"></i>main</span>
-                  <span>~/opengraph-ai</span>
-                  <em>SONNET</em>
-                </div>
-
-                <div class="claude-transcript">
-                  <div class="query-line">
-                    <span class="query-caret-mark">›</span>
-                    <span class="query-text" data-query-text>which renewals are at risk?</span>
-                    <i></i>
+                <div class="claude-mockup" aria-label="Claude Code terminal response">
+                  <div class="claude-mockup-notice">
+                    <b>!!</b>
+                    <strong>OpenGraph MCP Connected</strong>
+                    <span>·</span>
+                    <span>run /mcp</span>
                   </div>
 
-                  <div class="tool-call">
-                    <div class="tool-call-head">
-                      <span class="tool-status"><i aria-hidden="true"></i>OpenGraph</span>
-                      <code>query_graph</code>
-                      <em>42 ms</em>
+                  <div class="claude-mockup-banner">
+                    <i aria-hidden="true"></i>
+                    <p>
+                      Tackle your toughest work with Opus 5. Switch anytime with /model.
+                      <small>+1 more · /status</small>
+                    </p>
+                  </div>
+
+                  <div class="claude-mockup-command">
+                    <span>&gt;</span>
+                    <b data-query-prompt>which renewals are at risk?</b>
+                    <i class="claude-mockup-command-caret" aria-hidden="true"></i>
+                  </div>
+
+                  <div class="claude-mockup-output">
+                    <div class="claude-mockup-response-state">
+                      <p class="claude-mockup-working" data-query-working>
+                        <i aria-hidden="true"></i>
+                        <span>Traversing relationships and ranking cited evidence…</span>
+                      </p>
+                      <p class="claude-mockup-result-heading">
+                        <span aria-hidden="true">●</span>
+                        <b>Found 3 cited signals</b>
+                        <small>Ranked by graph confidence</small>
+                      </p>
                     </div>
-                    <p>Traversing relationships and ranking cited evidence…</p>
-                  </div>
 
-                  <div class="query-trace" data-query-trace>
-                    <span class="trace-hop">q3_call.wav</span>
-                    <span class="trace-arrow">/</span>
-                    <span class="trace-hop">ACME</span>
-                    <span class="trace-arrow">/</span>
-                    <span class="trace-hop is-cited">RISK</span>
-                  </div>
-
-                  <div class="claude-answer-head">
-                    <span class="claude-spark" aria-hidden="true">✦</span>
-                    <span>
-                      <b>Found 3 cited signals</b>
-                      <small>Ranked by graph confidence</small>
-                    </span>
-                  </div>
-
-                  <div class="query-results">
-                    <div class="result-row">
-                      <b>Renewal risk</b>
-                      <span class="result-score">0.94</span>
-                      <small><span>WAV</span> q3_call.wav</small>
-                      <span class="result-meter"><i style="--score: 94%"></i></span>
+                    <div class="claude-mockup-results">
+                      <div class="claude-mockup-result">
+                        <b>Renewal risk</b>
+                        <strong>0.94</strong>
+                        <small><span>WAV</span> q3_call.wav</small>
+                        <i><b style="--score: 94%"></b></i>
+                      </div>
+                      <div class="claude-mockup-result">
+                        <b>Pricing concern</b>
+                        <strong>0.89</strong>
+                        <small><span>CSV</span> signals.csv</small>
+                        <i><b style="--score: 89%"></b></i>
+                      </div>
+                      <div class="claude-mockup-result">
+                        <b>Owner: Priya R.</b>
+                        <strong>0.86</strong>
+                        <small><span>JSON</span> account.json</small>
+                        <i><b style="--score: 86%"></b></i>
+                      </div>
                     </div>
-                    <div class="result-row">
-                      <b>Pricing concern</b>
-                      <span class="result-score">0.89</span>
-                      <small><span>CSV</span> signals.csv</small>
-                      <span class="result-meter"><i style="--score: 89%"></i></span>
-                    </div>
-                    <div class="result-row">
-                      <b>Owner: Priya R.</b>
-                      <span class="result-score">0.86</span>
-                      <small><span>JSON</span> account.json</small>
-                      <span class="result-meter"><i style="--score: 86%"></i></span>
-                    </div>
-                  </div>
-                </div>
 
-                <div class="evidence-summary">
-                  <span><b>3</b> sources</span>
-                  <span><b>2</b> hops</span>
-                  <span><b>1.8k</b> ctx</span>
-                  <em>CITED</em>
+                    <p class="claude-mockup-followup">Want different language or task? Say word.</p>
+                    <p class="claude-mockup-timing"><span aria-hidden="true">∗</span> Worked for 4s</p>
+                  </div>
+
+                  <div class="claude-mockup-prompt">
+                    <span>&gt;</span>
+                    <i aria-hidden="true"></i>
+                  </div>
+
+                  <div class="claude-mockup-status">
+                    <b>[CAVEMAN]</b>
+                    <span><i aria-hidden="true">Ⅱ</i> manual mode on · ← for agents</span>
+                  </div>
                 </div>
               </div>
             </article>
@@ -306,43 +307,28 @@
       <div class="benefit-shell">
         <header class="benefit-header">
           <div>
-            <p class="benefit-eyebrow"><i aria-hidden="true"></i> BENEFIT HIGHLIGHTS</p>
             <h2 id="benefit-title">More context.<br />Less overhead.</h2>
           </div>
-          <p>
-            Performance targets for a graph layer designed to make multimodal
-            context faster to traverse and lighter to carry.
-          </p>
         </header>
 
         <div class="benefit-grid">
           <article class="benefit-card benefit-card-performance" data-benefit-card>
-            <div class="benefit-card-top">
-              <span><i aria-hidden="true">↗</i> PERFORMANCE TARGET</span>
-              <em>01</em>
-            </div>
             <div class="benefit-metric">
-              <small>UP TO</small>
+              <span class="visually-hidden">Target: up to</span>
               <strong><span data-benefit-count="10">10</span><sup>×</sup></strong>
             </div>
-            <h3>Faster graph retrieval.</h3>
-            <p>Aspirational target — not a proven benchmark.</p>
+            <h3>Faster retrieval.</h3>
             <div class="velocity-bars" aria-hidden="true">
               <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
             </div>
           </article>
 
           <article class="benefit-card benefit-card-efficiency" data-benefit-card>
-            <div class="benefit-card-top">
-              <span><i aria-hidden="true">◌</i> EFFICIENCY TARGET</span>
-              <em>02</em>
-            </div>
             <div class="benefit-metric">
-              <small>UP TO</small>
+              <span class="visually-hidden">Target: up to</span>
               <strong><span data-benefit-count="40">40</span><sup>%</sup></strong>
             </div>
             <h3>Fewer tokens.</h3>
-            <p>Aspirational target — not a proven benchmark.</p>
             <div class="token-field" aria-label="Ten token units reducing to six">
               <i></i><i></i><i></i><i></i><i></i><i></i>
               <i class="is-saved"></i><i class="is-saved"></i><i class="is-saved"></i><i class="is-saved"></i>
@@ -359,21 +345,15 @@
             aria-controls="multimodal-dialog"
             aria-expanded="false"
           >
-            <div class="benefit-card-top">
-              <span><i aria-hidden="true">✦</i> BY DESIGN</span>
-              <em>03</em>
-            </div>
             <div class="benefit-metric benefit-metric-flow" aria-label="Five modalities into one graph">
               <strong><span>05</span><i>→</i><span>01</span></strong>
-              <small>MODALITIES / CONTEXT GRAPH</small>
             </div>
-            <h3>Multimodal by design.</h3>
-            <p>Text, tables, images, audio, and video into one queryable context graph.</p>
+            <h3>Five modalities. One graph.</h3>
             <div class="modality-pills" aria-hidden="true">
               <span>TXT</span><span>CSV</span><span>IMG</span><span>WAV</span><span>MP4</span>
               <i><b></b></i>
             </div>
-            <span class="benefit-expand-hint" aria-hidden="true">EXPAND <i>↗</i></span>
+            <span class="benefit-expand-hint"><span class="visually-hidden">Open details</span><i aria-hidden="true">↗</i></span>
           </article>
         </div>
       </div>
