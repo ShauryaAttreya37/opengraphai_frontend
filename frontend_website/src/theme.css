@@ -46,6 +46,10 @@
   --signal-rgb: 162 246 73;
   --signal-contrast: #0d100b;
 
+  /* --signal is the ground here, so the headline cannot use it. */
+  --headline: #24401a;
+  --headline-rgb: 36 64 26;
+
   --cited: #a2f649;
   --cited-rgb: 162 246 73;
   --cited-contrast: #0d100b;
@@ -102,6 +106,11 @@
   --signal-rgb: 229 84 53;
   --signal-contrast: #2b0c05;
 
+  /* Deeper and less saturated than --signal. At hero scale the button orange
+     vibrates against the warm ground; this sits on it without buzzing. */
+  --headline: #a83c14;
+  --headline-rgb: 168 60 20;
+
   --cited: #2457d6;
   --cited-rgb: 36 87 214;
   --cited-contrast: #ffffff;
@@ -157,6 +166,9 @@
   --signal: #ff8a3d;
   --signal-rgb: 255 138 61;
   --signal-contrast: #2a1200;
+
+  --headline: #ff8a3d;
+  --headline-rgb: 255 138 61;
 
   --cited: #7de3d2;
   --cited-rgb: 125 227 210;

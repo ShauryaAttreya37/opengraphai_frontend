@@ -351,7 +351,7 @@ body {
 
 .title-fallback {
   display: block;
-  color: var(--signal);
+  color: var(--headline);
   font-family: "Pixelify Sans", monospace;
   font-size: clamp(44px, 11vw, 180px);
   font-weight: 700;

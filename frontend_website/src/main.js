@@ -31,13 +31,13 @@ function themeToken(name, fallback) {
 
 const groundInk = () => themeToken("--ground-ink", "#000000");
 const groundInkRgb = () => themeToken("--ground-ink-rgb", "0 0 0").replace(/\s+/g, ", ");
-const signalInk = () => themeToken("--signal", "#e55435");
-const signalInkRgb = () => themeToken("--signal-rgb", "229 84 53").replace(/\s+/g, ", ");
+const headlineInk = () => themeToken("--headline", "#a83c14");
+const headlineInkRgb = () => themeToken("--headline-rgb", "168 60 20").replace(/\s+/g, ", ");
 
 // The tagline's dots leave orange and land on an ink-coloured heading, so the
 // morph has to carry the colour across or it snaps at the end.
 function mixInk(progress) {
-  const from = signalInkRgb().split(",").map(Number);
+  const from = headlineInkRgb().split(",").map(Number);
   const to = groundInkRgb().split(",").map(Number);
   const channel = (index) => Math.round(from[index] + (to[index] - from[index]) * progress);
   return `rgb(${channel(0)}, ${channel(1)}, ${channel(2)})`;
@@ -152,7 +152,7 @@ function revealPixelTitle() {
       translateX: [Math.cos(angle) * distance, 0],
       translateY: [Math.sin(angle) * distance, 0],
       scale: [0.2 + random() * 0.35, 1],
-      fill: ["rgba(0, 0, 0, 0)", signalInk()],
+      fill: ["rgba(0, 0, 0, 0)", headlineInk()],
       strokeWidth: [0.28, 0],
       strokeOpacity: [1, 0],
       duration: 460,
@@ -164,7 +164,7 @@ function revealPixelTitle() {
   window.setTimeout(() => {
     pixelElements.forEach((pixel) => {
       pixel.style.opacity = "1";
-      pixel.style.fill = signalInk();
+      pixel.style.fill = headlineInk();
       pixel.style.strokeOpacity = "0";
       pixel.style.removeProperty("transform");
     });
@@ -201,7 +201,7 @@ function initialisePixelMorph(titleSvg) {
   let viewWidth = 0;
   let viewHeight = 0;
   let lastProgress = -1;
-  let measureQueued = false;
+  let queuedFrame = 0;
 
   const clamp = (value) => Math.min(Math.max(value, 0), 1);
   const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -352,7 +352,6 @@ function initialisePixelMorph(titleSvg) {
   }
 
   function update() {
-    measureQueued = false;
     if (!pairs.length) return;
 
     const progress = clamp((window.scrollY - scrollStart) / (scrollEnd - scrollStart));
@@ -368,10 +367,16 @@ function initialisePixelMorph(titleSvg) {
     if (morphing) render(progress);
   }
 
+  // The frame handle doubles as the "already queued" flag. Holding a raw
+  // boolean latched the effect off for good: a frame requested while the tab
+  // was hidden never fires, so the flag never cleared and every later scroll
+  // returned early. Keeping the handle lets visibilitychange below clear it.
   function queueUpdate() {
-    if (measureQueued) return;
-    measureQueued = true;
-    requestAnimationFrame(update);
+    if (queuedFrame) return;
+    queuedFrame = requestAnimationFrame(() => {
+      queuedFrame = 0;
+      update();
+    });
   }
 
   function remeasure() {
@@ -390,6 +395,15 @@ function initialisePixelMorph(titleSvg) {
   };
   window.addEventListener("scroll", queueUpdate, { passive: true });
   window.addEventListener("resize", remeasure, { passive: true });
+  // Coming back to a backgrounded tab: drop the frame that never fired and
+  // resync to wherever the page was scrolled while we were away.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    if (queuedFrame) cancelAnimationFrame(queuedFrame);
+    queuedFrame = 0;
+    lastProgress = -1;
+    queueUpdate();
+  });
   if (document.fonts?.ready) document.fonts.ready.then(remeasure);
 
   return { remeasure };
