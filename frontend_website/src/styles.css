@@ -349,15 +349,16 @@ body {
   grid-area: 1 / 1;
 }
 
+/* Shown until the canvas has drawn, and whenever JS never runs. Matches the
+   canvas type so the swap is invisible. */
 .title-fallback {
   display: block;
   color: var(--headline);
-  font-family: "Pixelify Sans", monospace;
+  font-family: var(--display);
   font-size: clamp(44px, 11vw, 180px);
   font-weight: 700;
-  line-height: 0.78;
-  letter-spacing: -0.065em;
-  text-transform: uppercase;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
@@ -371,44 +372,18 @@ body {
   text-wrap: balance;
 }
 
-.drawable-title {
+.headline-canvas {
   display: none;
   width: 100%;
   height: auto;
-  overflow: visible;
-  shape-rendering: crispEdges;
 }
 
-.title-draw-ready .drawable-title {
+.title-draw-ready .headline-canvas {
   display: block;
 }
 
 .title-draw-ready .title-fallback {
   display: none;
-}
-
-.title-pixel {
-  fill: rgba(0, 0, 0, 0);
-  stroke: var(--ink);
-  stroke-width: 0.14;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.title-glyph {
-  --pixel-weight: 1;
-}
-
-.drawable-title.is-kinetic {
-  cursor: url("/assets/pixel-arrow-cursor.svg") 4 3, auto;
-}
-
-.drawable-title.is-kinetic .title-pixel {
-  transform: scale(var(--pixel-weight));
-  transition: transform 110ms ease-out;
-  will-change: transform;
 }
 
 /* Only painted while the wordmark is mid-flight to the heading. At either end
@@ -430,7 +405,7 @@ body {
   opacity: 1;
 }
 
-.is-morphing .drawable-title,
+.is-morphing .headline-canvas,
 .is-morphing .compiler-intro h2 {
   visibility: hidden;
 }
@@ -2723,13 +2698,8 @@ body.modal-open .to-top-button {
     padding-top: 56px;
   }
 
-  .drawable-title {
-    width: calc(100% + 8px);
-    margin-left: -4px;
-  }
-
   .title-fallback {
-    font-size: clamp(62px, 24vw, 122px);
+    font-size: clamp(34px, 13vw, 64px);
     line-height: 0.86;
   }
 

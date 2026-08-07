@@ -1,27 +1,6 @@
 import { animate, createTimeline, stagger, svg } from "animejs";
 import "./styles.css";
 
-const glyphs = {
-  A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
-  // C and S mirror O's rounded corners so the tagline sits with the same weight
-  // as the wordmark did. T and X stay open-countered at display size.
-  C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
-  E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
-  // G matches O's rounded top-left; N steps its diagonal one cell at a time.
-  // The old forms squared G off and doubled N's diagonal, which filled in the
-  // counters and turned both into blocks at display size.
-  G: ["01110", "10001", "10000", "10111", "10001", "10001", "01110"],
-  H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"],
-  I: ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
-  N: ["10001", "11001", "10101", "10101", "10101", "10011", "10001"],
-  O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
-  P: ["11110", "10001", "10001", "11110", "10000", "10000", "10000"],
-  R: ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
-  S: ["01111", "10000", "10000", "01110", "00001", "10001", "01110"],
-  T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
-  X: ["10001", "10001", "01010", "00100", "01010", "10001", "10001"],
-};
-
 // Colours live in theme.css so a palette flip is one data-theme attribute.
 // Canvas and inline SVG fills can't read var(), so resolve the token once here.
 function themeToken(name, fallback) {
@@ -43,134 +22,97 @@ function mixInk(progress) {
   return `rgb(${channel(0)}, ${channel(1)}, ${channel(2)})`;
 }
 
-function seededRandom(seed = 0x0a11ce) {
-  let value = seed >>> 0;
-  return () => {
-    value += 0x6d2b79f5;
-    let result = value;
-    result = Math.imul(result ^ (result >>> 15), result | 1);
-    result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
-    return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
-  };
+const HEADLINE_TEXT = "Context graphs";
+// Two on, two off at device scale. Fine enough to read as texture rather than
+// as stripes competing with the letterforms.
+const SCANLINE_PERIOD = 4;
+
+function scanlinePattern(context, ink) {
+  const tile = document.createElement("canvas");
+  tile.width = SCANLINE_PERIOD;
+  tile.height = SCANLINE_PERIOD;
+  const tileContext = tile.getContext("2d");
+  tileContext.fillStyle = ink;
+  tileContext.fillRect(0, 0, SCANLINE_PERIOD, SCANLINE_PERIOD / 2);
+  tileContext.globalAlpha = 0.32;
+  tileContext.fillRect(0, SCANLINE_PERIOD / 2, SCANLINE_PERIOD, SCANLINE_PERIOD / 2);
+  return context.createPattern(tile, "repeat");
 }
 
-function shuffle(values, random) {
-  const result = [...values];
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
-  }
-  return result;
+// Real type on a canvas so the glyphs can be filled with a pattern. The morph
+// samples this canvas the same way it samples the section heading, so both
+// ends of the effect come from one code path.
+function drawHeadline(canvas, force = false) {
+  const host = canvas.parentElement;
+  const cssWidth = host.clientWidth;
+  if (!cssWidth) return false;
+  // Redrawing changes the canvas height, which resizes the host, which fires
+  // the observer again. Bailing on an unchanged width stops that loop.
+  if (!force && canvas.dataset.drawnWidth === String(cssWidth)) return false;
+
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const family = getComputedStyle(document.documentElement).getPropertyValue("--display").trim();
+
+  // Size to fill the available width, then cap so it never dwarfs the tail.
+  context.font = `700 100px ${family}`;
+  const unitWidth = context.measureText(HEADLINE_TEXT).width;
+  const fontSize = Math.min((cssWidth / unitWidth) * 100, 180);
+  const cssHeight = Math.ceil(fontSize * 1.06);
+
+  // Height only. The width comes from the stylesheet so the element stays
+  // responsive even if a redraw is ever missed.
+  canvas.style.height = `${cssHeight}px`;
+  canvas.width = Math.round(cssWidth * ratio);
+  canvas.height = Math.round(cssHeight * ratio);
+  canvas.dataset.drawnWidth = String(cssWidth);
+
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.clearRect(0, 0, cssWidth, cssHeight);
+  context.font = `700 ${fontSize}px ${family}`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillStyle = scanlinePattern(context, headlineInk());
+  context.fillText(HEADLINE_TEXT, cssWidth / 2, cssHeight / 2);
+  return true;
 }
 
-// Cells overlap slightly so the dots weld into continuous strokes. That solid
-// slab look is the wordmark's character - legibility comes from the tracking
-// below, not from breaking the strokes apart.
-const PIXEL_DOT = 1.1;
-const PIXEL_INSET = (1 - PIXEL_DOT) / 2;
+function revealHeadline() {
+  const canvas = document.querySelector("#headline-canvas");
+  if (!canvas) return;
 
-function buildPixelTitle(text, target) {
-  const namespace = "http://www.w3.org/2000/svg";
-  const tracking = 0.95;
-  const wordGap = 2.9;
-  const pixelElements = [];
-  const glyphElements = [];
-  let cursor = 0;
+  let morph = null;
 
-  for (const character of text) {
-    if (character === " ") {
-      cursor += wordGap;
-      continue;
+  // The first draw can land before the hero has a width - a collapsed pane, a
+  // hidden tab, fonts still loading. Bailing there would leave the headline
+  // blank for good, so the listeners go on regardless and the draw retries.
+  const redraw = (force = false) => {
+    if (!drawHeadline(canvas, force)) return;
+    if (morph) {
+      morph.remeasure();
+      return;
     }
-
-    const glyph = glyphs[character];
-    if (!glyph) continue;
-
-    const glyphGroup = document.createElementNS(namespace, "g");
-    glyphGroup.classList.add("title-glyph");
-    target.append(glyphGroup);
-    glyphElements.push(glyphGroup);
-
-    glyph.forEach((row, y) => {
-      [...row].forEach((pixel, x) => {
-        if (pixel !== "1") return;
-        const rectangle = document.createElementNS(namespace, "rect");
-        rectangle.setAttribute("x", cursor + x + PIXEL_INSET);
-        rectangle.setAttribute("y", y + PIXEL_INSET);
-        rectangle.setAttribute("width", String(PIXEL_DOT));
-        rectangle.setAttribute("height", String(PIXEL_DOT));
-        rectangle.classList.add("title-pixel");
-        glyphGroup.append(rectangle);
-        pixelElements.push(rectangle);
-      });
-    });
-
-    cursor += glyph[0].length + tracking;
-  }
-
-  return { glyphElements, pixelElements, width: Math.max(cursor - tracking, 1) };
-}
-
-function revealPixelTitle() {
-  const title = document.querySelector("#drawable-title");
-  const target = document.querySelector("#title-pixels");
-  if (!title || !target) return;
-
-  const { glyphElements, pixelElements, width } = buildPixelTitle("CONTEXT GRAPHS", target);
-  const layoutWidth = width + 6;
-  target.setAttribute("transform", `translate(${(layoutWidth - width) / 2} 0)`);
-  title.setAttribute("viewBox", `0 0 ${layoutWidth} 7`);
-  if (!pixelElements.length) return;
-
-  const random = seededRandom();
-  const drawables = svg.createDrawable(pixelElements);
-  const order = shuffle(pixelElements.map((_, index) => index), random);
-  let finalAnimationEnd = 0;
-
-  document.documentElement.classList.add("title-draw-ready");
-  const morph = initialisePixelMorph(title);
-
-  order.forEach((pixelIndex, arrivalIndex) => {
-    const pixel = pixelElements[pixelIndex];
-    const drawable = drawables[pixelIndex];
-    const distance = 4 + random() * 9;
-    const angle = random() * Math.PI * 2;
-    const delay = 360 + arrivalIndex * 10 + random() * 55;
-    finalAnimationEnd = Math.max(finalAnimationEnd, delay + 460);
-
-    drawable.draw = "0 0";
-
-    animate(drawable, {
-      draw: ["0 0", "0 1"],
-      duration: 260,
-      delay,
-      ease: "outQuad",
-    });
-
-    animate(pixel, {
+    document.documentElement.classList.add("title-draw-ready");
+    morph = initialisePixelMorph(canvas);
+    animate(canvas, {
       opacity: [0, 1],
-      translateX: [Math.cos(angle) * distance, 0],
-      translateY: [Math.sin(angle) * distance, 0],
-      scale: [0.2 + random() * 0.35, 1],
-      fill: ["rgba(0, 0, 0, 0)", headlineInk()],
-      strokeWidth: [0.28, 0],
-      strokeOpacity: [1, 0],
-      duration: 460,
-      delay,
-      ease: "outBack(1.35)",
+      translateY: [18, 0],
+      duration: 760,
+      delay: 260,
+      ease: "outExpo",
     });
-  });
+  };
 
-  window.setTimeout(() => {
-    pixelElements.forEach((pixel) => {
-      pixel.style.opacity = "1";
-      pixel.style.fill = headlineInk();
-      pixel.style.strokeOpacity = "0";
-      pixel.style.removeProperty("transform");
-    });
-    initialiseKineticPixelTitle(title, glyphElements);
-    morph?.remeasure();
-  }, finalAnimationEnd + 260);
+  // ResizeObserver rather than window.resize: it also catches the hero being
+  // laid out late, which window.resize never reports.
+  new ResizeObserver(() => redraw()).observe(canvas.parentElement);
+  // Belt and braces: the observer is delivered on the rendering pipeline, so a
+  // plain resize listener covers the cases where that is throttled. The width
+  // guard in drawHeadline makes the duplicate call free.
+  window.addEventListener("resize", () => redraw(), { passive: true });
+  // Fonts change the measured width, so that one redraw has to be forced.
+  if (document.fonts?.ready) document.fonts.ready.then(() => redraw(true));
+  redraw();
 }
 
 // Scroll-driven morph: the assembled wordmark comes apart and the same dots
@@ -181,9 +123,9 @@ const PIXEL_MORPH_ENABLED = true;
 // the scroll range spent staggering; the rest is a dot's own travel time.
 const MORPH_STAGGER = 0.3;
 
-function initialisePixelMorph(titleSvg) {
+function initialisePixelMorph(headlineCanvas) {
   const heading = document.querySelector(".compiler-intro h2");
-  if (!PIXEL_MORPH_ENABLED || !titleSvg || !heading) return;
+  if (!PIXEL_MORPH_ENABLED || !headlineCanvas || !heading) return;
   const forceMorph = new URLSearchParams(window.location.search).has("morph");
   if (!forceMorph && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -206,31 +148,39 @@ function initialisePixelMorph(titleSvg) {
   const clamp = (value) => Math.min(Math.max(value, 0), 1);
   const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
-  // Where the wordmark's dots belong, in document space so they keep their
-  // place while the hero scrolls away. Read from the rect attributes through
-  // the group's screen matrix rather than getBoundingClientRect: the latter
-  // reports a dot's *animated* position, so any pixel still settling from the
-  // intro would be baked into the source cloud at the wrong spot.
-  function readTitlePoints() {
-    const group = titleSvg.querySelector("#title-pixels");
-    const matrix = group?.getScreenCTM();
-    if (!matrix) return [];
-    const scale = Math.hypot(matrix.a, matrix.b) || 1;
+  // Sample the drawn headline back into dots, in document space so they keep
+  // their place while the hero scrolls away. The scanline pattern leaves gaps
+  // inside the glyphs, so the alpha floor is low enough to catch the dimmer
+  // band and keep the letterforms solid.
+  function readTitlePoints(step) {
+    const box = headlineCanvas.getBoundingClientRect();
+    if (!box.width || !canvasHasPixels()) return [];
+    const context = headlineCanvas.getContext("2d", { willReadFrequently: true });
+    const { data } = context.getImageData(0, 0, headlineCanvas.width, headlineCanvas.height);
+    const scale = box.width / headlineCanvas.width;
+    const deviceStep = Math.max(1, Math.round(step / scale));
+    const points = [];
 
-    return [...group.querySelectorAll(".title-pixel")].map((pixel) => {
-      const size = parseFloat(pixel.getAttribute("width"));
-      const cx = parseFloat(pixel.getAttribute("x")) + size / 2;
-      const cy = parseFloat(pixel.getAttribute("y")) + size / 2;
-      return {
-        x: matrix.a * cx + matrix.c * cy + matrix.e + window.scrollX,
-        y: matrix.b * cx + matrix.d * cy + matrix.f + window.scrollY,
-        size: size * scale,
-      };
-    });
+    for (let y = Math.floor(deviceStep / 2); y < headlineCanvas.height; y += deviceStep) {
+      for (let x = Math.floor(deviceStep / 2); x < headlineCanvas.width; x += deviceStep) {
+        if (data[(y * headlineCanvas.width + x) * 4 + 3] > 40) {
+          points.push({
+            x: box.left + window.scrollX + x * scale,
+            y: box.top + window.scrollY + y * scale,
+            size: step * 0.82,
+          });
+        }
+      }
+    }
+    return points;
   }
 
-  // The bitmap font has thirteen glyphs, so the heading cannot be spelled with it.
-  // Draw the real heading offscreen instead and read back where its ink lands.
+  function canvasHasPixels() {
+    return headlineCanvas.width > 0 && headlineCanvas.height > 0;
+  }
+
+  // The heading is real DOM text, so draw it offscreen and read back where its
+  // ink lands rather than trying to spell it with the headline canvas.
   function readHeadingPoints(step) {
     const box = heading.getBoundingClientRect();
     const styles = getComputedStyle(heading);
@@ -296,9 +246,10 @@ function initialisePixelMorph(titleSvg) {
 
     const wasMorphing = root.classList.contains("is-morphing");
     root.classList.remove("is-morphing");
-    const source = readTitlePoints();
-    // Coarser grid on small screens so the dot count stays sane.
-    const step = window.innerWidth < 700 ? 5 : 7;
+    // At 7 the heading read as blocks rather than letters. 4 is where the
+    // strokes hold their shape, and fillRect at ~1200 dots is still nothing.
+    const step = 4;
+    const source = readTitlePoints(step + 2);
     const target = readHeadingPoints(step);
     if (wasMorphing) root.classList.add("is-morphing");
 
@@ -407,32 +358,6 @@ function initialisePixelMorph(titleSvg) {
   if (document.fonts?.ready) document.fonts.ready.then(remeasure);
 
   return { remeasure };
-}
-
-function initialiseKineticPixelTitle(title, glyphElements) {
-  let animationFrame = 0;
-  const resetWeights = () => {
-    glyphElements.forEach((glyph) => glyph.style.setProperty("--pixel-weight", "1"));
-  };
-
-  title.addEventListener("pointermove", (event) => {
-    cancelAnimationFrame(animationFrame);
-    animationFrame = requestAnimationFrame(() => {
-      const influence = Math.max(title.getBoundingClientRect().width * 0.18, 120);
-
-      glyphElements.forEach((glyph) => {
-        const bounds = glyph.getBoundingClientRect();
-        const center = bounds.left + bounds.width / 2;
-        const distance = Math.min(Math.abs(event.clientX - center), influence);
-        const proximity = 1 - distance / influence;
-        const weight = 1 + proximity ** 1.7 * 0.22;
-        glyph.style.setProperty("--pixel-weight", weight.toFixed(3));
-      });
-    });
-  });
-
-  title.addEventListener("pointerleave", resetWeights);
-  title.classList.add("is-kinetic");
 }
 
 let activeScrollFrame = 0;
@@ -1754,7 +1679,7 @@ function initialiseContactForm() {
   });
 }
 
-revealPixelTitle();
+revealHeadline();
 initialiseContactForm();
 initialiseMorphicNavbar();
 initialiseScrollParallax();
