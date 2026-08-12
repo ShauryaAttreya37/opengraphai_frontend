@@ -10,8 +10,8 @@ function themeToken(name, fallback) {
 
 const groundInk = () => themeToken("--ground-ink", "#000000");
 const groundInkRgb = () => themeToken("--ground-ink-rgb", "0 0 0").replace(/\s+/g, ", ");
-const headlineInk = () => themeToken("--headline", "#a83c14");
-const headlineInkRgb = () => themeToken("--headline-rgb", "168 60 20").replace(/\s+/g, ", ");
+const headlineInk = () => themeToken("--headline", "#111317");
+const headlineInkRgb = () => themeToken("--headline-rgb", "17 19 23").replace(/\s+/g, ", ");
 
 // The tagline's dots leave orange and land on an ink-coloured heading, so the
 // morph has to carry the colour across or it snaps at the end.
@@ -23,19 +23,31 @@ function mixInk(progress) {
 }
 
 const HEADLINE_TEXT = "Context graphs";
-// Two on, two off at device scale. Fine enough to read as texture rather than
-// as stripes competing with the letterforms.
-const SCANLINE_PERIOD = 4;
-
-function scanlinePattern(context, ink) {
+// Alternating monochrome bands follow a sine curve. Tile repeats cleanly in
+// both directions, keeping the wave dense enough to read as a letter texture.
+function wavePattern(context) {
   const tile = document.createElement("canvas");
-  tile.width = SCANLINE_PERIOD;
-  tile.height = SCANLINE_PERIOD;
+  tile.width = 120;
+  tile.height = 36;
   const tileContext = tile.getContext("2d");
-  tileContext.fillStyle = ink;
-  tileContext.fillRect(0, 0, SCANLINE_PERIOD, SCANLINE_PERIOD / 2);
-  tileContext.globalAlpha = 0.32;
-  tileContext.fillRect(0, SCANLINE_PERIOD / 2, SCANLINE_PERIOD, SCANLINE_PERIOD / 2);
+  tileContext.fillStyle = "#111317";
+  tileContext.fillRect(0, 0, tile.width, tile.height);
+  tileContext.fillStyle = "#f4f2ed";
+
+  for (let row = -12; row <= tile.height + 12; row += 12) {
+    tileContext.beginPath();
+    for (let x = 0; x <= tile.width; x += 2) {
+      const y = row + Math.sin((x / tile.width) * Math.PI * 2) * 3.5;
+      if (x === 0) tileContext.moveTo(x, y);
+      else tileContext.lineTo(x, y);
+    }
+    for (let x = tile.width; x >= 0; x -= 2) {
+      const y = row + 5.5 + Math.sin((x / tile.width) * Math.PI * 2) * 3.5;
+      tileContext.lineTo(x, y);
+    }
+    tileContext.closePath();
+    tileContext.fill();
+  }
   return context.createPattern(tile, "repeat");
 }
 
@@ -72,7 +84,7 @@ function drawHeadline(canvas, force = false) {
   context.font = `700 ${fontSize}px ${family}`;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillStyle = scanlinePattern(context, headlineInk());
+  context.fillStyle = wavePattern(context);
   context.fillText(HEADLINE_TEXT, cssWidth / 2, cssHeight / 2);
   return true;
 }
@@ -524,8 +536,6 @@ function initialiseScrollParallax() {
   };
 
   register(".graph-background", 0.13, 74);
-  register(".compiler-header", 0.042, 34);
-  register(".compiler-rail", 0.018, 18);
   register(".benefit-header", 0.048, 38);
   register(".benefit-card", [0.018, 0.03, 0.022], 22);
   register(".command-header", 0.042, 34);
@@ -1685,7 +1695,6 @@ initialiseMorphicNavbar();
 initialiseScrollParallax();
 initialiseToTopButton();
 initialiseGraphBackground();
-initialiseCompilerRail();
 initialiseBenefitHighlights();
 initialiseTerminalDemo();
 initialiseMultimodalExpansion();

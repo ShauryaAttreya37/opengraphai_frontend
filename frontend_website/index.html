@@ -19,10 +19,10 @@
   <body>
     <nav class="morphic-navbar" aria-label="Primary navigation">
       <div class="morphic-glass">
-        <a class="morphic-link" href="#how-it-works">How it works</a>
-        <a class="morphic-link" href="#use-cases">Use cases</a>
-        <a class="morphic-link" href="#resources">Resources</a>
-        <a class="morphic-link" href="#about">About</a>
+        <a class="morphic-link" href="/how-it-works/">How it works</a>
+        <a class="morphic-link" href="/use-cases/">Use cases</a>
+        <a class="morphic-link" href="/resources/">Resources</a>
+        <a class="morphic-link" href="/about/">About</a>
       </div>
     </nav>
 
@@ -124,7 +124,73 @@
           </div>
         </header>
 
-        <div class="compiler-rail" data-active-stage="0">
+        <div class="compiler-bento-grid" aria-label="How OpenGraph AI turns sources into agent-ready context">
+          <article class="compiler-bento-card bento-ingest">
+            <div class="bento-card-copy">
+              <p class="bento-card-kicker">01 · INGEST</p>
+              <h3>Bring every kind of context.</h3>
+              <p>Documents, tables, recordings and images enter one provenance-aware pipeline.</p>
+            </div>
+            <div class="bento-source-deck" aria-hidden="true">
+              <span style="--deck-index: 0"><b>PDF</b><small>renewal.pdf</small></span>
+              <span style="--deck-index: 1"><b>WAV</b><small>q3_call.wav</small></span>
+              <span style="--deck-index: 2"><b>CSV</b><small>signals.csv</small></span>
+              <span style="--deck-index: 3"><b>IMG</b><small>whiteboard.png</small></span>
+            </div>
+          </article>
+
+          <article class="compiler-bento-card bento-resolve">
+            <div class="bento-card-copy">
+              <p class="bento-card-kicker">02 · RESOLVE</p>
+              <h3>Context becomes connected.</h3>
+              <p>Entities, relationships and citations resolve into one traversable graph.</p>
+            </div>
+            <div class="bento-graph" aria-hidden="true">
+              <i class="bento-edge edge-one"></i>
+              <i class="bento-edge edge-two"></i>
+              <i class="bento-edge edge-three"></i>
+              <span class="bento-node node-document">DOC</span>
+              <span class="bento-node node-person">PRIYA</span>
+              <span class="bento-node node-risk">RISK</span>
+              <span class="bento-node node-core">ACME</span>
+            </div>
+          </article>
+
+          <article class="compiler-bento-card bento-query">
+            <div class="bento-card-copy">
+              <p class="bento-card-kicker">03 · QUERY</p>
+              <h3>Give Claude Code context it can traverse.</h3>
+              <p>Ask in natural language. OpenGraph returns relationships, confidence and the citation path—not loose passages.</p>
+              <div class="bento-query-proof" aria-label="Query result summary">
+                <span><b>03</b> cited signals</span>
+                <span><b>0.94</b> graph confidence</span>
+              </div>
+            </div>
+
+            <div class="bento-claude-window" aria-label="Static Claude Code mockup querying OpenGraph AI">
+              <div class="bento-window-bar">
+                <span><i></i><i></i><i></i></span>
+                <b>Claude Code</b>
+                <small>OpenGraph MCP · connected</small>
+              </div>
+              <div class="bento-terminal-body">
+                <p class="bento-terminal-command"><span>&gt;</span> which renewals are at risk?</p>
+                <p class="bento-terminal-tool">● opengraph.query_graph</p>
+                <div class="bento-terminal-result">
+                  <p><b>Found 3 cited signals</b><small>ranked by graph confidence</small></p>
+                  <ul>
+                    <li><span>Renewal risk</span><b>0.94</b><small>q3_call.wav</small></li>
+                    <li><span>Pricing concern</span><b>0.89</b><small>signals.csv</small></li>
+                    <li><span>Owner: Priya R.</span><b>0.86</b><small>account.json</small></li>
+                  </ul>
+                </div>
+                <p class="bento-terminal-prompt"><span>&gt;</span><i></i></p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="compiler-rail" data-active-stage="0" hidden>
           <div class="pipeline-orbit" aria-hidden="true">
             <svg class="pipeline-svg" viewBox="0 0 1200 96" preserveAspectRatio="xMidYMid meet">
               <path
@@ -539,20 +605,21 @@
 
         <nav class="footer-column" aria-label="Product">
           <p class="footer-heading">PRODUCT</p>
-          <a href="#how-it-works">How it works</a>
-          <a href="#use-cases">Benefits</a>
+          <a href="/how-it-works/">How it works</a>
+          <a href="/use-cases/">Use cases</a>
           <a href="#playground">Playground</a>
         </nav>
 
         <nav class="footer-column" aria-label="Company">
           <p class="footer-heading">COMPANY</p>
-          <a href="#about">About</a>
+          <a href="/about/">About</a>
           <a href="https://www.linkedin.com/company/opengraph-ai/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
           <a href="https://opengraphai.io" target="_blank" rel="noopener noreferrer">Website</a>
         </nav>
 
         <nav class="footer-column" aria-label="Developers">
           <p class="footer-heading">DEVELOPERS</p>
+          <a href="/resources/">Resources</a>
           <a href="https://github.com/OpenGraphAI/opengraph-ai#readme" target="_blank" rel="noopener noreferrer">Documentation</a>
           <a href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer">GitHub</a>
         </nav>

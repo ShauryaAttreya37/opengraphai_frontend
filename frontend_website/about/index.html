@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" data-theme="paper">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="OpenGraph AI is building the open context layer for reasoning agents." />
+    <title>About — OpenGraph AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <site-header></site-header>
+    <main class="og-page-main">
+      <header class="og-page-hero">
+        <p class="og-eyebrow">About</p>
+        <h1>The open context layer <em>for reasoning agents.</em></h1>
+        <p>Real problems live across tables, slides, recordings, screenshots, messages, and code. OpenGraph AI makes the relationships between them queryable.</p>
+        <div class="og-hero-actions">
+          <a class="og-button og-button-dark" href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer">Explore the project <span aria-hidden="true">↗</span></a>
+          <a class="og-button og-button-outline" href="#contact">Talk to us</a>
+        </div>
+      </header>
+
+      <section class="og-section" aria-labelledby="story-title">
+        <div class="og-section-heading">
+          <div>
+            <p class="og-eyebrow">01 · why</p>
+            <h2 id="story-title">Retrieval should preserve relationships.</h2>
+          </div>
+          <p>Retrieval-augmented agents often flatten real context into text chunks. That loses the structure connecting people, claims, events, sources, and evidence. OpenGraph AI keeps that structure available as a graph.</p>
+        </div>
+        <div class="og-module-grid">
+          <article class="og-module">
+            <div class="og-module-status"><span>Open</span><span>01</span></div>
+            <h3>Open by default</h3>
+            <p>Self-host the core, inspect every step, and keep your graph portable.</p>
+          </article>
+          <article class="og-module">
+            <div class="og-module-status"><span>Multimodal</span><span>02</span></div>
+            <h3>Any readable source</h3>
+            <p>Text, tables, images, audio, video, and code share one context model.</p>
+          </article>
+          <article class="og-module">
+            <div class="og-module-status"><span>Agent-native</span><span>03</span></div>
+            <h3>One tool to query</h3>
+            <p>Agents ask for relevant relationships and receive evidence-backed context.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="og-section og-split" id="contact" aria-labelledby="principles-title">
+        <div class="og-split-copy">
+          <p class="og-eyebrow">02 · principles</p>
+          <h2 id="principles-title">Built to compose, not control.</h2>
+          <ul class="og-principles">
+            <li>
+              <div><h3>Open by default</h3><p>Inspect and self-host the core. Your graph remains portable.</p></div>
+            </li>
+            <li>
+              <div><h3>Modality-agnostic</h3><p>If a model can read it, the pipeline should be able to graph it.</p></div>
+            </li>
+            <li>
+              <div><h3>Composable</h3><p>Bring your preferred extractor, model, embeddings, and graph store.</p></div>
+            </li>
+            <li>
+              <div><h3>Agent-native</h3><p>Designed as a context tool an agent calls, not another interface it babysits.</p></div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="og-split-copy">
+          <p class="og-eyebrow">03 · contact</p>
+          <h2>Talk to us.</h2>
+          <p>Building research agents, enterprise memory, multimodal retrieval, or another graph-backed workflow? Share what you are working on.</p>
+          <form class="og-contact-form" data-contact-form>
+            <label class="og-field">
+              <span>Name</span>
+              <input name="name" autocomplete="name" maxlength="100" required />
+            </label>
+            <label class="og-field">
+              <span>Email</span>
+              <input name="email" type="email" autocomplete="email" maxlength="255" required />
+            </label>
+            <label class="og-field">
+              <span>What are you building?</span>
+              <textarea name="message" maxlength="1000" required></textarea>
+            </label>
+            <div class="og-form-footer">
+              <button class="og-button og-button-dark" type="submit">Send message <span aria-hidden="true">→</span></button>
+              <p class="og-form-status" data-contact-status role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <page-cta eyebrow="OpenGraph AI" title="Context should connect before agents reason." body="Follow the code, read the architecture, or tell us where disconnected context is slowing your agents down."></page-cta>
+    </main>
+    <site-footer></site-footer>
+    <script type="module" src="/src/content-pages.js"></script>
+  </body>
+</html>

@@ -59,12 +59,12 @@
   --shadow-rgb: 34 78 0;
 
   --code-obj: #5d7845;
-  --code-fn: #b8410a;
+  --code-fn: #214f91;
   --code-punct: #93aa80;
   --code-arg: #24401a;
 
   --code-obj-dark: #8fab74;
-  --code-fn-dark: #ff9152;
+  --code-fn-dark: #8db4ff;
   --code-punct-dark: #5f7050;
   --code-arg-dark: #d7f2b4;
 }
@@ -85,7 +85,7 @@
   --stripe-1: 255 255 255;
   --stripe-2: 205 196 180;
   --stripe-3: 220 230 255;
-  --stripe-4: 229 84 53;
+  --stripe-4: 36 87 214;
 
   --paper: #fffaf1;
   --paper-active: #ffffff;
@@ -102,14 +102,12 @@
   --panel-ink-rgb: 245 243 238;
   --panel-ink-bright: #ffffff;
 
-  --signal: #e55435;
-  --signal-rgb: 229 84 53;
-  --signal-contrast: #2b0c05;
+  --signal: #2457d6;
+  --signal-rgb: 36 87 214;
+  --signal-contrast: #ffffff;
 
-  /* Deeper and less saturated than --signal. At hero scale the button orange
-     vibrates against the warm ground; this sits on it without buzzing. */
-  --headline: #a83c14;
-  --headline-rgb: 168 60 20;
+  --headline: #111317;
+  --headline-rgb: 17 19 23;
 
   --cited: #2457d6;
   --cited-rgb: 36 87 214;
@@ -120,12 +118,12 @@
   --shadow-rgb: 60 52 40;
 
   --code-obj: #716d65;
-  --code-fn: #c43f24;
+  --code-fn: #2457d6;
   --code-punct: #aaa49a;
   --code-arg: #2457d6;
 
   --code-obj-dark: #a9b5d5;
-  --code-fn-dark: #ff866b;
+  --code-fn-dark: #8db4ff;
   --code-punct-dark: #65708f;
   --code-arg-dark: #c9d7ff;
 }
@@ -163,12 +161,12 @@
   --panel-ink-rgb: 238 241 250;
   --panel-ink-bright: #ffffff;
 
-  --signal: #ff8a3d;
-  --signal-rgb: 255 138 61;
-  --signal-contrast: #2a1200;
+  --signal: #7de3d2;
+  --signal-rgb: 125 227 210;
+  --signal-contrast: #06302a;
 
-  --headline: #ff8a3d;
-  --headline-rgb: 255 138 61;
+  --headline: #f2efe6;
+  --headline-rgb: 242 239 230;
 
   --cited: #7de3d2;
   --cited-rgb: 125 227 210;
@@ -179,12 +177,12 @@
   --shadow-rgb: 8 20 92;
 
   --code-obj: #585e70;
-  --code-fn: #c2410c;
+  --code-fn: #1430c4;
   --code-punct: #a4a9b8;
   --code-arg: #16213f;
 
   --code-obj-dark: #8fa3e8;
-  --code-fn-dark: #ff8a3d;
+  --code-fn-dark: #7de3d2;
   --code-punct-dark: #55608a;
   --code-arg-dark: #d8e3ff;
 }
