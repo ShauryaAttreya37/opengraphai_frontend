@@ -92,9 +92,9 @@ function sampleHeadlineParticles(offscreen, cssWidth, cssHeight, ratio) {
         const targetY = devY / ratio;
 
         // Three natural emergence trajectories:
-        // 1. Anchors (~25%): close to letterform for immediate silhouette
-        // 2. Ambient drift (~45%): floating in from around the heading
-        // 3. Screen sweep (~30%): random appearance across the broader hero canvas
+        // 1. Anchors (~25%): close to letterform
+        // 2. Ambient drift (~45%): floating in from around heading
+        // 3. Screen sweep (~30%): random appearance across hero canvas
         let startX, startY;
         const roll = Math.random();
         if (roll < 0.25) {
@@ -102,28 +102,30 @@ function sampleHeadlineParticles(offscreen, cssWidth, cssHeight, ratio) {
           startY = targetY + (Math.random() - 0.5) * 16;
         } else if (roll < 0.7) {
           const angle = Math.random() * Math.PI * 2;
-          const dist = 28 + Math.random() * 70;
+          const dist = 24 + Math.random() * 55;
           startX = targetX + Math.cos(angle) * dist;
-          startY = targetY + Math.sin(angle) * (dist * 0.45);
+          startY = targetY + Math.sin(angle) * (dist * 0.4);
         } else {
           const angle = Math.random() * Math.PI * 2;
-          const dist = 75 + Math.random() * 180;
+          const dist = 60 + Math.random() * 140;
           startX = Math.max(8, Math.min(cssWidth - 8, targetX + Math.cos(angle) * dist));
           startY = Math.max(4, Math.min(cssHeight - 4, targetY + Math.sin(angle) * dist));
         }
+
+        // Random birth time distributed across first 52% of animation
+        const startProgress = Math.random() * 0.52;
+        const durationProgress = 0.38 + Math.random() * 0.12;
 
         particles.push({
           targetX,
           targetY,
           startX,
           startY,
-          x: startX,
-          y: startY,
           size: step * 0.9,
-          opacity: 0,
-          scale: 0.1,
           color: `rgb(${r}, ${g}, ${b})`,
           isAccent: Math.random() < 0.08,
+          startProgress,
+          durationProgress,
         });
       }
     }
@@ -142,13 +144,11 @@ function sampleHeadlineParticles(offscreen, cssWidth, cssHeight, ratio) {
             targetY,
             startX: targetX + (Math.random() - 0.5) * 80,
             startY: targetY + (Math.random() - 0.5) * 50,
-            x: targetX,
-            y: targetY,
             size: step * 0.9,
-            opacity: 0,
-            scale: 0.1,
             color: headlineColor,
             isAccent: Math.random() < 0.08,
+            startProgress: Math.random() * 0.5,
+            durationProgress: 0.42,
           });
         }
       }
@@ -194,20 +194,46 @@ function playHeadlinePixelAnimation(canvas, targetOffscreen, cssWidth, cssHeight
 
   isHeadlineAnimating = true;
   const accentColor = themeToken("--signal", "#ff5500");
-  const shuffled = shuffle([...particles]);
+  const count = particles.length;
 
-  // Native requestAnimationFrame loop ensures smooth 60-120hz monitor refresh
+  // Single-driver object for AnimeJS ensures 120 FPS buttery-smooth performance
+  const driver = { progress: 0 };
+
   function renderPixels() {
     context.clearRect(0, 0, cssWidth, cssHeight);
-    const count = particles.length;
-    for (let i = 0; i < count; i++) {
-      const p = particles[i];
-      if (p.opacity <= 0.01) continue;
-      context.globalAlpha = Math.min(Math.max(p.opacity, 0), 1);
-      context.fillStyle = p.isAccent && p.scale < 0.85 ? accentColor : p.color;
-      const s = p.size * p.scale;
-      context.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+    const pTotal = driver.progress;
+
+    // Smooth optical blend: as particles arrive and dock, the target high-res
+    // continuous text seamlessly dissolves in between progress 0.72 and 1.0.
+    // Zero snapping - smooth seamless transition into the final text!
+    const blend = Math.min(Math.max((pTotal - 0.72) / 0.28, 0), 1);
+    if (blend > 0) {
+      context.globalAlpha = blend;
+      context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
     }
+
+    const particleOpacityMult = 1 - blend;
+    if (particleOpacityMult > 0.01) {
+      for (let i = 0; i < count; i++) {
+        const p = particles[i];
+        if (pTotal < p.startProgress) continue;
+
+        const local = Math.min((pTotal - p.startProgress) / p.durationProgress, 1);
+        // Snappy outCubic easing for quick launch and smooth glide:
+        const eased = 1 - Math.pow(1 - local, 3);
+
+        const curX = p.startX + (p.targetX - p.startX) * eased;
+        const curY = p.startY + (p.targetY - p.startY) * eased;
+        const scale = 0.2 + 0.8 * eased;
+        const alpha = (local < 0.2 ? local / 0.2 : 1) * particleOpacityMult;
+
+        context.globalAlpha = alpha;
+        context.fillStyle = (p.isAccent && local < 0.75) ? accentColor : p.color;
+        const s = p.size * scale;
+        context.fillRect(curX - s / 2, curY - s / 2, s, s);
+      }
+    }
+
     if (isHeadlineAnimating) {
       headlineRafId = requestAnimationFrame(renderPixels);
     }
@@ -215,14 +241,11 @@ function playHeadlinePixelAnimation(canvas, targetOffscreen, cssWidth, cssHeight
 
   headlineRafId = requestAnimationFrame(renderPixels);
 
-  activeHeadlineAnimation = animate(shuffled, {
-    x: (p) => [p.startX, p.targetX],
-    y: (p) => [p.startY, p.targetY],
-    opacity: [0, 1],
-    scale: [0.15, 1],
-    duration: 750,
-    delay: stagger(1.2),
-    ease: "outExpo",
+  // Animate the driver with AnimeJS (snappy ~1050ms duration)
+  activeHeadlineAnimation = animate(driver, {
+    progress: [0, 1],
+    duration: 1050,
+    ease: "linear",
     onComplete: () => {
       isHeadlineAnimating = false;
       if (headlineRafId) {
@@ -242,12 +265,13 @@ function playHeadlinePixelAnimation(canvas, targetOffscreen, cssWidth, cssHeight
     animate(tagline, {
       opacity: [0, 1],
       translateY: [16, 0],
-      duration: 750,
-      delay: 550,
+      duration: 650,
+      delay: 450,
       ease: "outExpo",
     });
   }
 }
+
 
 // Real type on a canvas so the glyphs can be filled with a pattern. The morph
 // samples this canvas the same way it samples the section heading, so both
