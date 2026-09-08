@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive Claude Desktop and OpenGraph AI integration mockup."
+    />
+    <title>Claude Desktop × OpenGraph AI — Interaction mockup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./mockup.css" />
+  </head>
+  <body>
+    <header class="prototype-bar">
+      <a class="prototype-brand" href="/" aria-label="Return to OpenGraph AI home">
+        <span aria-hidden="true">OG</span>
+        <strong>OpenGraph AI</strong>
+      </a>
+      <p><i></i> Interaction prototype <span>·</span> Local simulation</p>
+      <a href="/">Back to site <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main class="prototype-main">
+      <header class="prototype-intro">
+        <p>CLAUDE DESKTOP × OPENGRAPH AI</p>
+        <h1>Ask the graph.<br />See the evidence.</h1>
+        <span>Try the prompt, connectors, model picker, sessions, and graph.</span>
+      </header>
+
+      <section class="desktop-frame" aria-label="Interactive Claude Desktop concept">
+        <div class="desktop-chrome" aria-hidden="true">
+          <span class="window-controls"><i></i><i></i><i></i></span>
+          <span class="desktop-chrome-title">Claude</span>
+          <span class="desktop-connection"><i></i> OpenGraph MCP connected</span>
+        </div>
+
+        <div class="desktop-layout">
+          <aside class="session-sidebar" aria-label="Claude navigation and sessions">
+            <div class="sidebar-topline">
+              <button class="icon-button sidebar-toggle" type="button" aria-label="Collapse session sidebar" aria-pressed="false" data-sidebar-toggle>
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <rect x="2.5" y="3" width="15" height="14" rx="2"></rect>
+                  <path d="M7 3v14"></path>
+                </svg>
+              </button>
+              <button class="icon-button" type="button" aria-label="Search sessions">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <circle cx="8.5" cy="8.5" r="4.75"></circle>
+                  <path d="m12 12 4 4"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="mode-switcher" aria-label="Claude mode">
+              <button type="button" data-mode="chat"><span aria-hidden="true">◌</span><b>Chat</b></button>
+              <button type="button" data-mode="code" class="is-active"><span aria-hidden="true">‹/›</span><b>Code</b></button>
+            </div>
+
+            <nav class="sidebar-actions" aria-label="Session actions">
+              <button type="button" data-new-session>
+                <span aria-hidden="true">＋</span><b>New session</b><kbd>⌘ K</kbd>
+              </button>
+              <button type="button">
+                <span aria-hidden="true">ϟ</span><b>Routines</b>
+              </button>
+              <button type="button">
+                <span aria-hidden="true">▱</span><b>Customize</b>
+              </button>
+            </nav>
+
+            <div class="session-list" data-session-list>
+              <section>
+                <h2>Pinned</h2>
+                <button class="session-item is-active" type="button" data-session="renewal">
+                  <span class="session-symbol graph-symbol" aria-hidden="true">⌘</span>
+                  <span><b>Trace renewal risk</b><small>customer-intelligence</small></span>
+                </button>
+              </section>
+
+              <section>
+                <h2>Scheduled</h2>
+                <button class="session-item" type="button" data-session="audit">
+                  <span class="session-symbol" aria-hidden="true">◷</span>
+                  <span><b>Weekly account audit</b><small>Runs Monday · 09:00</small></span>
+                </button>
+              </section>
+
+              <section>
+                <h2>Recents</h2>
+                <button class="session-item" type="button" data-session="launch">
+                  <span class="session-symbol" aria-hidden="true">···</span>
+                  <span><b>Summarize launch blockers</b><small>product-ops</small></span>
+                </button>
+                <button class="session-item" type="button" data-session="owner">
+                  <span class="session-symbol" aria-hidden="true">···</span>
+                  <span><b>Find the account owner</b><small>customer-intelligence</small></span>
+                </button>
+                <button class="session-item" type="button" data-session="brief">
+                  <span class="session-symbol" aria-hidden="true">○</span>
+                  <span><b>Draft a customer brief</b><small>sales-enablement</small></span>
+                </button>
+              </section>
+            </div>
+
+            <div class="sidebar-profile">
+              <span>OG</span>
+              <span><b>OpenGraph team</b><small>Demo workspace</small></span>
+              <button class="icon-button" type="button" aria-label="Open settings">⚙</button>
+            </div>
+          </aside>
+
+          <section class="conversation-pane" aria-label="Claude conversation">
+            <header class="conversation-header">
+              <div>
+                <p><strong data-project-name>customer-intelligence</strong><span>/</span> <span data-task-title>Trace renewal risk</span></p>
+                <small><i></i> <span data-branch-name>opengraph/renewal-analysis</span></small>
+              </div>
+              <div class="conversation-tools">
+                <button class="header-pill" type="button" data-replay>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6v4h4"></path><path d="M5.5 10a5.5 5.5 0 1 0 1.7-4"></path></svg>
+                  Replay
+                </button>
+                <button class="icon-button" type="button" aria-label="More session actions">•••</button>
+              </div>
+            </header>
+
+            <div class="conversation-scroll" data-conversation-scroll>
+              <div class="conversation-width">
+                <article class="user-message" data-user-message>
+                  <span>OG</span>
+                  <p data-user-copy>Which renewals are at risk, and what evidence supports that?</p>
+                </article>
+
+                <article class="assistant-message" aria-live="polite">
+                  <div class="assistant-mark" aria-hidden="true">✣</div>
+                  <div class="assistant-body">
+                    <p class="assistant-intro" data-assistant-intro>
+                      I’ll trace the renewal entities across the connected account graph, then verify the strongest signals against their original sources.
+                    </p>
+
+                    <div class="tool-stack" data-tool-stack>
+                      <section class="tool-card" data-tool="query">
+                        <header>
+                          <span class="tool-state"><i></i><b data-tool-state>Completed</b></span>
+                          <code>opengraph.query_graph</code>
+                          <small>1.2s</small>
+                        </header>
+                        <p data-tool-query>renewal risk → account → evidence</p>
+                      </section>
+                      <section class="tool-card" data-tool="source">
+                        <header>
+                          <span class="tool-state"><i></i><b data-tool-state>Completed</b></span>
+                          <code>opengraph.open_sources</code>
+                          <small>0.8s</small>
+                        </header>
+                        <p>q3_call.wav · signals.csv · account.json</p>
+                      </section>
+                    </div>
+
+                    <div class="thinking-state" data-thinking hidden>
+                      <span><i></i><i></i><i></i></span>
+                      <p>Traversing relationships and checking provenance…</p>
+                    </div>
+
+                    <section class="answer-block" data-answer-block>
+                      <p data-answer-copy>
+                        <strong>Acme Corp is the clearest renewal risk.</strong> Pricing concern appears in both the Q3 call and account signal export, with Priya Raman listed as the active owner. The relationship is supported by three independent sources.
+                      </p>
+
+                      <div class="answer-signals" data-answer-signals>
+                        <button type="button" data-focus-entity="risk">
+                          <span><i class="signal-dot risk"></i><b>Renewal risk</b></span>
+                          <strong>0.94</strong>
+                          <small>q3_call.wav</small>
+                        </button>
+                        <button type="button" data-focus-entity="pricing">
+                          <span><i class="signal-dot pricing"></i><b>Pricing concern</b></span>
+                          <strong>0.89</strong>
+                          <small>signals.csv</small>
+                        </button>
+                        <button type="button" data-focus-entity="priya">
+                          <span><i class="signal-dot person"></i><b>Owner: Priya R.</b></span>
+                          <strong>0.86</strong>
+                          <small>account.json</small>
+                        </button>
+                      </div>
+
+                      <footer class="answer-footer">
+                        <button type="button" data-open-evidence><span aria-hidden="true">↗</span> Inspect 3 cited paths</button>
+                        <span><i></i> Answer grounded by OpenGraph</span>
+                      </footer>
+                    </section>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <form class="composer" data-composer>
+              <div class="connector-menu" data-connector-menu hidden>
+                <header>
+                  <div><strong>Add context</strong><small>Choose what Claude can use in this session.</small></div>
+                  <button class="icon-button" type="button" aria-label="Close connector menu" data-close-connectors>×</button>
+                </header>
+                <div class="connector-list">
+                  <button type="button" class="connector-row is-connected" data-connector="OpenGraph" aria-pressed="true">
+                    <span class="connector-logo opengraph-logo">OG</span>
+                    <span><b>OpenGraph</b><small>Knowledge graph and cited sources</small></span>
+                    <i></i>
+                  </button>
+                  <button type="button" class="connector-row" data-connector="GitHub" aria-pressed="false">
+                    <span class="connector-logo github-logo">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.2 9.2 0 0 0-2.9 17.9v-2c-2 .4-2.5-.8-2.5-.8-.3-.9-.8-1.1-.8-1.1-.7-.5 0-.5 0-.5.8.1 1.2.8 1.2.8.7 1.2 1.8.9 2.2.7.1-.5.3-.9.5-1.1-1.6-.2-3.3-.8-3.3-3.6 0-.8.3-1.5.7-2-.1-.2-.3-1 .1-2 0 0 .6-.2 2.1.8a7.3 7.3 0 0 1 3.8 0c1.5-1 2.1-.8 2.1-.8.4 1 .2 1.8.1 2 .5.5.7 1.2.7 2 0 2.8-1.7 3.4-3.3 3.6.3.2.5.7.5 1.4v2.6A9.2 9.2 0 0 0 12 2.8Z"></path></svg>
+                    </span>
+                    <span><b>GitHub</b><small>Repository, issues, and pull requests</small></span>
+                    <i></i>
+                  </button>
+                  <button type="button" class="connector-row" data-connector="Google Drive" aria-pressed="false">
+                    <span class="connector-logo drive-logo">△</span>
+                    <span><b>Google Drive</b><small>Documents and team files</small></span>
+                    <i></i>
+                  </button>
+                  <button type="button" class="connector-row" data-connector="Local files" aria-pressed="false">
+                    <span class="connector-logo files-logo">▱</span>
+                    <span><b>Local files</b><small>Attach files from this computer</small></span>
+                    <i></i>
+                  </button>
+                </div>
+              </div>
+
+              <label for="mockup-prompt">Message Claude</label>
+              <textarea
+                id="mockup-prompt"
+                rows="1"
+                maxlength="280"
+                placeholder="Describe a task or ask the graph a question"
+                data-prompt
+              ></textarea>
+              <div class="composer-controls">
+                <div>
+                  <button class="composer-icon" type="button" aria-label="Add context or connectors" aria-expanded="false" data-connector-trigger>＋</button>
+                  <span class="connector-count" data-connector-count><i></i> 1 source</span>
+                </div>
+                <div>
+                  <div class="model-picker-wrap">
+                    <button class="model-trigger" type="button" aria-expanded="false" data-model-trigger>
+                      <span data-model-label>Sonnet 4.6</span>
+                      <small data-effort-label>Medium</small>
+                      <span aria-hidden="true">⌄</span>
+                    </button>
+                    <div class="model-menu" data-model-menu hidden>
+                      <header><strong>Model</strong><small>Choose speed and capability</small></header>
+                      <div class="model-options" role="radiogroup" aria-label="Claude model">
+                        <button type="button" role="radio" aria-checked="true" class="is-selected" data-model="Sonnet 4.6" data-model-note="Balanced for everyday work">
+                          <span><b>Sonnet 4.6</b><small>Balanced for everyday work</small></span><i>✓</i>
+                        </button>
+                        <button type="button" role="radio" aria-checked="false" data-model="Opus 4.8" data-model-note="Deep reasoning for complex work">
+                          <span><b>Opus 4.8</b><small>Deep reasoning for complex work</small></span><i>✓</i>
+                        </button>
+                        <button type="button" role="radio" aria-checked="false" data-model="Haiku 4.5" data-model-note="Fast answers and light tasks">
+                          <span><b>Haiku 4.5</b><small>Fast answers and light tasks</small></span><i>✓</i>
+                        </button>
+                      </div>
+                      <fieldset>
+                        <legend>Effort</legend>
+                        <div class="effort-options">
+                          <button type="button" data-effort="Low">Low</button>
+                          <button type="button" data-effort="Medium" class="is-selected">Medium</button>
+                          <button type="button" data-effort="High">High</button>
+                        </div>
+                      </fieldset>
+                    </div>
+                  </div>
+                  <button class="send-button" type="submit" aria-label="Send message" data-send disabled>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 15V5M5.5 9.5 10 5l4.5 4.5"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <footer class="conversation-status">
+              <span><i></i> <span data-status-model>Sonnet 4.6</span> · <span data-status-effort>medium effort</span></span>
+              <span>OpenGraph MCP <b>connected</b></span>
+            </footer>
+          </section>
+
+          <aside class="evidence-pane" aria-label="OpenGraph evidence preview">
+            <header class="preview-chrome">
+              <div class="preview-traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="preview-address">
+                <span aria-hidden="true">◎</span>
+                <span>localhost:5173/explorer</span>
+              </div>
+              <button class="icon-button" type="button" aria-label="Refresh preview" data-refresh-graph>↻</button>
+            </header>
+
+            <div class="preview-appbar">
+              <a href="/" class="preview-brand" aria-label="OpenGraph AI">
+                <span>OG</span><strong>OpenGraph</strong>
+              </a>
+              <span class="preview-live"><i></i> LIVE GRAPH</span>
+            </div>
+
+            <div class="preview-tabs" role="tablist" aria-label="OpenGraph preview">
+              <button type="button" role="tab" aria-selected="true" data-preview-tab="graph">Graph</button>
+              <button type="button" role="tab" aria-selected="false" data-preview-tab="evidence">Evidence <span>3</span></button>
+              <button type="button" role="tab" aria-selected="false" data-preview-tab="source">Source</button>
+            </div>
+
+            <div class="preview-content">
+              <section class="preview-panel graph-panel is-active" role="tabpanel" data-preview-panel="graph">
+                <header class="panel-heading">
+                  <div><span>ENTITY SUBGRAPH</span><h2 data-graph-title>Acme renewal risk</h2></div>
+                  <button type="button" aria-label="Center graph" data-center-graph>⌖</button>
+                </header>
+
+                <div class="graph-canvas" data-graph-canvas>
+                  <svg viewBox="0 0 420 310" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="edgeActive" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#2e64e8"/><stop offset="1" stop-color="#7f9eea"/></linearGradient>
+                    </defs>
+                    <path class="graph-grid-line" d="M0 62h420M0 124h420M0 186h420M0 248h420M70 0v310M140 0v310M210 0v310M280 0v310M350 0v310"></path>
+                    <path class="graph-edge edge-acme-risk is-active" d="M213 150 C175 128 149 107 113 78"></path>
+                    <path class="graph-edge edge-acme-pricing" d="M213 150 C269 131 301 102 328 76"></path>
+                    <path class="graph-edge edge-acme-priya" d="M213 150 C161 181 126 208 101 237"></path>
+                    <path class="graph-edge edge-acme-source" d="M213 150 C261 184 293 210 329 237"></path>
+                    <circle class="edge-packet" r="3"><animateMotion dur="2.8s" repeatCount="indefinite" path="M213 150 C175 128 149 107 113 78" /></circle>
+                  </svg>
+
+                  <button class="graph-node node-core is-selected" type="button" data-entity="acme" style="--x: 51%; --y: 49%">
+                    <span>AC</span><b>Acme Corp</b><small>ACCOUNT</small>
+                  </button>
+                  <button class="graph-node node-risk" type="button" data-entity="risk" style="--x: 25%; --y: 23%">
+                    <span>!</span><b>Renewal risk</b><small>SIGNAL · .94</small>
+                  </button>
+                  <button class="graph-node node-pricing" type="button" data-entity="pricing" style="--x: 78%; --y: 22%">
+                    <span>$</span><b>Pricing concern</b><small>SIGNAL · .89</small>
+                  </button>
+                  <button class="graph-node node-person" type="button" data-entity="priya" style="--x: 23%; --y: 76%">
+                    <span>PR</span><b>Priya Raman</b><small>PERSON · .86</small>
+                  </button>
+                  <button class="graph-node node-source" type="button" data-entity="source" style="--x: 79%; --y: 76%">
+                    <span>3</span><b>Cited sources</b><small>EVIDENCE</small>
+                  </button>
+                </div>
+
+                <article class="entity-inspector" data-entity-inspector>
+                  <header><span data-entity-type>ACCOUNT</span><strong data-entity-score>3 sources</strong></header>
+                  <h3 data-entity-title>Acme Corp</h3>
+                  <p data-entity-description>Enterprise account with a Q4 renewal and three independently supported risk signals.</p>
+                  <button type="button" data-inspect-evidence>Inspect evidence <span aria-hidden="true">→</span></button>
+                </article>
+              </section>
+
+              <section class="preview-panel evidence-panel" role="tabpanel" data-preview-panel="evidence" hidden>
+                <header class="panel-heading">
+                  <div><span>PROVENANCE</span><h2>Three cited paths</h2></div>
+                  <span class="verified-badge">✓ VERIFIED</span>
+                </header>
+                <div class="evidence-list">
+                  <button type="button" data-source="call">
+                    <span class="file-badge audio">WAV</span>
+                    <span><b>q3_call.wav</b><small>03:18–03:42 · Customer call</small><em>“Budget approval is the remaining blocker…”</em></span>
+                    <strong>0.94</strong>
+                  </button>
+                  <button type="button" data-source="signals">
+                    <span class="file-badge csv">CSV</span>
+                    <span><b>signals.csv</b><small>Row 128 · account_id: acme</small><em>pricing_concern = true · trend = rising</em></span>
+                    <strong>0.89</strong>
+                  </button>
+                  <button type="button" data-source="account">
+                    <span class="file-badge json">JSON</span>
+                    <span><b>account.json</b><small>owner.primary · synced 8m ago</small><em>Priya Raman · Strategic Accounts</em></span>
+                    <strong>0.86</strong>
+                  </button>
+                </div>
+                <footer class="evidence-summary">
+                  <span><b>3</b> sources</span><span><b>4</b> relationships</span><span><b>0.91</b> avg. confidence</span>
+                </footer>
+              </section>
+
+              <section class="preview-panel source-panel" role="tabpanel" data-preview-panel="source" hidden>
+                <header class="panel-heading">
+                  <div><span>SOURCE PREVIEW</span><h2 data-source-title>q3_call.wav</h2></div>
+                  <button type="button" aria-label="Open source externally">↗</button>
+                </header>
+                <div class="audio-preview" data-audio-preview>
+                  <button type="button" aria-label="Play source excerpt" aria-pressed="false" data-audio-toggle><span>▶</span></button>
+                  <div>
+                    <div class="waveform" aria-hidden="true">
+                      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                    <span><b data-audio-time>03:18</b><small>03:42</small></span>
+                  </div>
+                </div>
+                <article class="transcript-preview" data-source-content>
+                  <span>TRANSCRIPT · SPEAKER 2</span>
+                  <p>We like the product and the team is using it. <mark>Budget approval is the remaining blocker</mark>, and finance asked us to revisit the pricing before the renewal date.</p>
+                  <footer><span>Linked entities</span><button type="button" data-focus-entity="pricing">Pricing concern</button><button type="button" data-focus-entity="risk">Renewal risk</button></footer>
+                </article>
+                <div class="source-meta">
+                  <span><small>INGESTED</small><b>18 Aug 2026</b></span>
+                  <span><small>CHECKSUM</small><b>8ca2…d041</b></span>
+                  <span><small>CONFIDENCE</small><b>0.94</b></span>
+                </div>
+              </section>
+            </div>
+          </aside>
+        </div>
+
+        <div class="mockup-toast" role="status" aria-live="polite" data-toast hidden></div>
+      </section>
+    </main>
+
+    <script src="./mockup.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en" data-docs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="OpenGraph AI documentation for building and querying context graphs from multimodal data."
+    />
+    <title>Documentation — OpenGraph AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=JetBrains+Mono:wght@400;500;600&family=Pixelify+Sans:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        document.documentElement.dataset.docsTheme = localStorage.getItem("opengraph-docs-theme") || "dark";
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <header class="docs-header">
+      <div class="docs-header-primary">
+        <button class="icon-button docs-menu-button" type="button" aria-label="Open documentation navigation" aria-expanded="false" data-menu-button>
+          <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+
+        <a class="docs-brand" href="/" aria-label="OpenGraph AI home">
+          <span>OpenGraph AI</span>
+          <em>Docs</em>
+        </a>
+
+        <div class="docs-search-wrap">
+          <label class="docs-search">
+            <i data-lucide="search" aria-hidden="true"></i>
+            <input type="search" placeholder="Search docs" autocomplete="off" aria-label="Search documentation" data-docs-search />
+            <kbd>/</kbd>
+          </label>
+          <div class="docs-search-results" role="listbox" aria-label="Search results" data-search-results></div>
+        </div>
+
+        <nav class="docs-header-actions" aria-label="Documentation links">
+          <a class="header-action header-action-secondary" href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer">
+            <i data-lucide="git-fork" aria-hidden="true"></i><span>GitHub</span>
+          </a>
+          <button class="header-action" type="button" aria-label="Switch to light mode" data-theme-toggle>
+            <i data-lucide="sun" aria-hidden="true"></i><span data-theme-label>Light</span>
+          </button>
+          <a class="header-action header-action-primary" href="/">
+            <span>Website</span><i data-lucide="arrow-up-right" aria-hidden="true"></i>
+          </a>
+        </nav>
+      </div>
+
+      <nav class="docs-product-nav" aria-label="Primary documentation">
+        <a href="#/introduction" data-top-slug="introduction">Overview</a>
+        <a href="#/getting-started/quickstart" data-top-slug="getting-started/quickstart">Quickstart</a>
+        <a href="#/opengraph-image/overview" data-top-slug="opengraph-image/overview">OpenGraph Image</a>
+        <a href="#/reference/mcp-tools" data-top-slug="reference/mcp-tools">MCP tools</a>
+        <a href="#/reference/cli" data-top-slug="reference/cli">CLI reference</a>
+      </nav>
+    </header>
+
+    <div class="docs-layout">
+      <aside class="docs-sidebar" data-docs-sidebar>
+        <nav class="docs-nav" aria-label="Documentation pages" data-docs-nav></nav>
+        <a class="docs-sidebar-github" href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="git-fork" aria-hidden="true"></i><span>Open-source repository</span><i data-lucide="external-link" aria-hidden="true"></i>
+        </a>
+      </aside>
+
+      <main class="docs-main" data-docs-main>
+        <nav class="docs-breadcrumbs" aria-label="Breadcrumb" data-docs-breadcrumbs></nav>
+        <div class="docs-page-heading">
+          <p data-page-kicker>Getting started</p>
+          <h1 data-page-title>OpenGraph AI documentation</h1>
+        </div>
+        <div class="docs-page-actions" aria-label="Page actions">
+          <button type="button" data-copy-page>
+            <i data-lucide="copy" aria-hidden="true"></i><span data-copy-label>Copy page</span>
+          </button>
+          <span aria-hidden="true"></span>
+          <button type="button" data-markdown-toggle>
+            <i data-lucide="file-code-2" aria-hidden="true"></i><span data-markdown-label>View as Markdown</span>
+          </button>
+          <span aria-hidden="true"></span>
+          <a href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer">
+            <i data-lucide="git-fork" aria-hidden="true"></i><span>Open repository</span><i data-lucide="external-link" aria-hidden="true"></i>
+          </a>
+        </div>
+        <article class="markdown-body" data-docs-article></article>
+        <nav class="docs-pager" aria-label="Documentation pagination" data-docs-pager></nav>
+      </main>
+
+      <aside class="docs-toc" aria-label="On this page">
+        <p>On this page</p>
+        <nav data-docs-toc></nav>
+      </aside>
+    </div>
+
+    <!-- AI input adapted from KokonutUI's MIT-licensed AI Input Search component. -->
+    <form class="docs-assistant" data-assistant-form>
+      <div class="docs-assistant-context" data-assistant-context hidden>
+        <i data-lucide="code-2" data-assistant-context-icon aria-hidden="true"></i>
+        <span data-assistant-context-label>Code block attached</span>
+        <button type="button" aria-label="Remove attachment" data-assistant-clear>
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="docs-assistant-input-shell" data-assistant-input-shell>
+        <label class="visually-hidden" for="docs-assistant-input">Ask OpenGraph AI about this documentation</label>
+        <textarea id="docs-assistant-input" rows="1" placeholder="Ask about this page…" autocomplete="off" aria-describedby="assistant-availability" data-assistant-input></textarea>
+
+        <div class="docs-assistant-toolbar">
+          <div class="docs-assistant-tools">
+            <button class="docs-assistant-search is-active" type="button" aria-label="Toggle web search" aria-pressed="true" data-assistant-search-toggle>
+              <span class="docs-assistant-search-icon" aria-hidden="true">
+                <i data-lucide="globe"></i>
+              </span>
+              <span class="docs-assistant-search-label">Search</span>
+            </button>
+          </div>
+
+          <button class="docs-assistant-send" type="submit" aria-label="Send question" data-assistant-send>
+            <i data-lucide="send" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <p class="visually-hidden" id="assistant-availability">Assistant interface preview. API connection is not configured.</p>
+    </form>
+
+    <button class="docs-backdrop" type="button" aria-label="Close documentation navigation" data-docs-backdrop></button>
+    <div class="docs-toast" role="status" aria-live="polite" data-docs-toast></div>
+
+    <script type="module" src="/src/docs.js"></script>
+  </body>
+</html>
