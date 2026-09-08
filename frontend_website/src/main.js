@@ -1,4 +1,4 @@
-import { animate, createTimeline, stagger, svg } from "animejs";
+import { animate, createTimeline, stagger, svg, shuffle } from "animejs";
 import "./styles.css";
 
 // Colours live in theme.css so a palette flip is one data-theme attribute.
@@ -51,6 +51,165 @@ function wavePattern(context) {
   return context.createPattern(tile, "repeat");
 }
 
+// Target text pre-rendered into an offscreen canvas.
+// Used both to sample pixel particles for the AnimeJS entrance animation
+// and as the razor-sharp final image once assembled.
+function createTargetHeadline(cssWidth, cssHeight, ratio, family, fontSize) {
+  const offscreen = document.createElement("canvas");
+  offscreen.width = Math.round(cssWidth * ratio);
+  offscreen.height = Math.round(cssHeight * ratio);
+  const offContext = offscreen.getContext("2d", { willReadFrequently: true });
+  offContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+  offContext.clearRect(0, 0, cssWidth, cssHeight);
+  offContext.font = `700 ${fontSize}px ${family}`;
+  offContext.textAlign = "center";
+  offContext.textBaseline = "middle";
+  offContext.fillStyle = wavePattern(offContext);
+  offContext.fillText(HEADLINE_TEXT, cssWidth / 2, cssHeight / 2);
+  return offscreen;
+}
+
+// Sample the letterforms into crisp digital pixel particles.
+function sampleHeadlineParticles(offscreen, cssWidth, cssHeight, ratio) {
+  const offContext = offscreen.getContext("2d", { willReadFrequently: true });
+  const { data } = offContext.getImageData(0, 0, offscreen.width, offscreen.height);
+  const step = 4; // CSS pixel grid step
+  const deviceStep = Math.max(1, Math.round(step * ratio));
+  const particles = [];
+
+  for (let devY = Math.floor(deviceStep / 2); devY < offscreen.height; devY += deviceStep) {
+    for (let devX = Math.floor(deviceStep / 2); devX < offscreen.width; devX += deviceStep) {
+      const idx = (devY * offscreen.width + devX) * 4;
+      const alpha = data[idx + 3];
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+
+      // In the wave pattern, dark ink stripes have lower RGB values.
+      // Filter for ink points that form the text:
+      if (alpha > 60 && (r < 185 || g < 185 || b < 185)) {
+        const targetX = devX / ratio;
+        const targetY = devY / ratio;
+
+        // Three natural emergence zones for random pixels:
+        // 1. Anchors: spawn close to target for immediate focal shape (~25%)
+        // 2. Near orbit: drifting from the surrounding text area (~50%)
+        // 3. Screen float: random appearance across the broader hero canvas (~25%)
+        let startX, startY;
+        const roll = Math.random();
+        if (roll < 0.25) {
+          startX = targetX + (Math.random() - 0.5) * 16;
+          startY = targetY + (Math.random() - 0.5) * 16;
+        } else if (roll < 0.75) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 24 + Math.random() * 60;
+          startX = targetX + Math.cos(angle) * dist;
+          startY = targetY + Math.sin(angle) * (dist * 0.45);
+        } else {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 70 + Math.random() * 160;
+          startX = Math.max(8, Math.min(cssWidth - 8, targetX + Math.cos(angle) * dist));
+          startY = Math.max(4, Math.min(cssHeight - 4, targetY + Math.sin(angle) * dist));
+        }
+
+        particles.push({
+          targetX,
+          targetY,
+          startX,
+          startY,
+          x: startX,
+          y: startY,
+          size: step * 0.88,
+          opacity: 0,
+          scale: 0.1,
+          color: `rgb(${r}, ${g}, ${b})`,
+          isAccent: Math.random() < 0.08,
+        });
+      }
+    }
+  }
+  return particles;
+}
+
+let activeHeadlineAnimation = null;
+let isHeadlineAnimating = false;
+
+function playHeadlinePixelAnimation(canvas, targetOffscreen, cssWidth, cssHeight, ratio, onComplete) {
+  if (activeHeadlineAnimation) {
+    activeHeadlineAnimation.cancel();
+    activeHeadlineAnimation = null;
+  }
+
+  const context = canvas.getContext("2d");
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    context.clearRect(0, 0, cssWidth, cssHeight);
+    context.globalAlpha = 1;
+    context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
+    if (onComplete) onComplete();
+    return;
+  }
+
+  const particles = sampleHeadlineParticles(targetOffscreen, cssWidth, cssHeight, ratio);
+  if (!particles.length) {
+    context.clearRect(0, 0, cssWidth, cssHeight);
+    context.globalAlpha = 1;
+    context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
+    if (onComplete) onComplete();
+    return;
+  }
+
+  isHeadlineAnimating = true;
+  const accentColor = themeToken("--signal", "#ff5500");
+  const shuffled = shuffle([...particles]);
+
+  function renderPixels() {
+    context.clearRect(0, 0, cssWidth, cssHeight);
+    const count = particles.length;
+    for (let i = 0; i < count; i++) {
+      const p = particles[i];
+      if (p.opacity <= 0.01) continue;
+      context.globalAlpha = Math.min(Math.max(p.opacity, 0), 1);
+      context.fillStyle = p.isAccent && p.scale < 0.85 ? accentColor : p.color;
+      const s = p.size * p.scale;
+      context.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+    }
+  }
+
+  activeHeadlineAnimation = animate(shuffled, {
+    x: (p) => [p.startX, p.targetX],
+    y: (p) => [p.startY, p.targetY],
+    opacity: [0, 1],
+    scale: [0.15, 1],
+    duration: 720,
+    delay: stagger(1.15),
+    ease: "outExpo",
+    onRender: () => {
+      renderPixels();
+    },
+    onComplete: () => {
+      isHeadlineAnimating = false;
+      activeHeadlineAnimation = null;
+      context.clearRect(0, 0, cssWidth, cssHeight);
+      context.globalAlpha = 1;
+      context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
+      if (onComplete) onComplete();
+    },
+  });
+
+  const tagline = document.querySelector(".tagline-tail");
+  if (tagline) {
+    animate(tagline, {
+      opacity: [0, 1],
+      translateY: [16, 0],
+      duration: 750,
+      delay: 500,
+      ease: "outExpo",
+    });
+  }
+}
+
 // Real type on a canvas so the glyphs can be filled with a pattern. The morph
 // samples this canvas the same way it samples the section heading, so both
 // ends of the effect come from one code path.
@@ -62,13 +221,13 @@ function drawHeadline(canvas, force = false) {
   // the observer again. Bailing on an unchanged width stops that loop.
   if (!force && canvas.dataset.drawnWidth === String(cssWidth)) return false;
 
-  const context = canvas.getContext("2d", { willReadFrequently: true });
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   const family = getComputedStyle(document.documentElement).getPropertyValue("--display").trim();
 
   // Size to fill the available width, then cap so it never dwarfs the tail.
-  context.font = `700 100px ${family}`;
-  const unitWidth = context.measureText(HEADLINE_TEXT).width;
+  const tempContext = canvas.getContext("2d", { willReadFrequently: true });
+  tempContext.font = `700 100px ${family}`;
+  const unitWidth = tempContext.measureText(HEADLINE_TEXT).width;
   const fontSize = Math.min((cssWidth / unitWidth) * 100, 180);
   const cssHeight = Math.ceil(fontSize * 1.06);
 
@@ -79,13 +238,12 @@ function drawHeadline(canvas, force = false) {
   canvas.height = Math.round(cssHeight * ratio);
   canvas.dataset.drawnWidth = String(cssWidth);
 
-  context.setTransform(ratio, 0, 0, ratio, 0, 0);
-  context.clearRect(0, 0, cssWidth, cssHeight);
-  context.font = `700 ${fontSize}px ${family}`;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillStyle = wavePattern(context);
-  context.fillText(HEADLINE_TEXT, cssWidth / 2, cssHeight / 2);
+  const target = createTargetHeadline(cssWidth, cssHeight, ratio, family, fontSize);
+  canvas._targetCanvas = target;
+  canvas._cssWidth = cssWidth;
+  canvas._cssHeight = cssHeight;
+  canvas._ratio = ratio;
+
   return true;
 }
 
@@ -94,26 +252,61 @@ function revealHeadline() {
   if (!canvas) return;
 
   let morph = null;
+  let hasPlayedEntrance = false;
 
-  // The first draw can land before the hero has a width - a collapsed pane, a
-  // hidden tab, fonts still loading. Bailing there would leave the headline
-  // blank for good, so the listeners go on regardless and the draw retries.
   const redraw = (force = false) => {
     if (!drawHeadline(canvas, force)) return;
-    if (morph) {
-      morph.remeasure();
-      return;
-    }
     document.documentElement.classList.add("title-draw-ready");
-    morph = initialisePixelMorph(canvas);
-    animate(canvas, {
-      opacity: [0, 1],
-      translateY: [18, 0],
-      duration: 760,
-      delay: 260,
-      ease: "outExpo",
-    });
+
+    if (!morph) {
+      morph = initialisePixelMorph(canvas);
+    } else {
+      morph.remeasure();
+    }
+
+    if (!hasPlayedEntrance) {
+      hasPlayedEntrance = true;
+      playHeadlinePixelAnimation(
+        canvas,
+        canvas._targetCanvas,
+        canvas._cssWidth,
+        canvas._cssHeight,
+        canvas._ratio,
+        () => {
+          if (morph) morph.remeasure();
+        }
+      );
+    } else {
+      if (activeHeadlineAnimation) {
+        activeHeadlineAnimation.cancel();
+        activeHeadlineAnimation = null;
+        isHeadlineAnimating = false;
+      }
+      const context = canvas.getContext("2d");
+      context.setTransform(canvas._ratio, 0, 0, canvas._ratio, 0, 0);
+      context.clearRect(0, 0, canvas._cssWidth, canvas._cssHeight);
+      context.globalAlpha = 1;
+      context.drawImage(canvas._targetCanvas, 0, 0, canvas._cssWidth, canvas._cssHeight);
+      if (morph) morph.remeasure();
+    }
   };
+
+  // Allow clicking on the canvas to replay the animation interactively
+  canvas.style.cursor = "pointer";
+  canvas.title = "Click to replay pixel animation";
+  canvas.addEventListener("click", () => {
+    if (isHeadlineAnimating || !canvas._targetCanvas) return;
+    playHeadlinePixelAnimation(
+      canvas,
+      canvas._targetCanvas,
+      canvas._cssWidth,
+      canvas._cssHeight,
+      canvas._ratio,
+      () => {
+        if (morph) morph.remeasure();
+      }
+    );
+  });
 
   // ResizeObserver rather than window.resize: it also catches the hero being
   // laid out late, which window.resize never reports.
@@ -126,6 +319,7 @@ function revealHeadline() {
   if (document.fonts?.ready) document.fonts.ready.then(() => redraw(true));
   redraw();
 }
+
 
 // Scroll-driven morph: the assembled wordmark comes apart and the same dots
 // rebuild the pipeline heading. Set to false to drop the effect entirely - the
@@ -167,15 +361,16 @@ function initialisePixelMorph(headlineCanvas) {
   function readTitlePoints(step) {
     const box = headlineCanvas.getBoundingClientRect();
     if (!box.width || !canvasHasPixels()) return [];
-    const context = headlineCanvas.getContext("2d", { willReadFrequently: true });
-    const { data } = context.getImageData(0, 0, headlineCanvas.width, headlineCanvas.height);
-    const scale = box.width / headlineCanvas.width;
+    const sourceCanvas = headlineCanvas._targetCanvas || headlineCanvas;
+    const context = sourceCanvas.getContext("2d", { willReadFrequently: true });
+    const { data } = context.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+    const scale = box.width / sourceCanvas.width;
     const deviceStep = Math.max(1, Math.round(step / scale));
     const points = [];
 
-    for (let y = Math.floor(deviceStep / 2); y < headlineCanvas.height; y += deviceStep) {
-      for (let x = Math.floor(deviceStep / 2); x < headlineCanvas.width; x += deviceStep) {
-        if (data[(y * headlineCanvas.width + x) * 4 + 3] > 40) {
+    for (let y = Math.floor(deviceStep / 2); y < sourceCanvas.height; y += deviceStep) {
+      for (let x = Math.floor(deviceStep / 2); x < sourceCanvas.width; x += deviceStep) {
+        if (data[(y * sourceCanvas.width + x) * 4 + 3] > 40) {
           points.push({
             x: box.left + window.scrollX + x * scale,
             y: box.top + window.scrollY + y * scale,
