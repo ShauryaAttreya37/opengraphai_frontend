@@ -12,17 +12,76 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=Jersey+25&family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=Inter+Tight:wght@400;500;600&family=Jersey+25&family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <nav class="morphic-navbar" aria-label="Primary navigation">
-      <div class="morphic-glass">
-        <a class="morphic-link" href="#home">Home</a>
-        <a class="morphic-link" href="/docs/">Documentation</a>
+    <header class="morphic-navbar" data-site-header>
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="nav-brand" href="#home" aria-label="OpenGraph AI home">
+          <svg class="nav-brand-mark" viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M7 18.5 13.8 6l7.4 13.7" />
+            <circle cx="7" cy="18.5" r="2.3" />
+            <circle cx="13.8" cy="6" r="2.3" />
+            <circle cx="21.2" cy="19.7" r="2.3" />
+          </svg>
+          <span>OpenGraph <b>AI</b></span>
+        </a>
+
+        <div class="nav-desktop" data-nav-menu>
+          <details class="nav-dropdown">
+            <summary>Products <span class="nav-chevron" aria-hidden="true"></span></summary>
+            <div class="nav-popover">
+              <a href="#how-it-works"><b>How it works</b><span>See the context pipeline</span></a>
+              <a href="#playground"><b>Playground</b><span>Try the developer workflow</span></a>
+              <a href="#about"><b>Open source</b><span>Explore the project</span></a>
+            </div>
+          </details>
+          <details class="nav-dropdown">
+            <summary>Use Cases <span class="nav-chevron" aria-hidden="true"></span></summary>
+            <div class="nav-popover">
+              <a href="#use-cases"><b>Research agents</b><span>Answers grounded in evidence</span></a>
+              <a href="#use-cases"><b>Enterprise memory</b><span>Connect operational knowledge</span></a>
+              <a href="#use-cases"><b>Multimodal RAG</b><span>Reason across every source</span></a>
+            </div>
+          </details>
+          <a class="nav-link" href="#" data-mock-link>Pricing</a>
+          <a class="nav-link" href="#" data-mock-link>Enterprise</a>
+          <details class="nav-dropdown">
+            <summary>Resources <span class="nav-chevron" aria-hidden="true"></span></summary>
+            <div class="nav-popover nav-popover-right">
+              <a href="/docs/"><b>Documentation</b><span>Guides and API reference</span></a>
+              <a href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer"><b>GitHub</b><span>Source, issues, and releases</span></a>
+              <a href="#about"><b>About</b><span>Why we're building OpenGraph</span></a>
+            </div>
+          </details>
+        </div>
+
+        <div class="nav-actions">
+          <a class="nav-social" href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer" aria-label="OpenGraph AI on GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.7a9.5 9.5 0 0 0-3 18.5c.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.3-.3-4.6-1.1-4.6-4.7 0-1 .4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.6 1 2.6 0 3.7-2.3 4.5-4.6 4.7.4.3.7 1 .7 1.9v2.8c0 .4.2.7.7.5A9.5 9.5 0 0 0 12 2.7Z" /></svg>
+          </a>
+          <a class="nav-social" href="https://www.linkedin.com/company/opengraph-ai/" target="_blank" rel="noopener noreferrer" aria-label="OpenGraph AI on LinkedIn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 8.5H3.4V19h3.2V8.5ZM5 3a1.9 1.9 0 1 0 0 3.8A1.9 1.9 0 0 0 5 3Zm7 5.5H8.9V19H12v-5.2c0-1.4.3-2.7 2-2.7 1.7 0 1.7 1.6 1.7 2.8V19H19v-5.8c0-2.9-.6-5-3.9-5-1.6 0-2.6.9-3.1 1.7V8.5Z" /></svg>
+          </a>
+          <a class="nav-cta" href="#playground">Try playground</a>
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-navigation" data-nav-toggle>
+            <span class="visually-hidden">Toggle navigation</span>
+            <i></i><i></i>
+          </button>
+        </div>
+      </nav>
+
+      <div class="nav-mobile" id="mobile-navigation" data-nav-mobile hidden>
+        <a href="#how-it-works">Product</a>
+        <a href="#use-cases">Use cases</a>
+        <a href="#" data-mock-link>Pricing <small>SOON</small></a>
+        <a href="#" data-mock-link>Enterprise <small>SOON</small></a>
+        <a href="/docs/">Documentation</a>
+        <a href="#about">About</a>
       </div>
-    </nav>
+    </header>
 
     <main class="site-main">
     <section class="hero" id="home">
@@ -32,8 +91,6 @@
         <span class="stripe stripe-three"></span>
         <span class="stripe stripe-four"></span>
       </div>
-
-      <a class="corner-label corner-top" href="/">OpenGraph AI</a>
 
       <div class="pixel-grid" aria-hidden="true"></div>
       <canvas
@@ -46,12 +103,8 @@
         <p class="category">MULTIMODAL CONTEXT INFRASTRUCTURE</p>
 
         <h1 id="hero-title" class="hero-title">
-          <span class="visually-hidden">Context graphs for agents that need to reason.</span>
-          <span class="hero-title-pixels" aria-hidden="true">
-            <span class="title-fallback">Context graphs</span>
-            <canvas class="headline-canvas" id="headline-canvas"></canvas>
-          </span>
-          <span class="tagline-tail" aria-hidden="true">for agents that need to reason.</span>
+          Context graphs for agents<br />
+          that need to reason.
         </h1>
 
         <p class="hero-description">
@@ -74,36 +127,6 @@
         </div>
       </section>
 
-      <a
-        class="social-bead linkedin-bead"
-        href="https://www.linkedin.com/company/opengraph-ai/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Open OpenGraph AI on LinkedIn"
-      >
-        <img
-          src="/assets/linkedin-svgrepo-com.svg"
-          alt=""
-          width="24"
-          height="24"
-        />
-      </a>
-
-      <a
-        class="social-bead github-bead"
-        href="https://github.com/OpenGraphAI/opengraph-ai"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Open OpenGraph AI on GitHub"
-      >
-        <img
-          src="https://github.githubassets.com/favicons/favicon.svg"
-          alt=""
-          width="24"
-          height="24"
-        />
-      </a>
-
       <div class="corner-label corner-bottom" aria-hidden="true">OPEN SOURCE · APACHE 2.0</div>
     </section>
 
@@ -111,29 +134,15 @@
       <div class="compiler-shell">
         <header class="compiler-header">
           <div class="compiler-intro">
-            <h2 id="compiler-title">OpenGraph AI works in Claude Code.</h2>
+            <h2 id="compiler-title">OpenGraph AI works with coding agents.</h2>
             <div class="compiler-supporting-copy">
-              <p class="claude-code-proof">
-                <img src="/mockups/claude-code/claude-logo.svg" alt="" width="32" height="32" />
-                <span>Built for Claude Code</span>
-              </p>
               <h3>Build context graphs, inspect relationships, trace coverage gaps, and query cited evidence.</h3>
               <p class="compiler-description">
-                Give Claude a connected view of your workspace instead of another pile of isolated search results.
+                Give your coding agent a connected view of your workspace instead of another pile of isolated search results.
               </p>
             </div>
           </div>
         </header>
-
-        <figure class="claude-code-figure">
-          <div class="claude-code-showcase">
-            <iframe
-              src="/mockups/claude-code/index.html"
-              title="Claude Code using OpenGraph AI to investigate renewal risk"
-              loading="lazy"
-            ></iframe>
-          </div>
-        </figure>
 
         <div class="compiler-rail" data-active-stage="0" hidden>
           <div class="pipeline-orbit" aria-hidden="true">
@@ -314,49 +323,56 @@
           </div>
         </header>
 
-        <div class="benefit-grid">
-          <article class="benefit-card benefit-card-performance" data-benefit-card>
-            <div class="benefit-metric">
-              <span class="visually-hidden">Target: up to</span>
-              <strong><span data-benefit-count="10">10</span><sup>×</sup></strong>
+        <div class="benefit-bento">
+          <article class="benefit-bento-item benefit-bento-item-agent" data-benefit-card>
+            <div class="benefit-bento-copy">
+              <p>AGENT INTERFACE</p>
+              <h3>Works inside your agent.</h3>
+              <span>Prompt naturally. OpenGraph builds and queries the connected context behind the answer.</span>
             </div>
-            <h3>Faster retrieval.</h3>
-            <div class="velocity-bars" aria-hidden="true">
-              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-            </div>
-          </article>
-
-          <article class="benefit-card benefit-card-efficiency" data-benefit-card>
-            <div class="benefit-metric">
-              <span class="visually-hidden">Target: up to</span>
-              <strong><span data-benefit-count="40">40</span><sup>%</sup></strong>
-            </div>
-            <h3>Fewer tokens.</h3>
-            <div class="token-field" aria-label="Ten token units reducing to six">
-              <i></i><i></i><i></i><i></i><i></i><i></i>
-              <i class="is-saved"></i><i class="is-saved"></i><i class="is-saved"></i><i class="is-saved"></i>
+            <div class="benefit-bento-visual benefit-bento-agent">
+              <iframe
+                src="/mockups/claude-code/index.html?theme=light&amp;demo=prompt"
+                title="Claude Code prompting OpenGraph AI"
+                loading="lazy"
+                tabindex="-1"
+              ></iframe>
             </div>
           </article>
 
-          <article
-            class="benefit-card benefit-card-multimodal"
-            data-benefit-card
-            data-expand-modalities
-            role="button"
-            tabindex="0"
-            aria-haspopup="dialog"
-            aria-controls="multimodal-dialog"
-            aria-expanded="false"
-          >
-            <div class="benefit-metric benefit-metric-flow" aria-label="Five modalities into one graph">
-              <strong><span>05</span><i>→</i><span>01</span></strong>
+          <article class="benefit-bento-item benefit-bento-item-wide" data-benefit-card>
+            <div class="benefit-bento-visual benefit-bento-flow" aria-hidden="true">
+              <span></span><span></span><span></span>
+              <i></i><i></i>
             </div>
-            <h3>Five modalities. One graph.</h3>
-            <div class="modality-pills" aria-hidden="true">
-              <span>TXT</span><span>CSV</span><span>IMG</span><span>WAV</span><span>MP4</span>
-              <i><b></b></i>
+            <div class="benefit-bento-copy">
+              <p>PLACEHOLDER 01</p>
+              <h3>Feature title</h3>
+              <span>Supporting description will go here.</span>
             </div>
-            <span class="benefit-expand-hint"><span class="visually-hidden">Open details</span><i aria-hidden="true">↗</i></span>
+          </article>
+
+          <article class="benefit-bento-item benefit-bento-item-orbit" data-benefit-card>
+            <div class="benefit-bento-copy">
+              <p>PLACEHOLDER 03</p>
+              <h3>Feature title</h3>
+              <span>Supporting description will go here.</span>
+            </div>
+            <div class="benefit-bento-visual benefit-bento-globe" aria-hidden="true">
+              <i></i><span></span>
+            </div>
+          </article>
+
+          <article class="benefit-bento-item benefit-bento-item-full" data-benefit-card>
+            <div class="benefit-bento-copy">
+              <p>PLACEHOLDER 04</p>
+              <h3>Feature title</h3>
+              <span>Supporting description will go here.</span>
+            </div>
+            <div class="benefit-bento-visual benefit-bento-dashboard" aria-hidden="true">
+              <i></i>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
           </article>
         </div>
       </div>

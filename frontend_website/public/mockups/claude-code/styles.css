@@ -99,6 +99,63 @@ body {
   -webkit-font-smoothing:antialiased;
   display:grid; place-items:center;
 }
+
+.embed-prompt-demo body {
+  padding:0;
+  background:#fff;
+}
+
+.embed-prompt-demo .window {
+  width:100%;
+  height:342px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+
+.embed-prompt-demo .sidebar { display:none; }
+.embed-prompt-demo .main {
+  width:100%;
+  height:342px;
+}
+.embed-prompt-demo .crumb {
+  width:100%;
+  padding:15px 20px 11px;
+  border-bottom:1px solid var(--panel-line);
+}
+.embed-prompt-demo .stream {
+  flex:0 0 174px;
+  padding:14px 20px 4px;
+  transition:opacity .28s ease, transform .34s cubic-bezier(.22,1,.36,1);
+}
+.embed-prompt-demo .col { width:100%; }
+.embed-prompt-demo .dock {
+  width:100%;
+  padding:8px 20px 16px;
+  transition:opacity .28s ease, transform .34s cubic-bezier(.22,1,.36,1);
+}
+.embed-prompt-demo .said {
+  max-width:92%;
+  margin-bottom:15px;
+}
+.embed-prompt-demo .act { margin-bottom:11px; }
+.embed-prompt-demo .prose { margin-bottom:12px; }
+.embed-prompt-demo .said,
+.embed-prompt-demo .act,
+.embed-prompt-demo .prose {
+  animation:demo-block-in .42s cubic-bezier(.22,1,.36,1) both;
+}
+.embed-prompt-demo.demo-resetting .stream,
+.embed-prompt-demo.demo-resetting .dock {
+  opacity:0;
+  transform:translateY(7px);
+}
+
+@keyframes demo-block-in {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
 [hidden] { display:none !important; }
 button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
 input, textarea { font:inherit; }
@@ -439,6 +496,30 @@ input, textarea { font:inherit; }
   .window { height:100vh; border-radius:0; border:0; }
   .sidebar { position:absolute; z-index:20; height:calc(100% - 18px); }
   .window.collapsed .sidebar { margin-left:0; transform:translateX(calc(-1 * var(--side) - 14px)); }
+}
+
+@media (max-width:420px) {
+  .embed-prompt-demo .window,
+  .embed-prompt-demo .main {
+    height:430px;
+  }
+
+  .embed-prompt-demo .crumb {
+    padding:15px 14px 11px;
+  }
+
+  .embed-prompt-demo .stream {
+    flex:0 0 250px;
+    padding:14px 14px 4px;
+  }
+
+  .embed-prompt-demo .dock {
+    padding:8px 14px 14px;
+  }
+
+  .embed-prompt-demo .toolbar .dim {
+    display:none;
+  }
 }
 
 /* ============================================================

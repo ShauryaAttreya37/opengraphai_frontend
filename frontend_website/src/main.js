@@ -1,4 +1,4 @@
-import { animate, createTimeline, stagger, svg, shuffle } from "animejs";
+import { animate, createTimeline, stagger, svg } from "animejs";
 import "./styles.css";
 
 // Colours live in theme.css so a palette flip is one data-theme attribute.
@@ -10,642 +10,6 @@ function themeToken(name, fallback) {
 
 const groundInk = () => themeToken("--ground-ink", "#000000");
 const groundInkRgb = () => themeToken("--ground-ink-rgb", "0 0 0").replace(/\s+/g, ", ");
-const headlineInk = () => themeToken("--headline", "#111317");
-const headlineInkRgb = () => themeToken("--headline-rgb", "17 19 23").replace(/\s+/g, ", ");
-
-// The tagline's dots leave orange and land on an ink-coloured heading, so the
-// morph has to carry the colour across or it snaps at the end.
-function mixInk(progress) {
-  const from = headlineInkRgb().split(",").map(Number);
-  const to = groundInkRgb().split(",").map(Number);
-  const channel = (index) => Math.round(from[index] + (to[index] - from[index]) * progress);
-  return `rgb(${channel(0)}, ${channel(1)}, ${channel(2)})`;
-}
-
-const HEADLINE_TEXT = "Context graphs";
-// Alternating monochrome bands follow a sine curve. Tile repeats cleanly in
-// both directions, keeping the wave dense enough to read as a letter texture.
-function wavePattern(context) {
-  const tile = document.createElement("canvas");
-  tile.width = 120;
-  tile.height = 36;
-  const tileContext = tile.getContext("2d");
-  tileContext.fillStyle = "#111317";
-  tileContext.fillRect(0, 0, tile.width, tile.height);
-  tileContext.fillStyle = "#f4f2ed";
-
-  for (let row = -12; row <= tile.height + 12; row += 12) {
-    tileContext.beginPath();
-    for (let x = 0; x <= tile.width; x += 2) {
-      const y = row + Math.sin((x / tile.width) * Math.PI * 2) * 3.5;
-      if (x === 0) tileContext.moveTo(x, y);
-      else tileContext.lineTo(x, y);
-    }
-    for (let x = tile.width; x >= 0; x -= 2) {
-      const y = row + 5.5 + Math.sin((x / tile.width) * Math.PI * 2) * 3.5;
-      tileContext.lineTo(x, y);
-    }
-    tileContext.closePath();
-    tileContext.fill();
-  }
-  return context.createPattern(tile, "repeat");
-}
-
-// Target text pre-rendered into an offscreen canvas.
-// Used both to sample pixel particles for the AnimeJS entrance animation
-// and as the razor-sharp final image once assembled.
-function createTargetHeadline(cssWidth, cssHeight, ratio, family, fontSize) {
-  const offscreen = document.createElement("canvas");
-  offscreen.width = Math.round(cssWidth * ratio);
-  offscreen.height = Math.round(cssHeight * ratio);
-  const offContext = offscreen.getContext("2d", { willReadFrequently: true });
-  offContext.setTransform(ratio, 0, 0, ratio, 0, 0);
-  offContext.clearRect(0, 0, cssWidth, cssHeight);
-  offContext.font = `700 ${fontSize}px ${family}`;
-  offContext.textAlign = "center";
-  offContext.textBaseline = "middle";
-  offContext.fillStyle = wavePattern(offContext);
-  offContext.fillText(HEADLINE_TEXT, cssWidth / 2, cssHeight / 2);
-  return offscreen;
-}
-
-// Sample the letterforms into crisp digital pixel particles.
-function sampleHeadlineParticles(offscreen, cssWidth, cssHeight, ratio) {
-  const offContext = offscreen.getContext("2d", { willReadFrequently: true });
-  const { data } = offContext.getImageData(0, 0, offscreen.width, offscreen.height);
-  const step = 4; // CSS pixel grid step
-  const deviceStep = Math.max(1, Math.round(step * ratio));
-  const particles = [];
-  const headlineColor = headlineInk();
-
-  for (let devY = Math.floor(deviceStep / 2); devY < offscreen.height; devY += deviceStep) {
-    for (let devX = Math.floor(deviceStep / 2); devX < offscreen.width; devX += deviceStep) {
-      const idx = (devY * offscreen.width + devX) * 4;
-      const alpha = data[idx + 3];
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-
-      // In the wave pattern, sample ink points that form the letters:
-      if (alpha > 40 && (r < 200 || g < 200 || b < 200)) {
-        const targetX = devX / ratio;
-        const targetY = devY / ratio;
-
-        // Three natural emergence trajectories:
-        // 1. Anchors (~25%): close to letterform
-        // 2. Ambient drift (~45%): floating in from around heading
-        // 3. Screen sweep (~30%): random appearance across hero canvas
-        let startX, startY;
-        const roll = Math.random();
-        if (roll < 0.25) {
-          startX = targetX + (Math.random() - 0.5) * 16;
-          startY = targetY + (Math.random() - 0.5) * 16;
-        } else if (roll < 0.7) {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 24 + Math.random() * 55;
-          startX = targetX + Math.cos(angle) * dist;
-          startY = targetY + Math.sin(angle) * (dist * 0.4);
-        } else {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 60 + Math.random() * 140;
-          startX = Math.max(8, Math.min(cssWidth - 8, targetX + Math.cos(angle) * dist));
-          startY = Math.max(4, Math.min(cssHeight - 4, targetY + Math.sin(angle) * dist));
-        }
-
-        // Random birth time distributed across first 52% of animation
-        const startProgress = Math.random() * 0.52;
-        const durationProgress = 0.38 + Math.random() * 0.12;
-
-        particles.push({
-          targetX,
-          targetY,
-          startX,
-          startY,
-          size: step * 0.9,
-          color: `rgb(${r}, ${g}, ${b})`,
-          isAccent: Math.random() < 0.08,
-          startProgress,
-          durationProgress,
-        });
-      }
-    }
-  }
-
-  // Guaranteed fallback if threshold ever catches nothing
-  if (!particles.length) {
-    for (let devY = Math.floor(deviceStep / 2); devY < offscreen.height; devY += deviceStep) {
-      for (let devX = Math.floor(deviceStep / 2); devX < offscreen.width; devX += deviceStep) {
-        const idx = (devY * offscreen.width + devX) * 4;
-        if (data[idx + 3] > 40) {
-          const targetX = devX / ratio;
-          const targetY = devY / ratio;
-          particles.push({
-            targetX,
-            targetY,
-            startX: targetX + (Math.random() - 0.5) * 80,
-            startY: targetY + (Math.random() - 0.5) * 50,
-            size: step * 0.9,
-            color: headlineColor,
-            isAccent: Math.random() < 0.08,
-            startProgress: Math.random() * 0.5,
-            durationProgress: 0.42,
-          });
-        }
-      }
-    }
-  }
-
-  return particles;
-}
-
-let activeHeadlineAnimation = null;
-let isHeadlineAnimating = false;
-let headlineRafId = null;
-
-function playHeadlinePixelAnimation(canvas, targetOffscreen, cssWidth, cssHeight, ratio, onComplete) {
-  if (activeHeadlineAnimation) {
-    activeHeadlineAnimation.cancel();
-    activeHeadlineAnimation = null;
-  }
-  if (headlineRafId) {
-    cancelAnimationFrame(headlineRafId);
-    headlineRafId = null;
-  }
-
-  const context = canvas.getContext("2d");
-  context.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    context.clearRect(0, 0, cssWidth, cssHeight);
-    context.globalAlpha = 1;
-    context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
-    if (onComplete) onComplete();
-    return;
-  }
-
-  const particles = sampleHeadlineParticles(targetOffscreen, cssWidth, cssHeight, ratio);
-  if (!particles.length) {
-    context.clearRect(0, 0, cssWidth, cssHeight);
-    context.globalAlpha = 1;
-    context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
-    if (onComplete) onComplete();
-    return;
-  }
-
-  isHeadlineAnimating = true;
-  const accentColor = themeToken("--signal", "#ff5500");
-  const count = particles.length;
-
-  // Single-driver object for AnimeJS ensures 120 FPS buttery-smooth performance
-  const driver = { progress: 0 };
-
-  function renderPixels() {
-    context.clearRect(0, 0, cssWidth, cssHeight);
-    const pTotal = driver.progress;
-
-    // Smooth optical blend: as particles arrive and dock, the target high-res
-    // continuous text seamlessly dissolves in between progress 0.72 and 1.0.
-    // Zero snapping - smooth seamless transition into the final text!
-    const blend = Math.min(Math.max((pTotal - 0.72) / 0.28, 0), 1);
-    if (blend > 0) {
-      context.globalAlpha = blend;
-      context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
-    }
-
-    const particleOpacityMult = 1 - blend;
-    if (particleOpacityMult > 0.01) {
-      for (let i = 0; i < count; i++) {
-        const p = particles[i];
-        if (pTotal < p.startProgress) continue;
-
-        const local = Math.min((pTotal - p.startProgress) / p.durationProgress, 1);
-        // Snappy outCubic easing for quick launch and smooth glide:
-        const eased = 1 - Math.pow(1 - local, 3);
-
-        const curX = p.startX + (p.targetX - p.startX) * eased;
-        const curY = p.startY + (p.targetY - p.startY) * eased;
-        const scale = 0.2 + 0.8 * eased;
-        const alpha = (local < 0.2 ? local / 0.2 : 1) * particleOpacityMult;
-
-        context.globalAlpha = alpha;
-        context.fillStyle = (p.isAccent && local < 0.75) ? accentColor : p.color;
-        const s = p.size * scale;
-        context.fillRect(curX - s / 2, curY - s / 2, s, s);
-      }
-    }
-
-    if (isHeadlineAnimating) {
-      headlineRafId = requestAnimationFrame(renderPixels);
-    }
-  }
-
-  headlineRafId = requestAnimationFrame(renderPixels);
-
-  // Animate the driver with AnimeJS (snappy ~1050ms duration)
-  activeHeadlineAnimation = animate(driver, {
-    progress: [0, 1],
-    duration: 1050,
-    ease: "linear",
-    onComplete: () => {
-      isHeadlineAnimating = false;
-      if (headlineRafId) {
-        cancelAnimationFrame(headlineRafId);
-        headlineRafId = null;
-      }
-      activeHeadlineAnimation = null;
-      context.clearRect(0, 0, cssWidth, cssHeight);
-      context.globalAlpha = 1;
-      context.drawImage(targetOffscreen, 0, 0, cssWidth, cssHeight);
-      if (onComplete) onComplete();
-    },
-  });
-
-  const tagline = document.querySelector(".tagline-tail");
-  if (tagline) {
-    animate(tagline, {
-      opacity: [0, 1],
-      translateY: [16, 0],
-      duration: 650,
-      delay: 450,
-      ease: "outExpo",
-    });
-  }
-}
-
-
-// Real type on a canvas so the glyphs can be filled with a pattern. The morph
-// samples this canvas the same way it samples the section heading, so both
-// ends of the effect come from one code path.
-function drawHeadline(canvas, force = false) {
-  const host = canvas.parentElement;
-  const cssWidth = host.clientWidth;
-  if (!cssWidth) return false;
-  if (!force && canvas.dataset.drawnWidth === String(cssWidth)) return false;
-
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  const family = getComputedStyle(document.documentElement).getPropertyValue("--display").trim();
-
-  const tempContext = canvas.getContext("2d", { willReadFrequently: true });
-  tempContext.font = `700 100px ${family}`;
-  const unitWidth = tempContext.measureText(HEADLINE_TEXT).width;
-  const fontSize = Math.min((cssWidth / unitWidth) * 100, 180);
-  const cssHeight = Math.ceil(fontSize * 1.06);
-
-  canvas.style.height = `${cssHeight}px`;
-  canvas.width = Math.round(cssWidth * ratio);
-  canvas.height = Math.round(cssHeight * ratio);
-  canvas.dataset.drawnWidth = String(cssWidth);
-
-  const target = createTargetHeadline(cssWidth, cssHeight, ratio, family, fontSize);
-  canvas._targetCanvas = target;
-  canvas._cssWidth = cssWidth;
-  canvas._cssHeight = cssHeight;
-  canvas._ratio = ratio;
-
-  return true;
-}
-
-function revealHeadline() {
-  const canvas = document.querySelector("#headline-canvas");
-  if (!canvas) return;
-
-  let morph = null;
-  let hasStarted = false;
-
-  const init = async () => {
-    if (hasStarted) return;
-    hasStarted = true;
-
-    // Wait for fonts so geometry and sizing are 100% accurate
-    if (document.fonts?.ready) {
-      try {
-        await document.fonts.ready;
-      } catch {}
-    }
-
-    if (!drawHeadline(canvas, true)) return;
-    document.documentElement.classList.add("title-draw-ready");
-    morph = initialisePixelMorph(canvas);
-
-    const startAnimation = () => {
-      playHeadlinePixelAnimation(
-        canvas,
-        canvas._targetCanvas,
-        canvas._cssWidth,
-        canvas._cssHeight,
-        canvas._ratio,
-        () => {
-          if (morph) morph.remeasure();
-        }
-      );
-    };
-
-    // If user is currently looking at another tab, wait until they return
-    // so they see the entire emergence animation from the start!
-    if (document.hidden) {
-      const onVisible = () => {
-        if (!document.hidden) {
-          document.removeEventListener("visibilitychange", onVisible);
-          startAnimation();
-        }
-      };
-      document.addEventListener("visibilitychange", onVisible);
-    } else {
-      startAnimation();
-    }
-  };
-
-  // Click on the headline canvas to replay the animation interactively anytime!
-  canvas.style.cursor = "pointer";
-  canvas.title = "Click to replay pixel animation";
-  canvas.addEventListener("click", () => {
-    if (isHeadlineAnimating || !canvas._targetCanvas) return;
-    playHeadlinePixelAnimation(
-      canvas,
-      canvas._targetCanvas,
-      canvas._cssWidth,
-      canvas._cssHeight,
-      canvas._ratio,
-      () => {
-        if (morph) morph.remeasure();
-      }
-    );
-  });
-
-  // Only re-render when width actually changes, and don't interrupt a running animation
-  let lastWidth = 0;
-  const onResize = () => {
-    const host = canvas.parentElement;
-    if (!host) return;
-    const currentWidth = host.clientWidth;
-    if (!currentWidth || currentWidth === lastWidth) return;
-    lastWidth = currentWidth;
-
-    if (isHeadlineAnimating) return;
-
-    drawHeadline(canvas, true);
-    const context = canvas.getContext("2d");
-    context.setTransform(canvas._ratio, 0, 0, canvas._ratio, 0, 0);
-    context.clearRect(0, 0, canvas._cssWidth, canvas._cssHeight);
-    context.globalAlpha = 1;
-    context.drawImage(canvas._targetCanvas, 0, 0, canvas._cssWidth, canvas._cssHeight);
-    if (morph) morph.remeasure();
-  };
-
-  new ResizeObserver(onResize).observe(canvas.parentElement);
-  window.addEventListener("resize", onResize, { passive: true });
-
-  init();
-}
-
-
-
-// Scroll-driven morph: the assembled wordmark comes apart and the same dots
-// rebuild the pipeline heading. Set to false to drop the effect entirely - the
-// wordmark and heading then behave exactly as they did before.
-const PIXEL_MORPH_ENABLED = true;
-// Dots sweep left to right rather than moving in lockstep. This is the share of
-// the scroll range spent staggering; the rest is a dot's own travel time.
-const MORPH_STAGGER = 0.3;
-
-function initialisePixelMorph(headlineCanvas) {
-  const heading = document.querySelector(".compiler-intro h2");
-  if (!PIXEL_MORPH_ENABLED || !headlineCanvas || !heading) return;
-  const forceMorph = new URLSearchParams(window.location.search).has("morph");
-  if (!forceMorph && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  const canvas = document.createElement("canvas");
-  canvas.className = "pixel-morph-layer";
-  canvas.setAttribute("aria-hidden", "true");
-  document.body.append(canvas);
-  const context = canvas.getContext("2d");
-  const root = document.documentElement;
-
-  let pairs = [];
-  let scrollStart = 0;
-  let scrollEnd = 1;
-  let devicePixels = 1;
-  let viewWidth = 0;
-  let viewHeight = 0;
-  let lastProgress = -1;
-  let queuedFrame = 0;
-
-  const clamp = (value) => Math.min(Math.max(value, 0), 1);
-  const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-
-  // Sample the drawn headline back into dots, in document space so they keep
-  // their place while the hero scrolls away. The scanline pattern leaves gaps
-  // inside the glyphs, so the alpha floor is low enough to catch the dimmer
-  // band and keep the letterforms solid.
-  function readTitlePoints(step) {
-    const box = headlineCanvas.getBoundingClientRect();
-    if (!box.width || !canvasHasPixels()) return [];
-    const sourceCanvas = headlineCanvas._targetCanvas || headlineCanvas;
-    const context = sourceCanvas.getContext("2d", { willReadFrequently: true });
-    const { data } = context.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
-    const scale = box.width / sourceCanvas.width;
-    const deviceStep = Math.max(1, Math.round(step / scale));
-    const points = [];
-
-    for (let y = Math.floor(deviceStep / 2); y < sourceCanvas.height; y += deviceStep) {
-      for (let x = Math.floor(deviceStep / 2); x < sourceCanvas.width; x += deviceStep) {
-        if (data[(y * sourceCanvas.width + x) * 4 + 3] > 40) {
-          points.push({
-            x: box.left + window.scrollX + x * scale,
-            y: box.top + window.scrollY + y * scale,
-            size: step * 0.82,
-          });
-        }
-      }
-    }
-    return points;
-  }
-
-  function canvasHasPixels() {
-    return headlineCanvas.width > 0 && headlineCanvas.height > 0;
-  }
-
-  // The heading is real DOM text, so draw it offscreen and read back where its
-  // ink lands rather than trying to spell it with the headline canvas.
-  function readHeadingPoints(step) {
-    const box = heading.getBoundingClientRect();
-    const styles = getComputedStyle(heading);
-    const fontSize = parseFloat(styles.fontSize);
-    const lineHeight = parseFloat(styles.lineHeight) || fontSize * 1.05;
-    const width = Math.ceil(box.width);
-    const height = Math.ceil(box.height);
-    if (!width || !height) return [];
-
-    const sampler = document.createElement("canvas");
-    sampler.width = width;
-    sampler.height = height;
-    const sample = sampler.getContext("2d", { willReadFrequently: true });
-    sample.font = `${styles.fontStyle} ${styles.fontWeight} ${fontSize}px ${styles.fontFamily}`;
-    sample.letterSpacing = styles.letterSpacing;
-    sample.textBaseline = "alphabetic";
-    sample.fillStyle = "#fff";
-
-    // Wrap to the element's own width so the dot layout matches the live text.
-    const words = heading.textContent.trim().split(/\s+/);
-    const lines = [];
-    let line = "";
-    for (const word of words) {
-      const next = line ? `${line} ${word}` : word;
-      if (sample.measureText(next).width > width && line) {
-        lines.push(line);
-        line = word;
-      } else {
-        line = next;
-      }
-    }
-    if (line) lines.push(line);
-
-    const blockHeight = lines.length * lineHeight;
-    const top = (height - blockHeight) / 2;
-    lines.forEach((text, index) => {
-      sample.fillText(text, 0, top + index * lineHeight + lineHeight * 0.78);
-    });
-
-    const { data } = sample.getImageData(0, 0, width, height);
-    const points = [];
-    for (let y = Math.floor(step / 2); y < height; y += step) {
-      for (let x = Math.floor(step / 2); x < width; x += step) {
-        if (data[(y * width + x) * 4 + 3] > 128) {
-          points.push({
-            x: box.left + window.scrollX + x,
-            y: box.top + window.scrollY + y,
-            size: step * 0.82,
-          });
-        }
-      }
-    }
-    return points;
-  }
-
-  function measure() {
-    devicePixels = Math.min(window.devicePixelRatio || 1, 2);
-    const layer = canvas.getBoundingClientRect();
-    viewWidth = layer.width;
-    viewHeight = layer.height;
-    canvas.width = Math.round(viewWidth * devicePixels);
-    canvas.height = Math.round(viewHeight * devicePixels);
-
-    const wasMorphing = root.classList.contains("is-morphing");
-    root.classList.remove("is-morphing");
-    // At 7 the heading read as blocks rather than letters. 4 is where the
-    // strokes hold their shape, and fillRect at ~1200 dots is still nothing.
-    const step = 4;
-    const source = readTitlePoints(step + 2);
-    const target = readHeadingPoints(step);
-    if (wasMorphing) root.classList.add("is-morphing");
-
-    if (!source.length || !target.length) {
-      pairs = [];
-      return;
-    }
-
-    // Sort both by x and map proportionally: a dot on the left of the wordmark
-    // lands on the left of the heading, so the swarm never crosses itself.
-    // Targets outnumber sources, so sources split as they come apart.
-    const bySource = [...source].sort((a, b) => a.x - b.x);
-    const byTarget = [...target].sort((a, b) => a.x - b.x);
-    const spanStart = byTarget[0].x;
-    const spanEnd = byTarget[byTarget.length - 1].x;
-    const span = spanEnd - spanStart || 1;
-
-    pairs = byTarget.map((to, index) => ({
-      from: bySource[Math.floor((index * bySource.length) / byTarget.length)],
-      to,
-      delay: ((to.x - spanStart) / span) * MORPH_STAGGER,
-    }));
-
-    const titleTop = source.reduce((min, point) => Math.min(min, point.y), Infinity);
-    const headingTop = target.reduce((min, point) => Math.min(min, point.y), Infinity);
-    // Only ~585px of scroll separates the title from the heading, and both
-    // offsets eat into it. Keep them small or the dissolve is over before the
-    // gesture that started it ends.
-    scrollStart = Math.max(0, titleTop - window.innerHeight * 0.6);
-    scrollEnd = headingTop - window.innerHeight * 0.1;
-    if (scrollEnd - scrollStart < 200) scrollEnd = scrollStart + 200;
-  }
-
-  function render(progress) {
-    context.setTransform(devicePixels, 0, 0, devicePixels, 0, 0);
-    context.clearRect(0, 0, viewWidth, viewHeight);
-    context.fillStyle = mixInk(progress);
-
-    const offsetX = window.scrollX;
-    const offsetY = window.scrollY;
-    const travel = 1 - MORPH_STAGGER;
-
-    for (const pair of pairs) {
-      const local = easeInOut(clamp((progress - pair.delay) / travel));
-      const size = pair.from.size + (pair.to.size - pair.from.size) * local;
-      const x = pair.from.x + (pair.to.x - pair.from.x) * local - offsetX;
-      const y = pair.from.y + (pair.to.y - pair.from.y) * local - offsetY;
-      if (x < -size || y < -size || x > viewWidth + size || y > viewHeight + size) continue;
-      context.fillRect(x - size / 2, y - size / 2, size, size);
-    }
-  }
-
-  function update() {
-    if (!pairs.length) return;
-
-    const progress = clamp((window.scrollY - scrollStart) / (scrollEnd - scrollStart));
-    if (progress === lastProgress) return;
-    lastProgress = progress;
-
-    // Only the in-between state is drawn by the canvas. At either end the real
-    // wordmark and the real heading are the ones on screen, so text stays
-    // selectable and readable to assistive tech.
-    const morphing = progress > 0 && progress < 1;
-    root.classList.toggle("is-morphing", morphing);
-    canvas.classList.toggle("is-active", morphing);
-    if (morphing) render(progress);
-  }
-
-  // The frame handle doubles as the "already queued" flag. Holding a raw
-  // boolean latched the effect off for good: a frame requested while the tab
-  // was hidden never fires, so the flag never cleared and every later scroll
-  // returned early. Keeping the handle lets visibilitychange below clear it.
-  function queueUpdate() {
-    if (queuedFrame) return;
-    queuedFrame = requestAnimationFrame(() => {
-      queuedFrame = 0;
-      update();
-    });
-  }
-
-  function remeasure() {
-    measure();
-    lastProgress = -1;
-    queueUpdate();
-  }
-
-  measure();
-  update();
-  window.__pixelMorph = {
-    measure,
-    update,
-    render,
-    state: () => ({ pairs: pairs.length, scrollStart, scrollEnd, lastProgress, devicePixels }),
-  };
-  window.addEventListener("scroll", queueUpdate, { passive: true });
-  window.addEventListener("resize", remeasure, { passive: true });
-  // Coming back to a backgrounded tab: drop the frame that never fired and
-  // resync to wherever the page was scrolled while we were away.
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState !== "visible") return;
-    if (queuedFrame) cancelAnimationFrame(queuedFrame);
-    queuedFrame = 0;
-    lastProgress = -1;
-    queueUpdate();
-  });
-  if (document.fonts?.ready) document.fonts.ready.then(remeasure);
-
-  return { remeasure };
-}
-
 let activeScrollFrame = 0;
 let stopActiveScroll = null;
 
@@ -715,83 +79,59 @@ function smoothScrollToElement(target, options = {}) {
 }
 
 function initialiseMorphicNavbar() {
-  const links = [...document.querySelectorAll(".morphic-link")];
-  if (!links.length) return;
-  const hero = document.querySelector("#home");
-  const targets = links.map((link, index) => {
-    const selector = link.getAttribute("href");
-    const element = selector?.startsWith("#") ? document.querySelector(selector) : null;
-    return element ? { element, index } : null;
-  }).filter(Boolean).sort((a, b) => a.element.offsetTop - b.element.offsetTop);
+  const header = document.querySelector("[data-site-header]");
+  if (!header) return;
+  const dropdowns = [...header.querySelectorAll(".nav-dropdown")];
+  const toggle = header.querySelector("[data-nav-toggle]");
+  const mobile = header.querySelector("[data-nav-mobile]");
 
-  const setActiveLink = (activeIndex) => {
-    const hasActiveLink = activeIndex >= 0;
-    links.forEach((item, index) => {
-      const isActive = hasActiveLink && index === activeIndex;
-      item.classList.toggle("is-active", isActive);
-      item.classList.toggle("is-before-active", hasActiveLink && index === activeIndex - 1);
-      item.classList.toggle("is-after-active", hasActiveLink && index === activeIndex + 1);
-
-      if (isActive) item.setAttribute("aria-current", "page");
-      else item.removeAttribute("aria-current");
-    });
+  const closeNavigation = () => {
+    dropdowns.forEach((dropdown) => dropdown.removeAttribute("open"));
+    if (toggle && mobile) {
+      toggle.setAttribute("aria-expanded", "false");
+      mobile.hidden = true;
+    }
   };
 
-  links.forEach((link) => {
-    link.addEventListener("click", (event) => {
-      const targetId = link.getAttribute("href");
-      if (targetId?.startsWith("#")) {
-        const target = document.querySelector(targetId);
-        if (target) {
-          event.preventDefault();
-          smoothScrollToElement(target).then((completed) => {
-            if (completed) history.pushState(null, "", targetId);
-          });
-        }
-      }
-      setActiveLink(links.indexOf(link));
+  dropdowns.forEach((dropdown) => {
+    dropdown.addEventListener("toggle", () => {
+      if (!dropdown.open) return;
+      dropdowns.forEach((other) => {
+        if (other !== dropdown) other.removeAttribute("open");
+      });
     });
   });
 
-  // The hero has no section heading to select, so its tiles remain joined.
-  // After that, the split pill follows the section under the fixed navbar.
-  let navUpdateFrame = 0;
-  const updateFromScroll = () => {
-    navUpdateFrame = 0;
-    if (!hero) return;
-    const navigation = document.querySelector(".morphic-navbar");
-    const readingLine = window.scrollY + (navigation?.offsetHeight || 52) + 28;
-    if (readingLine < hero.offsetTop + hero.offsetHeight) {
-      setActiveLink(-1);
-      return;
-    }
+  toggle?.addEventListener("click", () => {
+    const willOpen = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(willOpen));
+    if (mobile) mobile.hidden = !willOpen;
+  });
 
-    const current = targets.reduce((match, item) => (
-      item.element.offsetTop <= readingLine ? item : match
-    ), null);
-    setActiveLink(current?.index ?? -1);
-  };
+  document.addEventListener("click", (event) => {
+    if (!header.contains(event.target)) closeNavigation();
+  });
 
-  window.addEventListener("scroll", () => {
-    if (navUpdateFrame) return;
-    navUpdateFrame = requestAnimationFrame(updateFromScroll);
-  }, { passive: true });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeNavigation();
+  });
 
-  // Footer anchors use the same motion so the page never falls back to a
-  // native hash jump after the polished top navigation.
-  document.querySelectorAll('.site-footer a[href^="#"], .hero-actions a[href^="#"]').forEach((link) => {
+  header.querySelectorAll("[data-mock-link]").forEach((link) => {
+    link.addEventListener("click", (event) => event.preventDefault());
+  });
+
+  document.querySelectorAll('a[href^="#"]:not([data-mock-link])').forEach((link) => {
     link.addEventListener("click", (event) => {
       const targetId = link.getAttribute("href");
       const target = targetId ? document.querySelector(targetId) : null;
       if (!target) return;
       event.preventDefault();
+      closeNavigation();
       smoothScrollToElement(target).then((completed) => {
         if (completed) history.pushState(null, "", targetId);
       });
     });
   });
-
-  updateFromScroll();
 }
 
 function initialiseScrollParallax() {
@@ -811,7 +151,7 @@ function initialiseScrollParallax() {
 
   register(".graph-background", 0.13, 74);
   register(".benefit-header", 0.048, 38);
-  register(".benefit-card", [0.018, 0.03, 0.022], 22);
+  register(".benefit-bento-item", [0.018, 0.03, 0.022, 0.026], 22);
   register(".command-header", 0.042, 34);
   register(".terminal-window", 0.02, 22);
   register(".about-header", 0.04, 34);
@@ -874,88 +214,155 @@ function initialiseGraphBackground() {
   const canvas = document.querySelector("#graph-background");
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
-
+  const hero = canvas.closest(".hero");
+  if (!hero) return;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const motionScale = reducedMotion ? 0.38 : 1;
-  const nodes = [
-    { x: 0.06, y: 0.24, size: 3, phase: 0.2 },
-    { x: 0.16, y: 0.42, size: 5, phase: 1.5 },
-    { x: 0.1, y: 0.7, size: 3, phase: 2.4 },
-    { x: 0.27, y: 0.2, size: 3, phase: 3.6 },
-    { x: 0.3, y: 0.63, size: 4, phase: 4.2 },
-    { x: 0.42, y: 0.35, size: 3, phase: 5.1 },
-    { x: 0.53, y: 0.69, size: 5, phase: 0.8 },
-    { x: 0.63, y: 0.25, size: 4, phase: 2.1 },
-    { x: 0.71, y: 0.53, size: 3, phase: 3.1 },
-    { x: 0.82, y: 0.31, size: 5, phase: 4.7 },
-    { x: 0.91, y: 0.62, size: 3, phase: 5.6 },
-    { x: 0.95, y: 0.22, size: 3, phase: 1.1 },
-  ];
-  const edges = [
-    [0, 1], [0, 3], [1, 2], [1, 4], [3, 5], [4, 5], [4, 6],
-    [5, 7], [6, 8], [7, 8], [7, 9], [8, 10], [9, 10], [9, 11],
-  ];
   let width = 0;
   let height = 0;
   let dpr = 1;
+  let particles = [];
+  let frame = 0;
+  let visible = true;
+  const cursor = {
+    x: -1000,
+    y: -1000,
+    targetX: -1000,
+    targetY: -1000,
+    velocityX: 0,
+    velocityY: 0,
+    strength: 0,
+    active: false,
+  };
+
+  function buildSheet() {
+    particles = [];
+    const spacing = width < 640 ? 17 : 14;
+    const columns = Math.ceil(width / spacing) + 2;
+    const rows = Math.ceil(height / spacing) + 2;
+
+    for (let row = -1; row < rows; row += 1) {
+      for (let column = -1; column < columns; column += 1) {
+        const seed = ((column * 73856093) ^ (row * 19349663)) >>> 0;
+        const random = (seed % 1000) / 1000;
+        particles.push({
+          x: column * spacing + (random - 0.5) * 4,
+          y: row * spacing + (((seed >> 8) % 1000) / 1000 - 0.5) * 4,
+          phase: random * Math.PI * 2,
+          size: 1.05 + ((seed >> 5) % 9) * 0.11,
+          accent: seed % 31 === 0,
+          bright: seed % 97 === 0,
+        });
+      }
+    }
+  }
 
   function resize() {
     const bounds = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, 1.6);
     width = bounds.width;
     height = bounds.height;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
+    buildSheet();
+    if (reducedMotion) draw(0);
   }
 
   function draw(timestamp) {
     const ink = groundInkRgb();
-    const time = timestamp * 0.00022;
-    const positions = nodes.map((node) => ({
-      x: node.x * width + Math.sin(time + node.phase) * 10 * motionScale,
-      y: node.y * height + Math.cos(time * 0.78 + node.phase) * 8 * motionScale,
-      size: node.size,
-    }));
+    const signal = themeToken("--signal-rgb", "36 87 214").replace(/\s+/g, ", ");
+    const time = timestamp * 0.00034;
+    cursor.x += (cursor.targetX - cursor.x) * 0.22;
+    cursor.y += (cursor.targetY - cursor.y) * 0.22;
+    cursor.velocityX *= 0.88;
+    cursor.velocityY *= 0.88;
+    cursor.strength += ((cursor.active ? 0.68 : 0) - cursor.strength) * 0.1;
 
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, width, height);
-    context.lineWidth = 1;
 
-    edges.forEach(([fromIndex, toIndex], index) => {
-      const from = positions[fromIndex];
-      const to = positions[toIndex];
-      const curve = Math.sin(time + index * 0.7) * 22 * motionScale;
-      const pulse = 0.055 + (Math.sin(time * 1.4 + index) + 1) * 0.015;
+    if (cursor.active && cursor.strength > 0.02) {
+      const glowRadius = Math.min(260, Math.max(170, width * 0.16));
+      const glow = context.createRadialGradient(cursor.x, cursor.y, 0, cursor.x, cursor.y, glowRadius);
+      glow.addColorStop(0, `rgba(${signal}, ${0.075 * cursor.strength})`);
+      glow.addColorStop(0.42, `rgba(${signal}, ${0.026 * cursor.strength})`);
+      glow.addColorStop(1, `rgba(${signal}, 0)`);
+      context.fillStyle = glow;
+      context.fillRect(cursor.x - glowRadius, cursor.y - glowRadius, glowRadius * 2, glowRadius * 2);
+    }
 
-      context.beginPath();
-      context.moveTo(from.x, from.y);
-      context.quadraticCurveTo((from.x + to.x) / 2, (from.y + to.y) / 2 + curve, to.x, to.y);
-      context.strokeStyle = `rgba(${ink}, ${pulse})`;
-      context.stroke();
-    });
+    for (const particle of particles) {
+      const broadWave = Math.sin(particle.x * 0.011 + time * 1.7 + particle.phase * 0.16);
+      const crossWave = Math.sin((particle.x + particle.y) * 0.007 - time * 1.25 + particle.phase);
+      const ribbon = (1 - Math.abs(Math.sin(particle.x * 0.008 + particle.y * 0.004 - time))) ** 3;
+      let x = particle.x + Math.sin(particle.y * 0.012 - time + particle.phase * 0.1) * 9 + crossWave * 3;
+      let y = particle.y + broadWave * 21 + crossWave * 7;
+      let energy = Math.min(1, (broadWave + 1) * 0.32 + ribbon * 0.7);
 
-    positions.forEach((node, index) => {
-      const glow = 0.09 + (Math.sin(time * 1.2 + index) + 1) * 0.025;
-      context.fillStyle = `rgba(${ink}, ${glow})`;
-      context.fillRect(
-        Math.round(node.x - node.size / 2),
-        Math.round(node.y - node.size / 2),
-        node.size,
-        node.size,
-      );
-
-      if (index === 4 || index === 7 || index === 9) {
-        context.strokeStyle = `rgba(${ink}, 0.08)`;
-        context.strokeRect(node.x - 8, node.y - 8, 16, 16);
+      if (!reducedMotion) {
+        const deltaX = x - cursor.x;
+        const deltaY = y - cursor.y;
+        const distance = Math.hypot(deltaX, deltaY);
+        const radius = Math.min(240, Math.max(155, width * 0.16));
+        if (distance < radius) {
+          const force = (1 - distance / radius) ** 1.55 * cursor.strength;
+          const angle = Math.atan2(deltaY, deltaX);
+          const speed = Math.hypot(cursor.velocityX, cursor.velocityY);
+          const swirl = Math.max(-34, Math.min(34, (cursor.velocityX - cursor.velocityY) * 1.4));
+          const ripple = Math.sin(distance * 0.082 - time * 11) * force;
+          x += Math.cos(angle) * force * 62 - Math.sin(angle) * force * swirl + cursor.velocityX * force * 0.8;
+          y += Math.sin(angle) * force * 62 + Math.cos(angle) * force * swirl + cursor.velocityY * force * 0.8 + ripple * 24;
+          energy = Math.min(1, energy + force * (2.1 + speed * 0.035));
+        }
       }
-    });
 
-    requestAnimationFrame(draw);
+      context.save();
+      context.translate(x, y);
+      context.rotate(Math.atan(Math.cos(particle.x * 0.011 + time * 1.7) * 0.22));
+      context.fillStyle = particle.accent
+        ? `rgba(${signal}, ${0.44 + energy * 0.52})`
+        : `rgba(${ink}, ${particle.bright ? 0.58 : 0.12 + energy * 0.27})`;
+      const length = particle.accent ? particle.size * 3.5 : particle.size * (1.5 + energy * 1.65);
+      context.fillRect(-length / 2, -particle.size / 2, length, particle.size);
+      context.restore();
+    }
+
+    if (!reducedMotion && visible) frame = requestAnimationFrame(draw);
   }
 
+  hero.addEventListener("pointermove", (event) => {
+    const bounds = canvas.getBoundingClientRect();
+    const nextX = event.clientX - bounds.left;
+    const nextY = event.clientY - bounds.top;
+    cursor.velocityX = cursor.active ? nextX - cursor.targetX : 0;
+    cursor.velocityY = cursor.active ? nextY - cursor.targetY : 0;
+    cursor.targetX = nextX;
+    cursor.targetY = nextY;
+    if (!cursor.active) {
+      cursor.x = nextX;
+      cursor.y = nextY;
+    }
+    cursor.active = true;
+    cursor.strength = Math.min(1, 0.68 + Math.hypot(cursor.velocityX, cursor.velocityY) * 0.025);
+  }, { passive: true });
+
+  hero.addEventListener("pointerleave", () => {
+    cursor.active = false;
+    cursor.targetX = -1000;
+    cursor.targetY = -1000;
+  }, { passive: true });
+
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    if (visible && !reducedMotion && !frame) frame = requestAnimationFrame(draw);
+    if (!visible && frame) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    }
+  }, { threshold: 0.01 }).observe(hero);
+
   resize();
-  window.addEventListener("resize", resize, { passive: true });
-  requestAnimationFrame(draw);
+  new ResizeObserver(resize).observe(canvas);
+  if (!reducedMotion) frame = requestAnimationFrame(draw);
 }
 
 const graphEntities = [
@@ -1963,7 +1370,6 @@ function initialiseContactForm() {
   });
 }
 
-revealHeadline();
 initialiseContactForm();
 initialiseMorphicNavbar();
 initialiseScrollParallax();

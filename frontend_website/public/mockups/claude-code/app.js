@@ -10,6 +10,27 @@ const el = (tag, cls, html) => {
   return n;
 };
 const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const demoParams = new URLSearchParams(window.location.search);
+const promptDemo = demoParams.get('demo') === 'prompt';
+
+if (promptDemo) {
+  document.documentElement.classList.add('embed-prompt-demo');
+  window.APP = {
+    user: 'OpenGraph team',
+    repo: 'robot-observations',
+    task: 'Map the workspace scene',
+    busy: true,
+  };
+  window.PINNED = [
+    { icon: 'Mcp', label: 'OpenGraph connected' },
+  ];
+  window.SCHEDULED = [];
+  window.RECENTS = [
+    { label: 'Map the workspace scene', state: 'busy', on: true },
+    { label: 'Inspect graph relationships', state: 'idle' },
+  ];
+  window.STREAM = [];
+}
 
 /* --- Anthropicons ------------------------------------------------- */
 const ICONS = window.ANTHROPICONS || {};
@@ -65,7 +86,7 @@ const setTheme = t => {
   themeBtn.innerHTML = ic(t === 'dark' ? 'Sun' : 'Moon', 16);
 };
 themeBtn.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
-setTheme('dark');
+setTheme(demoParams.get('theme') === 'light' ? 'light' : 'dark');
 
 /* ============================================================
    Stream
@@ -280,3 +301,91 @@ input.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
 $('#send').onclick = send;
+
+if (promptDemo) {
+  const prompt = 'Build a graph from ./robot-observations. How is the gripper related to the yellow cloth?';
+  const demoBlocks = [];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const showResult = () => {
+    demoBlocks.length = 0;
+    demoBlocks.push(
+      { t: 'said', text: prompt },
+      {
+        t: 'act',
+        label: 'Called OpenGraph build_graph',
+        body: 'observation_03 → contains → robot_gripper\nrobot_gripper → holding → yellow_cloth',
+      },
+      {
+        t: 'prose',
+        html: '<p><strong>Found the connection.</strong> In <code>observation_03</code>, the <code>robot_gripper</code> is holding the <code>yellow_cloth</code>.</p>',
+      },
+    );
+    input.value = '';
+    sync();
+    render(demoBlocks);
+  };
+
+  if (reducedMotion) {
+    showResult();
+  } else {
+    const runDemo = (shouldFade = false) => {
+      const begin = () => {
+        demoBlocks.length = 0;
+        input.value = '';
+        sync();
+        render(demoBlocks);
+        document.documentElement.classList.remove('demo-resetting');
+
+        let index = 0;
+        const typeNext = () => {
+          input.value = prompt.slice(0, index);
+          sync();
+          index += 1;
+
+          if (index <= prompt.length) {
+            window.setTimeout(typeNext, 24);
+            return;
+          }
+
+          window.setTimeout(() => {
+            demoBlocks.push({ t: 'said', text: prompt });
+            input.value = '';
+            sync();
+            render(demoBlocks);
+
+            window.setTimeout(() => {
+              demoBlocks.push({
+                t: 'act',
+                label: 'Called OpenGraph build_graph',
+                body: 'observation_03 → contains → robot_gripper\nrobot_gripper → holding → yellow_cloth',
+              });
+              render(demoBlocks);
+            }, 650);
+
+            window.setTimeout(() => {
+              demoBlocks.push({
+                t: 'prose',
+                html: '<p><strong>Found the connection.</strong> In <code>observation_03</code>, the <code>robot_gripper</code> is holding the <code>yellow_cloth</code>.</p>',
+              });
+              render(demoBlocks);
+            }, 1450);
+
+            window.setTimeout(() => runDemo(true), 5400);
+          }, 560);
+        };
+
+        window.setTimeout(typeNext, shouldFade ? 320 : 700);
+      };
+
+      if (shouldFade) {
+        document.documentElement.classList.add('demo-resetting');
+        window.setTimeout(begin, 300);
+      } else {
+        begin();
+      }
+    };
+
+    runDemo(false);
+  }
+}
