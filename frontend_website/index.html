@@ -123,7 +123,7 @@
           <div class="compiler-intro">
             <h2 id="compiler-title">OpenGraph AI works with coding agents.</h2>
             <div class="compiler-supporting-copy">
-              <h3>Build context graphs, inspect relationships, trace coverage gaps, and query cited evidence.</h3>
+              <h3>Build graphs, inspect what each file contains, and ask questions answered from the graph with cited evidence.</h3>
               <p class="compiler-description">
                 Give your coding agent a connected view of your workspace instead of another pile of isolated search results.
               </p>
@@ -135,181 +135,13 @@
           class="graph-loop"
           data-graph-loop
           role="img"
-          aria-label="Documents, tables, audio, images, code and databases turn into a knowledge graph; an agent's query traces a cited evidence path back to its sources."
+          aria-label="Documents, tables, and images turn into a knowledge graph; an agent's query traces a cited evidence path back to its sources."
         >
           <video data-graph-video muted loop playsinline preload="none" poster="/video/graph-loop-poster.webp" width="1440" height="608" aria-hidden="true">
             <source data-src="/video/graph-loop-1440.mp4" type="video/mp4" />
           </video>
         </figure>
 
-        <div class="compiler-rail" data-active-stage="0" hidden>
-          <div class="pipeline-orbit" aria-hidden="true">
-            <svg class="pipeline-svg" viewBox="0 0 1200 96" preserveAspectRatio="xMidYMid meet">
-              <path
-                class="pipeline-path"
-                d="M40 48 C 220 48 240 20 420 30 S 640 76 780 52 S 1010 30 1160 44"
-              />
-              <circle class="pipeline-tracer" r="7" />
-            </svg>
-          </div>
-
-          <div class="compiler-stages">
-            <article class="compiler-stage stage-ingest is-active" tabindex="0" data-stage="0">
-              <div class="stage-meta">
-                <span>INPUT LAYER</span>
-                <span class="stage-state">ACTIVE</span>
-              </div>
-              <div class="stage-copy">
-                <p class="stage-command"><span class="tok-obj">source</span><span class="tok-punct">.</span><span class="tok-fn">add</span><span class="tok-punct">(</span><span class="tok-arg">any</span><span class="tok-punct">)</span></p>
-                <h3>Any data in.</h3>
-                <p>Documents, tables and media enter one multimodal pipeline.</p>
-              </div>
-              <div class="ingest-visual" aria-hidden="true">
-                <div class="source-stack">
-                  <span class="source-card"><b>WAV</b><small>q3_call.wav</small><i></i></span>
-                  <span class="source-card"><b>CSV</b><small>signals.csv</small><i></i></span>
-                  <span class="source-card"><b>PDF</b><small>renewal.pdf</small><i></i></span>
-                  <span class="source-card"><b>JSON</b><small>account.json</small><i></i></span>
-                </div>
-                <svg class="ingest-connectors" viewBox="0 0 260 210" preserveAspectRatio="none">
-                  <path d="M176 48 C211 48 211 105 240 105" />
-                  <path d="M176 88 C208 88 215 105 240 105" />
-                  <path d="M176 128 C208 128 215 105 240 105" />
-                  <path d="M176 168 C211 168 211 105 240 105" />
-                  <circle class="ingest-packet" r="4" />
-                  <circle class="ingest-packet" r="4" />
-                  <circle class="ingest-packet" r="4" />
-                  <circle class="ingest-packet" r="4" />
-                </svg>
-                <span class="ingest-core"><i></i><b>+</b></span>
-              </div>
-            </article>
-
-            <article class="compiler-stage stage-extract" tabindex="0" data-stage="1">
-              <div class="stage-meta">
-                <span>ENTITY GRAPH</span>
-                <span class="stage-state">QUEUED</span>
-              </div>
-              <div class="stage-copy">
-                <p class="stage-command"><span class="tok-obj">graph</span><span class="tok-punct">.</span><span class="tok-fn">resolve</span><span class="tok-punct">(</span><span class="tok-arg">cross_modal</span><span class="tok-punct">)</span></p>
-                <h3>Context becomes connected.</h3>
-                <p>Entities, relations and citations resolve into one traversable graph.</p>
-              </div>
-              <div class="graph-workbench">
-                <svg
-                  class="graph-map"
-                  data-graph-map
-                  viewBox="0 0 360 210"
-                  preserveAspectRatio="xMidYMid meet"
-                  role="img"
-                  aria-label="Four ingested sources resolving into a customer churn entity with cited pricing and risk relationships"
-                ></svg>
-              </div>
-            </article>
-
-            <article class="compiler-stage stage-query" tabindex="0" data-stage="2">
-              <div class="stage-meta">
-                <span>AGENT INTERFACE</span>
-                <span class="stage-state">QUEUED</span>
-              </div>
-              <div class="stage-copy">
-                <p class="stage-command"><span class="tok-obj">agent</span><span class="tok-punct">.</span><span class="tok-fn">query</span><span class="tok-punct">(</span><span class="tok-arg">natural_language</span><span class="tok-punct">)</span></p>
-                <h3>Answers with evidence.</h3>
-                <p>Traverse relationships, rank the subgraph and return the citation path.</p>
-              </div>
-              <div class="query-console claude-code-window" aria-label="Claude Code querying OpenGraph AI">
-                <div class="claude-mockup-welcome">
-                  <span class="claude-mockup-welcome-label">Claude Code</span>
-                  <h4>Welcome back User!</h4>
-                  <svg
-                    viewBox="0 0 24 24"
-                    role="img"
-                    aria-labelledby="claude-clawd-title"
-                  >
-                    <title id="claude-clawd-title">Claude clawd</title>
-                    <path d="M4.5 6h15v5H22v2h-2.5v3h-1v2H17v-2h-1v2h-1.5v-2h-5v2H8v-2H7v2H5.5v-2h-1v-3H2v-2h2.5ZM7 8v3h1V8Zm9 0v3h1V8Z"></path>
-                  </svg>
-                  <p>
-                    <span>Sonnet 5 with medium effort</span>
-                    <span>Claude Pro</span>
-                    <span>C:\Users\User</span>
-                  </p>
-                </div>
-
-                <div class="claude-mockup" aria-label="Claude Code terminal response">
-                  <div class="claude-mockup-notice">
-                    <b>!!</b>
-                    <strong>OpenGraph MCP Connected</strong>
-                    <span>·</span>
-                    <span>run /mcp</span>
-                  </div>
-
-                  <div class="claude-mockup-banner">
-                    <i aria-hidden="true"></i>
-                    <p>
-                      Tackle your toughest work with Opus 5. Switch anytime with /model.
-                      <small>+1 more · /status</small>
-                    </p>
-                  </div>
-
-                  <div class="claude-mockup-command">
-                    <span>&gt;</span>
-                    <b data-query-prompt>which renewals are at risk?</b>
-                    <i class="claude-mockup-command-caret" aria-hidden="true"></i>
-                  </div>
-
-                  <div class="claude-mockup-output">
-                    <div class="claude-mockup-response-state">
-                      <p class="claude-mockup-working" data-query-working>
-                        <i aria-hidden="true"></i>
-                        <span>Traversing relationships and ranking cited evidence…</span>
-                      </p>
-                      <p class="claude-mockup-result-heading">
-                        <span aria-hidden="true">●</span>
-                        <b>Found 3 cited signals</b>
-                        <small>Ranked by graph confidence</small>
-                      </p>
-                    </div>
-
-                    <div class="claude-mockup-results">
-                      <div class="claude-mockup-result">
-                        <b>Renewal risk</b>
-                        <strong>0.94</strong>
-                        <small><span>WAV</span> q3_call.wav</small>
-                        <i><b style="--score: 94%"></b></i>
-                      </div>
-                      <div class="claude-mockup-result">
-                        <b>Pricing concern</b>
-                        <strong>0.89</strong>
-                        <small><span>CSV</span> signals.csv</small>
-                        <i><b style="--score: 89%"></b></i>
-                      </div>
-                      <div class="claude-mockup-result">
-                        <b>Owner: Priya R.</b>
-                        <strong>0.86</strong>
-                        <small><span>JSON</span> account.json</small>
-                        <i><b style="--score: 86%"></b></i>
-                      </div>
-                    </div>
-
-                    <p class="claude-mockup-followup">Want different language or task? Say word.</p>
-                    <p class="claude-mockup-timing"><span aria-hidden="true">∗</span> Worked for 4s</p>
-                  </div>
-
-                  <div class="claude-mockup-prompt">
-                    <span>&gt;</span>
-                    <i aria-hidden="true"></i>
-                  </div>
-
-                  <div class="claude-mockup-status">
-                    <b>[CAVEMAN]</b>
-                    <span><i aria-hidden="true">Ⅱ</i> manual mode on · ← for agents</span>
-                  </div>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -327,6 +159,7 @@
               <h3>Works inside your agent.</h3>
               <span>Prompt naturally. OpenGraph builds and queries the connected context behind the answer.</span>
             </div>
+            <p class="example-tag">Example output</p>
             <div class="benefit-bento-visual benefit-bento-agent">
               <iframe
                 data-src="/mockups/claude-code/index.html?theme=light&amp;demo=prompt"
@@ -522,7 +355,10 @@
             </div>
 
             <div class="use-case-controls">
-              <p class="use-case-count" aria-hidden="true"><span data-use-case-current>1</span> / <span data-use-case-total>4</span></p>
+              <div class="use-case-meta">
+                <p class="use-case-count" aria-hidden="true"><span data-use-case-current>1</span> / <span data-use-case-total>4</span></p>
+                <p class="example-tag">Example output</p>
+              </div>
               <p class="visually-hidden" aria-live="polite" data-use-case-status></p>
               <div class="use-case-nav" role="group" aria-label="Use cases">
                 <button class="use-case-arrow" type="button" data-use-case-prev aria-controls="use-case-stage" aria-label="Previous use case">
@@ -540,6 +376,7 @@
               <h3>Answers that follow the edges.</h3>
               <span>The agent hops across typed relations to the frame that shows it, instead of guessing from the closest caption.</span>
             </div>
+            <p class="example-tag">Example output</p>
 
             <div class="trace" data-trace-stage data-step="3">
               <p class="trace-prompt"><span aria-hidden="true">&gt;</span> Where did I leave my phone, and what was next to it?</p>
@@ -576,6 +413,7 @@
               <h3>Every link carries a score.</h3>
               <span>Extraction records how sure it was about each node and edge, from 0 to 1. Raise the bar to see which links hold up.</span>
             </div>
+            <p class="example-tag">Example output</p>
 
             <div class="confidence">
               <figure class="source-frame">
@@ -629,6 +467,7 @@
               <h3>Every node points back to its source.</h3>
               <span>Pick a source type to see the box, sentence, or cell a node was extracted from.</span>
             </div>
+            <p class="example-tag">Example output</p>
 
             <div class="provenance">
               <div class="provenance-tabs" role="tablist" aria-label="Source type">
@@ -815,11 +654,10 @@
         <header class="about-header">
           <h2 id="about-title">The open context layer for reasoning agents.</h2>
           <p class="about-lede">
-            We started OpenGraph AI because retrieval-augmented agents are stuck
-            on text. Real problems live across tables, slides, recordings, and
-            screenshots — and the answers live in the
-            <em>relationships</em> between them. We're building a single, open
-            graph layer so agents can reason across all of it.
+            OpenGraph AI turns tables, text, images, audio, and video into
+            queryable knowledge graphs, so agents can reason over the
+            <em>relationships</em> in your data and retrieve the evidence behind
+            an answer. The first packages cover images, documents, and tables.
           </p>
         </header>
 
@@ -838,7 +676,7 @@
               </li>
               <li>
                 <b>Connect every signal.</b>
-                <span>Images, documents, and tables share one node, edge, and evidence model today. Audio and video are next.</span>
+                <span>Images, documents, and tables each build a graph today, with every node tied to the file it came from. Audio and video are next.</span>
               </li>
               <li>
                 <b>Fits your stack.</b>
@@ -846,7 +684,7 @@
               </li>
               <li>
                 <b>One interface for context.</b>
-                <span>Give agents relationships and evidence through one tool—not another service they need to supervise.</span>
+                <span>Agents reach the graph through MCP tools, the same way they reach everything else.</span>
               </li>
             </ul>
           </div>
@@ -854,8 +692,8 @@
           <div class="about-contact">
             <h3>Talk to us</h3>
             <p class="contact-lede">
-              Looking for design partners, especially teams building research
-              agents and enterprise memory.
+              Building something on top of OpenGraph AI? Tell us about it. We
+              read every message and reply.
             </p>
 
             <!-- No backend in this repo: the action is a plain mailto fallback
@@ -863,7 +701,7 @@
             <form
               class="contact-form"
               data-contact-form
-              action="mailto:hello@opengraphai.io"
+              action="mailto:team@opengraphai.io"
               method="post"
               enctype="text/plain"
             >

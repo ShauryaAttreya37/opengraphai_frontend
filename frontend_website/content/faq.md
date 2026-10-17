@@ -62,4 +62,4 @@ The [quickstart](/docs/getting-started/quickstart/) walks through the rest. To s
 
 ## Can I contribute or request a feature?
 
-Yes. Issues and pull requests are welcome on [GitHub](https://github.com/OpenGraphAI/opengraph-ai). New test images, extraction edge cases, and documentation fixes all help. If you want to work with us as a design partner, use the contact form below.
+Yes. Issues and pull requests are welcome on [GitHub](https://github.com/OpenGraphAI/opengraph-ai). New test images, extraction edge cases, and documentation fixes all help. To talk an idea through first, join the [Discord](https://discord.gg/PGFqf5amy6) or email [team@opengraphai.io](mailto:team@opengraphai.io).

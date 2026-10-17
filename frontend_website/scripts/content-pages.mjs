@@ -131,7 +131,7 @@ function renderSpecimen(specimen) {
   return `<figure class="specimen">
         <div class="specimen-commands">${commands}</div>
         <div class="specimen-body">
-          <p class="specimen-label">Reads</p>
+          <p class="specimen-label">Reads <span class="example-tag">Example output</span></p>
           <ul class="specimen-inputs">${inputs}</ul>
           <p class="specimen-label">Writes edges like</p>
           <ul class="specimen-edges">

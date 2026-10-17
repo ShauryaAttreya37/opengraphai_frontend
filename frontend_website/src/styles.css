@@ -520,6 +520,24 @@ body {
   border: 0;
 }
 
+/* Marks demo values that show the output format but did not come from a real
+   run, so nobody mistakes an illustration for a result. */
+.example-tag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 3px 9px;
+  border: 1px dashed rgb(var(--ground-ink-rgb) / 0.3);
+  border-radius: 999px;
+  color: rgb(var(--ground-ink-rgb) / 0.62);
+  background: rgb(var(--ground-glass-rgb) / 0.8);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 .hero-description {
   max-width: 980px;
   margin: clamp(38px, 7vh, 76px) auto 0;

@@ -15,17 +15,15 @@ import { AGENT_ICONS } from "./agent-icons.js";
 import { T } from "./layout.js";
 import { PALETTE } from "./graph.js";
 
-// The querying agent: a coloured orb whose mark morphs through the coding
+// The querying agent: a coloured orb whose mark morphs between the coding
 // agents OpenGraph AI works with. anime.js owns the morph (svg.morphTo on
 // hidden SVG paths) and the colour change; its timeline is seeked to the
 // loop time on every frame, so the scene stays a pure function of t.
 
+// Only the MCP clients the project README names.
 export const AGENTS = [
   { id: "claude", orb: "#D97757", glyph: "#FFF8F1" },
-  { id: "codex", orb: "#4F5BFF", glyph: "#FFFFFF" },
   { id: "cursor", orb: "#1C1D21", glyph: "#F4F2ED" },
-  { id: "gemini", orb: "#3186FF", glyph: "#FFFFFF" },
-  { id: "grok", orb: "#FBFAF6", glyph: "#0B0B0C" },
 ];
 
 const ORB_RADIUS = 0.3;

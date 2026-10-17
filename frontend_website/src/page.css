@@ -223,6 +223,10 @@
 }
 
 .specimen-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0 0 10px;
   color: rgb(var(--ground-ink-rgb) / 0.55);
   font-family: var(--sans);

@@ -53,16 +53,18 @@ export const productPages = [
     facts: [{ label: "v0.1.0 on PyPI", href: "https://pypi.org/project/opengraph-text/0.1.0/" }, "Python 3.11+", "Apache-2.0", "5 MCP tools"],
     primaryCta: { label: "Install from PyPI", href: "https://pypi.org/project/opengraph-text/0.1.0/" },
     secondaryCta: { label: "View on GitHub", href: `${repoUrl}/tree/main/opengraph-text` },
+    // Inputs are the package's own test documents (opengraph-text/tests/
+    // sample_documents); each edge restates a sentence in them.
     specimen: {
-      commands: ["opengraph-text build ./reports"],
-      inputs: ["board-notes-q3.pdf", "market-scan.md", "partner-call.txt"],
+      commands: ["opengraph-text build ./sample_documents"],
+      inputs: ["doc_anthropic.md", "doc_openai.md", "doc_competition.md"],
       edges: [
-        ["board-notes-q3.pdf", "states", "\"Acme opened a second plant in 2025.\"", "0.91"],
-        ["Acme Robotics", "acquired", "Beta Labs", "0.90"],
-        ["Priya Raman", "works_at", "Acme Robotics", "0.92"],
-        ["market-scan.md", "about_topic", "supply chain", "0.88"],
+        ["doc_anthropic.md", "states", "\"Anthropic was founded by Dario Amodei and Daniela Amodei in 2021.\""],
+        ["Dario Amodei", "founded", "Anthropic"],
+        ["Sam Altman", "works_at", "OpenAI"],
+        ["Anthropic", "competitor_of", "OpenAI"],
       ],
-      output: "reports/opengraph-out/graph.json",
+      output: "sample_documents/opengraph-out/graph.json",
     },
     related: ["/use-cases/research/", "/use-cases/multimodal-agents/"],
   },

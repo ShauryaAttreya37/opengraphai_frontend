@@ -49,6 +49,29 @@
   transform: translateY(-4px);
 }
 
+/* Cards whose demos show example values say so in their top corner. On narrow
+   cards the label drops into flow, between the copy and the demo. */
+.benefit-bento-item { container-type: inline-size; }
+
+.benefit-bento-item > .example-tag {
+  position: absolute;
+  top: clamp(20px, 2vw, 28px);
+  right: clamp(20px, 2vw, 28px);
+  z-index: 3;
+}
+
+.benefit-bento-item:has(> .example-tag) > .benefit-bento-copy { padding-right: 128px; }
+
+@container (max-width: 460px) {
+  .benefit-bento-item > .example-tag {
+    position: static;
+    align-self: flex-start;
+    margin-top: 16px;
+  }
+
+  .benefit-bento-item:has(> .example-tag) > .benefit-bento-copy { padding-right: 0; }
+}
+
 .benefit-bento-item-agent { grid-column: 1 / -1; }
 .benefit-bento-item-wide,
 .benefit-bento-item-provenance { grid-column: span 7; }
@@ -208,6 +231,8 @@
   justify-content: space-between;
   gap: 20px;
 }
+
+.use-case-meta { display: flex; align-items: center; gap: 12px; }
 
 .use-case-count {
   margin: 0;

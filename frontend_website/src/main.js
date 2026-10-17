@@ -1211,8 +1211,8 @@ function initialiseUseCaseCarousel() {
   showSlide(0, { announce: false });
 }
 
-// PLACEHOLDER - confirm the real inbox before this ships.
-const CONTACT_ADDRESS = "hello@opengraphai.io";
+// The address the project README publishes for contact.
+const CONTACT_ADDRESS = "team@opengraphai.io";
 
 // There is no backend in this repo. The form's mailto action alone is
 // unreliable across browsers, so build the draft ourselves and hand it to the
