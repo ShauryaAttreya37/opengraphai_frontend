@@ -1,4 +1,4 @@
-import { marked } from "marked";
+import { Marked, marked } from "marked";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import json from "highlight.js/lib/languages/json";
@@ -7,24 +7,27 @@ import plaintext from "highlight.js/lib/languages/plaintext";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowUp,
   ArrowUpRight,
   BookOpen,
   Check,
+  CircleAlert,
   Code2,
   Copy,
   ExternalLink,
   FileCode2,
   GitFork,
-  Globe,
   Image as ImageIcon,
   Menu,
   Moon,
   Network,
   Plug,
   Rocket,
+  RotateCcw,
   Search,
   Send,
   Sparkles,
+  SquarePen,
   SquareTerminal,
   Sun,
   Wrench,
@@ -32,6 +35,7 @@ import {
   createIcons,
 } from "lucide";
 import "./docs.css";
+import { docsPages, docsSchema, siteUrl } from "./site-metadata.js";
 
 import summaryMarkdown from "../docs/content/SUMMARY.md?raw";
 import introductionMarkdown from "../docs/content/README.md?raw";
@@ -65,24 +69,27 @@ const pageIcons = {
 const iconSet = {
   ArrowLeft,
   ArrowRight,
+  ArrowUp,
   ArrowUpRight,
   BookOpen,
   Check,
+  CircleAlert,
   Code2,
   Copy,
   ExternalLink,
   FileCode2,
   GitFork,
-  Globe,
   Image: ImageIcon,
   Menu,
   Moon,
   Network,
   Plug,
   Rocket,
+  RotateCcw,
   Search,
   Send,
   Sparkles,
+  SquarePen,
   SquareTerminal,
   Sun,
   Wrench,
@@ -134,6 +141,23 @@ const groups = parseSummary(summaryMarkdown);
 const pages = groups.flatMap((group) => group.pages);
 const pageBySlug = new Map(pages.map((page) => [page.slug, page]));
 const pageBySource = new Map(pages.map((page) => [page.source, page]));
+const metadataBySlug = new Map(docsPages.map((page) => [page.slug, page]));
+const pathFor = (slug) => metadataBySlug.get(slug)?.path || "/docs/";
+const cleanSearchLine = (line) => line
+  .replace(/```.*|<[^>]+>|[#>*_`|]/g, " ")
+  .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+  .replace(/\s+/g, " ")
+  .trim();
+const searchIndex = pages.map((page) => {
+  const lines = page.markdown.split("\n").map(cleanSearchLine).filter((line) => line.length > 2);
+  return {
+    page,
+    lines,
+    title: page.title.toLowerCase(),
+    group: page.group.toLowerCase(),
+    text: `${page.title} ${page.group} ${lines.join(" ")}`.toLowerCase(),
+  };
+});
 
 const nav = document.querySelector("[data-docs-nav]");
 const article = document.querySelector("[data-docs-article]");
@@ -157,20 +181,46 @@ const assistantInput = document.querySelector("[data-assistant-input]");
 const assistantContext = document.querySelector("[data-assistant-context]");
 const assistantContextLabel = document.querySelector("[data-assistant-context-label]");
 const assistantClear = document.querySelector("[data-assistant-clear]");
-const assistantSearchToggle = document.querySelector("[data-assistant-search-toggle]");
 const assistantInputShell = document.querySelector("[data-assistant-input-shell]");
 const assistantSend = document.querySelector("[data-assistant-send]");
+const chatDrawer = document.querySelector("[data-chat-drawer]");
+const chatMessages = document.querySelector("[data-chat-messages]");
+const chatForm = document.querySelector("[data-chat-form]");
+const chatInput = document.querySelector("[data-chat-input]");
+const chatClear = document.querySelector("[data-chat-clear]");
+const chatClose = document.querySelector("[data-chat-close]");
+const chatAttached = document.querySelector("[data-chat-attached]");
+const chatAttachedLabel = document.querySelector("[data-chat-attached-label]");
+const chatAttachedClear = document.querySelector("[data-chat-attached-clear]");
+const chatSend = document.querySelector("[data-chat-send]");
+const chatWelcomeMarkup = chatMessages?.innerHTML ?? "";
 
 let showingMarkdown = false;
 let activeSlug = "";
 let toastTimer;
 let attachedCode = "";
-let webSearchEnabled = true;
+let attachedLang = "";
+let chatStreaming = false;
+// Completed turns sent with each question so follow-ups have context; reset by "New chat".
+let chatHistory = [];
+let chatSessionId = 0;
+let chatAbortController = null;
 
-const assistantMinHeight = 52;
-const assistantMaxHeight = 200;
+const assistantMinHeight = 32;
+const assistantMaxHeight = 120;
+const chatInputMaxHeight = 168;
+const chatInputPlaceholder = "Message OpenGraph AI…";
+const chatScrollStickThreshold = 80;
+const chatHistoryLimit = 20;
 
 marked.setOptions({ gfm: true, breaks: false });
+
+// Chat answers come from the model, so raw HTML in them is shown as text, never rendered.
+const chatMarked = new Marked({
+  gfm: true,
+  breaks: false,
+  renderer: { html: ({ text }) => escapeHtml(text) },
+});
 hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("shell", bash);
 hljs.registerLanguage("json", json);
@@ -186,7 +236,7 @@ function renderNavigation() {
     <section class="docs-nav-group">
       <h2>${escapeHtml(group.title)}</h2>
       ${group.pages.map((page) => `
-        <a class="docs-nav-link" href="#/${page.slug}" data-page-slug="${page.slug}">
+        <a class="docs-nav-link" href="${pathFor(page.slug)}" data-page-slug="${page.slug}">
           <i data-lucide="${pageIcons[page.slug] || "book-open"}" aria-hidden="true"></i>
           <span>${escapeHtml(page.title)}</span>
         </a>
@@ -231,7 +281,7 @@ function decorateArticle(page) {
     heading.dataset.tocLabel = label;
     const anchor = document.createElement("a");
     anchor.className = "heading-anchor";
-    anchor.href = `#/${page.slug}`;
+    anchor.href = `${pathFor(page.slug)}#${heading.id}`;
     anchor.setAttribute("aria-label", `Scroll to ${label}`);
     anchor.textContent = "#";
     anchor.addEventListener("click", (event) => {
@@ -247,7 +297,7 @@ function decorateArticle(page) {
 
     if (href.endsWith(".md")) {
       const target = pageBySource.get(normalizeSourcePath(page.source, href));
-      if (target) link.href = `#/${target.slug}`;
+      if (target) link.href = pathFor(target.slug);
       return;
     }
 
@@ -292,11 +342,16 @@ function decorateArticle(page) {
     askAction.addEventListener("click", () => attachCode(code.textContent, language));
 
     actions.append(copyAction, askAction);
-    pre.append(actions);
+
+    // Actions sit on a wrapper, not inside <pre>, so they stay pinned while the code scrolls sideways.
+    const block = document.createElement("div");
+    block.className = "code-block";
+    pre.replaceWith(block);
+    block.append(pre, actions);
   });
 
   toc.innerHTML = headings.length
-    ? headings.map((heading) => `<a class="toc-${heading.tagName.toLowerCase()}" href="#/${page.slug}">${escapeHtml(heading.dataset.tocLabel)}</a>`).join("")
+    ? headings.map((heading) => `<a class="toc-${heading.tagName.toLowerCase()}" href="${pathFor(page.slug)}#${heading.id}">${escapeHtml(heading.dataset.tocLabel)}</a>`).join("")
     : '<span class="docs-toc-empty">Overview</span>';
 
   toc.querySelectorAll("a").forEach((link, index) => {
@@ -311,14 +366,18 @@ function renderPager(activeIndex) {
   const previous = pages[activeIndex - 1];
   const next = pages[activeIndex + 1];
   pager.innerHTML = `
-    ${previous ? `<a href="#/${previous.slug}" class="pager-previous"><span>Previous</span><b><i data-lucide="arrow-left" aria-hidden="true"></i>${escapeHtml(previous.title)}</b></a>` : "<span></span>"}
-    ${next ? `<a href="#/${next.slug}" class="pager-next"><span>Next</span><b>${escapeHtml(next.title)}<i data-lucide="arrow-right" aria-hidden="true"></i></b></a>` : "<span></span>"}
+    ${previous ? `<a href="${pathFor(previous.slug)}" class="pager-previous"><span>Previous</span><b><i data-lucide="arrow-left" aria-hidden="true"></i>${escapeHtml(previous.title)}</b></a>` : "<span></span>"}
+    ${next ? `<a href="${pathFor(next.slug)}" class="pager-next"><span>Next</span><b>${escapeHtml(next.title)}<i data-lucide="arrow-right" aria-hidden="true"></i></b></a>` : "<span></span>"}
   `;
 }
 
 function currentPage() {
-  const slug = window.location.hash.replace(/^#\/?/, "").split("#")[0];
-  return pageBySlug.get(slug) || pages[0];
+  // Keep old shared hash links working while canonical links use real pages.
+  const legacySlug = window.location.hash.startsWith("#/") ? window.location.hash.slice(2).split("#")[0] : null;
+  if (legacySlug && pageBySlug.has(legacySlug)) history.replaceState(null, "", pathFor(legacySlug));
+  const path = window.location.pathname.replace(/\/index\.html$/, "/").replace(/\/?$/, "/");
+  const metadata = docsPages.find((page) => page.path === path);
+  return pageBySlug.get(metadata?.slug) || pages[0];
 }
 
 function markdownHeading(page) {
@@ -356,7 +415,7 @@ function renderPage() {
   updatePageActions();
 
   breadcrumbs.innerHTML = `
-    <a href="#/introduction">Docs</a>
+    <a href="/docs/">Docs</a>
     <span>/</span>
     <span>${escapeHtml(page.group)}</span>
     <span>/</span>
@@ -377,11 +436,26 @@ function renderPage() {
     else link.removeAttribute("aria-current");
   });
 
-  document.title = `${markdownHeading(page)} — OpenGraph AI Docs`;
+  const metadata = metadataBySlug.get(page.slug);
+  document.title = `${metadata.title} | OpenGraph AI`;
+  document.querySelector('link[rel="canonical"]').href = `${siteUrl}${metadata.path}`;
+  document.querySelector('meta[name="description"]').content = metadata.description;
+  document.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((meta) => { meta.content = document.title; });
+  document.querySelectorAll('meta[property="og:description"], meta[name="twitter:description"]').forEach((meta) => { meta.content = metadata.description; });
+  document.querySelector('meta[property="og:url"]').content = `${siteUrl}${metadata.path}`;
+  const schema = document.querySelector('script[type="application/ld+json"]');
+  if (schema) {
+    schema.textContent = JSON.stringify(docsSchema(metadata, markdownHeading(page)));
+  }
   window.scrollTo({ top: 0, behavior: "auto" });
   closeMenu();
   closeSearch();
   refreshIcons();
+  if (location.hash && !location.hash.startsWith("#/")) {
+    try {
+      scrollToHeading(document.getElementById(decodeURIComponent(location.hash.slice(1))));
+    } catch { /* Ignore malformed fragments in shared links. */ }
+  }
 }
 
 function setMenu(open) {
@@ -401,20 +475,27 @@ function closeSearch() {
 
 function renderSearch(query) {
   const normalized = query.trim().toLowerCase();
-  if (!normalized) {
-    closeSearch();
-    searchResults.innerHTML = "";
-    return;
-  }
-
-  const matches = pages.filter((page) => `${page.title} ${page.group} ${page.markdown}`.toLowerCase().includes(normalized)).slice(0, 6);
+  const terms = [...new Set(normalized.split(/\s+/).filter(Boolean))];
+  const matches = searchIndex
+    .filter((entry) => terms.every((term) => entry.text.includes(term)))
+    .map((entry) => ({
+      ...entry,
+      score: terms.reduce((score, term) => score
+        + (entry.title === term ? 30 : 0)
+        + (entry.title.includes(term) ? 12 : 0)
+        + (entry.group.includes(term) ? 4 : 0), 0),
+      snippet: entry.lines.find((line) => terms.some((term) => line.toLowerCase().includes(term)))
+        || metadataBySlug.get(entry.page.slug)?.description
+        || entry.lines[0],
+    }))
+    .sort((a, b) => b.score - a.score || pages.indexOf(a.page) - pages.indexOf(b.page));
   searchResults.innerHTML = matches.length
-    ? matches.map((page) => `
-      <a href="#/${page.slug}" role="option" data-search-result>
+    ? `<p class="docs-search-summary">${normalized ? `${matches.length} matching page${matches.length === 1 ? "" : "s"}` : `All documentation · ${matches.length} pages`}</p>${matches.map(({ page, snippet }) => `
+      <a href="${pathFor(page.slug)}" role="option" data-search-result>
         <i data-lucide="${pageIcons[page.slug] || "book-open"}" aria-hidden="true"></i>
-        <span><b>${escapeHtml(page.title)}</b><small>${escapeHtml(page.group)}</small></span>
+        <span><b>${escapeHtml(page.title)}</b><small>${escapeHtml(page.group)}</small><em>${escapeHtml(snippet.slice(0, 128))}</em></span>
       </a>
-    `).join("")
+    `).join("")}`
     : '<p>No documentation found.</p>';
   searchResults.classList.add("is-open");
   search.setAttribute("aria-expanded", "true");
@@ -479,15 +560,33 @@ function showAssistantContext(label, icon) {
 
 function attachCode(code, language) {
   attachedCode = code;
+  attachedLang = language;
+
+  // Show in bottom floating bar
   showAssistantContext(`${language.toUpperCase()} code attached`, "code-2");
-  assistantInput.placeholder = "Ask about the attached code…";
-  assistantInput.focus();
+  assistantInput.placeholder = `Ask about this ${language.toUpperCase()} code…`;
+
+  // Show in right chat drawer
+  if (chatAttached && chatAttachedLabel) {
+    chatAttached.hidden = false;
+    chatAttachedLabel.textContent = `${language.toUpperCase()} snippet attached`;
+  }
+  if (chatInput) {
+    chatInput.placeholder = `Ask about this ${language.toUpperCase()} snippet…`;
+  }
+
+  // Smoothly open the chat drawer on the right and focus input
+  openChatDrawer();
+  chatInput?.focus();
 }
 
 function clearAttachedCode() {
   attachedCode = "";
+  attachedLang = "";
   assistantContext.hidden = true;
-  assistantInput.placeholder = "Ask about this page…";
+  assistantInput.placeholder = "Ask the documentation…";
+  if (chatAttached) chatAttached.hidden = true;
+  if (chatInput) chatInput.placeholder = chatInputPlaceholder;
 }
 
 function updateThemeButton() {
@@ -501,16 +600,23 @@ renderNavigation();
 updateThemeButton();
 renderPage();
 
-window.addEventListener("hashchange", renderPage);
+window.addEventListener("hashchange", () => {
+  if (location.hash.startsWith("#/")) renderPage();
+});
+window.addEventListener("popstate", renderPage);
+document.addEventListener("click", (event) => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.target.closest("a[href]");
+  if (!link || link.target || link.hasAttribute("download")) return;
+  const url = new URL(link.href);
+  if (url.origin !== location.origin || !docsPages.some((page) => page.path === url.pathname)) return;
+  event.preventDefault();
+  history.pushState(null, "", url.pathname + url.hash);
+  renderPage();
+});
 menuButton.addEventListener("click", () => setMenu(!document.body.classList.contains("docs-menu-open")));
 backdrop.addEventListener("click", closeMenu);
 assistantClear.addEventListener("click", clearAttachedCode);
-
-assistantSearchToggle.addEventListener("click", () => {
-  webSearchEnabled = !webSearchEnabled;
-  assistantSearchToggle.classList.toggle("is-active", webSearchEnabled);
-  assistantSearchToggle.setAttribute("aria-pressed", String(webSearchEnabled));
-});
 
 assistantInput.addEventListener("input", () => {
   adjustAssistantHeight();
@@ -528,19 +634,264 @@ assistantInputShell.addEventListener("click", (event) => {
   if (!event.target.closest("button, label, input, textarea")) assistantInput.focus();
 });
 
+function openChatDrawer() {
+  if (!chatDrawer) return;
+  chatDrawer.hidden = false;
+  // Force a style flush so the slide-in transition runs after un-hiding.
+  void chatDrawer.offsetWidth;
+  chatDrawer.classList.add("is-open");
+  chatDrawer.setAttribute("aria-hidden", "false");
+  chatInput?.focus();
+}
+
+function closeChatDrawer() {
+  if (!chatDrawer) return;
+  chatDrawer.classList.remove("is-open");
+  chatDrawer.setAttribute("aria-hidden", "true");
+  setTimeout(() => {
+    if (!chatDrawer.classList.contains("is-open")) chatDrawer.hidden = true;
+  }, 260);
+}
+
+function clearChatMessages() {
+  if (!chatMessages) return;
+  chatAbortController?.abort();
+  chatHistory = [];
+  chatSessionId += 1;
+  chatMessages.innerHTML = chatWelcomeMarkup;
+  refreshIcons();
+  chatInput?.focus();
+}
+
+function scrollChatToBottom() {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function isChatNearBottom() {
+  return chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < chatScrollStickThreshold;
+}
+
+function adjustChatInputHeight() {
+  if (!chatInput) return;
+  chatInput.style.height = "auto";
+  chatInput.style.height = `${Math.min(chatInput.scrollHeight, chatInputMaxHeight)}px`;
+  chatInput.style.overflowY = chatInput.scrollHeight > chatInputMaxHeight ? "auto" : "hidden";
+}
+
+function updateChatSend() {
+  if (!chatSend || !chatInput) return;
+  chatSend.disabled = chatStreaming || !chatInput.value.trim();
+}
+
+function createUserMessage(prompt, snippet, lang) {
+  const message = document.createElement("div");
+  message.className = "docs-chat-msg user";
+  if (snippet) {
+    message.innerHTML = `
+      <div class="docs-chat-snippet-preview">
+        <span class="snippet-badge">${escapeHtml(lang || "code")}</span>
+        <code>${escapeHtml(snippet.trim())}</code>
+      </div>
+    `;
+  }
+  const bubble = document.createElement("div");
+  bubble.className = "docs-chat-bubble markdown-body";
+  // Single newlines stay line breaks, as typed.
+  bubble.innerHTML = chatMarked.parse(prompt, { breaks: true });
+  bubble.querySelectorAll("pre code").forEach((block) => hljs.highlightElement(block));
+  message.appendChild(bubble);
+  return message;
+}
+
+function rememberChatTurn(prompt, snippet, lang, answer) {
+  const question = snippet ? `\`\`\`${lang || ""}\n${snippet.trim()}\n\`\`\`\n\n${prompt}` : prompt;
+  chatHistory = [
+    ...chatHistory,
+    { role: "user", text: question },
+    { role: "model", text: answer },
+  ].slice(-chatHistoryLimit);
+}
+
+function createAssistantMessage() {
+  const message = document.createElement("div");
+  message.className = "docs-chat-msg assistant";
+  message.innerHTML = `
+    <div class="docs-chat-loading" role="status">
+      <span class="docs-chat-loading-dot" aria-hidden="true"></span>
+      <span class="visually-hidden">Thinking…</span>
+    </div>
+    <div class="markdown-body" hidden></div>
+  `;
+  return message;
+}
+
+function showChatError(message, text) {
+  message.innerHTML = `
+    <div class="docs-chat-error" role="alert">
+      <i data-lucide="circle-alert" aria-hidden="true"></i>
+      <span>${escapeHtml(text)}</span>
+    </div>
+  `;
+  refreshIcons();
+  scrollChatToBottom();
+}
+
+function addCopyAction(message, text) {
+  const actions = document.createElement("div");
+  actions.className = "docs-chat-msg-actions";
+  actions.innerHTML = `
+    <button type="button" class="docs-chat-msg-copy" aria-label="Copy answer" title="Copy">
+      <i data-lucide="copy" aria-hidden="true"></i>
+    </button>
+  `;
+  const button = actions.querySelector("button");
+  button.addEventListener("click", async () => {
+    const copied = await copyText(text);
+    button.innerHTML = `<i data-lucide="${copied ? "check" : "copy"}" aria-hidden="true"></i>`;
+    button.title = copied ? "Copied" : "Copy unavailable";
+    refreshIcons();
+    window.setTimeout(() => {
+      button.innerHTML = '<i data-lucide="copy" aria-hidden="true"></i>';
+      button.title = "Copy";
+      refreshIcons();
+    }, 1500);
+  });
+  message.appendChild(actions);
+  refreshIcons();
+}
+
+// Streams the answer into `message`; resolves to the full answer, or "" when it failed.
+async function streamAssistantReply(message, { prompt, context, history, signal }) {
+  const response = await fetch("/api/assistant", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, context, history }),
+    signal,
+  });
+
+  if (!response.ok) {
+    let errorText = "Failed to receive a response.";
+    try {
+      const errorJson = await response.json();
+      errorText = errorJson.error || errorText;
+    } catch {}
+    showChatError(message, errorText);
+    return "";
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const markdownBody = message.querySelector(".markdown-body");
+  let answer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    answer += decoder.decode(value, { stream: true });
+    if (!answer.trim()) continue;
+
+    const stickToBottom = isChatNearBottom();
+    message.querySelector(".docs-chat-loading")?.remove();
+    markdownBody.hidden = false;
+    markdownBody.innerHTML = chatMarked.parse(answer);
+    if (stickToBottom) scrollChatToBottom();
+  }
+
+  if (!answer.trim()) {
+    showChatError(message, "The assistant returned an empty response. Try rephrasing your question.");
+    return "";
+  }
+
+  markdownBody.querySelectorAll("pre code").forEach((block) => hljs.highlightElement(block));
+  addCopyAction(message, answer);
+  return answer;
+}
+
+async function sendChatMessage(prompt) {
+  if (!prompt || !chatMessages || chatStreaming) return;
+
+  openChatDrawer();
+
+  // Snapshot and reset the attached snippet for this question.
+  const snippet = attachedCode;
+  const lang = attachedLang;
+  clearAttachedCode();
+
+  chatMessages.querySelector(".docs-chat-welcome")?.remove();
+  chatMessages.appendChild(createUserMessage(prompt, snippet, lang));
+  const assistantMsg = createAssistantMessage();
+  chatMessages.appendChild(assistantMsg);
+  scrollChatToBottom();
+
+  const pageMarkdown = currentPage().markdown.slice(0, 4000);
+  const contextData = snippet
+    ? `Attached Code Snippet (${lang}):\n${snippet}\n\nPage Markdown:\n${pageMarkdown}`
+    : `Page Markdown:\n${pageMarkdown}`;
+
+  const sessionId = chatSessionId;
+  const abortController = new AbortController();
+  chatAbortController = abortController;
+  chatStreaming = true;
+  updateChatSend();
+  try {
+    const answer = await streamAssistantReply(assistantMsg, {
+      prompt,
+      context: contextData,
+      history: chatHistory,
+      signal: abortController.signal,
+    });
+    // Skip answers that finish after "New chat" so they do not leak into the fresh conversation.
+    if (answer && sessionId === chatSessionId) rememberChatTurn(prompt, snippet, lang, answer);
+  } catch {
+    if (!abortController.signal.aborted) {
+      showChatError(assistantMsg, "Could not reach the assistant. Check your connection and try again.");
+    }
+  } finally {
+    if (chatAbortController === abortController) chatAbortController = null;
+    chatStreaming = false;
+    updateChatSend();
+  }
+}
+
 assistantForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  if (!assistantInput.value.trim()) {
+  const prompt = assistantInput.value.trim();
+  if (!prompt || chatStreaming) {
     assistantInput.focus();
     return;
   }
-  const context = attachedCode ? "code attached" : "page context";
-  const searchMode = webSearchEnabled ? "web search on" : "web search off";
-  showToast(`Assistant API not connected — ${context}, ${searchMode}`);
+
   assistantInput.value = "";
   adjustAssistantHeight(true);
   updateAssistantSend();
+  sendChatMessage(prompt);
 });
+
+chatForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const prompt = chatInput.value.trim();
+  if (!prompt || chatStreaming) return;
+  chatInput.value = "";
+  adjustChatInputHeight();
+  updateChatSend();
+  sendChatMessage(prompt);
+});
+
+chatInput?.addEventListener("input", () => {
+  adjustChatInputHeight();
+  updateChatSend();
+});
+
+chatInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    chatForm.requestSubmit();
+  }
+});
+
+chatClose?.addEventListener("click", closeChatDrawer);
+chatClear?.addEventListener("click", clearChatMessages);
+chatAttachedClear?.addEventListener("click", clearAttachedCode);
 
 themeButton.addEventListener("click", () => {
   const nextTheme = document.documentElement.dataset.docsTheme === "dark" ? "light" : "dark";
@@ -570,10 +921,11 @@ copyButton.addEventListener("click", async () => {
 });
 
 search.addEventListener("input", () => renderSearch(search.value));
+search.addEventListener("focus", () => renderSearch(search.value));
 search.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     const firstResult = searchResults.querySelector("[data-search-result]");
-    if (firstResult) window.location.hash = firstResult.getAttribute("href");
+    if (firstResult) firstResult.click();
   }
 });
 searchResults.addEventListener("click", closeSearch);
@@ -596,5 +948,6 @@ document.addEventListener("keydown", (event) => {
     search.blur();
     closeSearch();
     closeMenu();
+    closeChatDrawer();
   }
 });

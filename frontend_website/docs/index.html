@@ -8,10 +8,27 @@
       content="OpenGraph AI documentation for building and querying context graphs from multimodal data."
     />
     <title>Documentation — OpenGraph AI</title>
+    <link rel="icon" href="/opengraph-logo.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://opengraphai.io/docs/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="OpenGraph AI" />
+    <meta property="og:url" content="https://opengraphai.io/docs/" />
+    <meta property="og:title" content="Knowledge Graph Documentation | OpenGraph AI" />
+    <meta property="og:description" content="Build and query knowledge graphs with OpenGraph AI. Guides for the CLI, MCP tools, and connected source evidence." />
+    <meta property="og:image" content="https://opengraphai.io/social-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OpenGraph AI knowledge graph documentation" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Knowledge Graph Documentation | OpenGraph AI" />
+    <meta name="twitter:description" content="Build and query knowledge graphs with OpenGraph AI. Guides for the CLI, MCP tools, and connected source evidence." />
+    <meta name="twitter:image" content="https://opengraphai.io/social-card.png" />
+    <meta name="twitter:image:alt" content="OpenGraph AI knowledge graph documentation" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=JetBrains+Mono:wght@400;500;600&family=Pixelify+Sans:wght@600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=JetBrains+Mono:wght@400;500;600&family=Pixelify+Sans:wght@600&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script>
@@ -55,11 +72,11 @@
       </div>
 
       <nav class="docs-product-nav" aria-label="Primary documentation">
-        <a href="#/introduction" data-top-slug="introduction">Overview</a>
-        <a href="#/getting-started/quickstart" data-top-slug="getting-started/quickstart">Quickstart</a>
-        <a href="#/opengraph-image/overview" data-top-slug="opengraph-image/overview">OpenGraph Image</a>
-        <a href="#/reference/mcp-tools" data-top-slug="reference/mcp-tools">MCP tools</a>
-        <a href="#/reference/cli" data-top-slug="reference/cli">CLI reference</a>
+        <a href="/docs/" data-top-slug="introduction">Overview</a>
+        <a href="/docs/getting-started/quickstart/" data-top-slug="getting-started/quickstart">Quickstart</a>
+        <a href="/docs/opengraph-image/overview/" data-top-slug="opengraph-image/overview">OpenGraph Image</a>
+        <a href="/docs/reference/mcp-tools/" data-top-slug="reference/mcp-tools">MCP tools</a>
+        <a href="/docs/reference/cli/" data-top-slug="reference/cli">CLI reference</a>
       </nav>
     </header>
 
@@ -100,7 +117,7 @@
       </aside>
     </div>
 
-    <!-- AI input adapted from KokonutUI's MIT-licensed AI Input Search component. -->
+    <!-- Documentation-grounded query input. -->
     <form class="docs-assistant" data-assistant-form>
       <div class="docs-assistant-context" data-assistant-context hidden>
         <i data-lucide="code-2" data-assistant-context-icon aria-hidden="true"></i>
@@ -111,28 +128,64 @@
       </div>
       <div class="docs-assistant-input-shell" data-assistant-input-shell>
         <label class="visually-hidden" for="docs-assistant-input">Ask OpenGraph AI about this documentation</label>
-        <textarea id="docs-assistant-input" rows="1" placeholder="Ask about this page…" autocomplete="off" aria-describedby="assistant-availability" data-assistant-input></textarea>
+        <textarea id="docs-assistant-input" rows="1" placeholder="Ask the documentation…" autocomplete="off" aria-describedby="assistant-availability" data-assistant-input></textarea>
 
         <div class="docs-assistant-toolbar">
-          <div class="docs-assistant-tools">
-            <button class="docs-assistant-search is-active" type="button" aria-label="Toggle web search" aria-pressed="true" data-assistant-search-toggle>
-              <span class="docs-assistant-search-icon" aria-hidden="true">
-                <i data-lucide="globe"></i>
-              </span>
-              <span class="docs-assistant-search-label">Search</span>
-            </button>
-          </div>
-
           <button class="docs-assistant-send" type="submit" aria-label="Send question" data-assistant-send>
             <i data-lucide="send" aria-hidden="true"></i>
           </button>
         </div>
       </div>
-      <p class="visually-hidden" id="assistant-availability">Assistant interface preview. API connection is not configured.</p>
+      <p class="visually-hidden" id="assistant-availability">Answers draw on this documentation first and general knowledge where helpful.</p>
     </form>
 
     <button class="docs-backdrop" type="button" aria-label="Close documentation navigation" data-docs-backdrop></button>
     <div class="docs-toast" role="status" aria-live="polite" data-docs-toast></div>
+
+    <!-- Monochrome chat drawer with ChatGPT-style message bubbles. -->
+    <aside class="docs-chat-drawer" data-chat-drawer aria-label="Documentation Assistant Chat" aria-hidden="true" hidden>
+      <div class="docs-chat-header">
+        <div class="docs-chat-title">
+          <span class="docs-chat-title-mark" aria-hidden="true"></span>
+          <span>OpenGraph AI</span>
+        </div>
+        <div class="docs-chat-header-actions">
+          <button type="button" class="docs-chat-header-btn" data-chat-clear aria-label="New chat" title="New chat">
+            <i data-lucide="square-pen" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="docs-chat-header-btn" data-chat-close aria-label="Close chat" title="Close chat">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <div class="docs-chat-messages" data-chat-messages>
+        <div class="docs-chat-welcome">
+          <h2>What can I help with?</h2>
+          <p>Ask about OpenGraph AI, these docs, or any code snippet on the page.</p>
+        </div>
+      </div>
+      <div class="docs-chat-footer">
+        <form class="docs-chat-form" data-chat-form>
+          <div class="docs-chat-attached" data-chat-attached hidden>
+            <div class="docs-chat-attached-info">
+              <i data-lucide="code-2" aria-hidden="true"></i>
+              <span data-chat-attached-label>Code attached</span>
+            </div>
+            <button type="button" class="docs-chat-attached-clear" data-chat-attached-clear aria-label="Remove attached code" title="Remove attachment">
+              <i data-lucide="x" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="docs-chat-composer">
+            <label class="visually-hidden" for="docs-chat-input">Message OpenGraph AI</label>
+            <textarea id="docs-chat-input" class="docs-chat-input" rows="1" placeholder="Message OpenGraph AI…" autocomplete="off" data-chat-input></textarea>
+            <button type="submit" class="docs-chat-submit" aria-label="Send message" data-chat-send disabled>
+              <i data-lucide="arrow-up" aria-hidden="true"></i>
+            </button>
+          </div>
+        </form>
+        <p class="docs-chat-disclaimer">AI answers can be wrong. Verify important details in the docs.</p>
+      </div>
+    </aside>
 
     <script type="module" src="/src/docs.js"></script>
   </body>

@@ -1,5 +1,16 @@
 import { animate, createTimeline, stagger, svg } from "animejs";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import "./styles.css";
+import { initialiseMorphicNavbar } from "./site-nav.js";
+
+const lenis = new Lenis({
+  autoRaf: true,
+  lerp: 0.09,
+  smoothWheel: true,
+  wheelMultiplier: 0.95,
+  touchMultiplier: 1.0,
+});
 
 // Colours live in theme.css so a palette flip is one data-theme attribute.
 // Canvas and inline SVG fills can't read var(), so resolve the token once here.
@@ -10,178 +21,94 @@ function themeToken(name, fallback) {
 
 const groundInk = () => themeToken("--ground-ink", "#000000");
 const groundInkRgb = () => themeToken("--ground-ink-rgb", "0 0 0").replace(/\s+/g, ", ");
-let activeScrollFrame = 0;
-let stopActiveScroll = null;
+
+const SCROLL_DRIFT_TOLERANCE_PX = 6;
 
 function smoothScrollToElement(target, options = {}) {
   if (!target) return Promise.resolve(false);
 
-  cancelAnimationFrame(activeScrollFrame);
-  stopActiveScroll?.();
-
-  const start = window.scrollY;
   const navigation = document.querySelector(".morphic-navbar");
   const offset = options.offset ?? Math.max((navigation?.offsetHeight || 52) + 28, 76);
-  const rawDestination = target.id === "home"
-    ? 0
-    : target.getBoundingClientRect().top + window.scrollY - offset;
-  const destination = Math.max(0, Math.min(rawDestination, document.documentElement.scrollHeight - window.innerHeight));
-  const distance = destination - start;
-  const duration = options.duration ?? Math.min(1150, Math.max(700, Math.abs(distance) * 0.34));
 
-  if (Math.abs(distance) < 2) return Promise.resolve(true);
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    lenis.scrollTo(target, { offset: -offset, immediate: true });
+    return Promise.resolve(true);
+  }
 
-  return new Promise((resolve) => {
-    let startedAt = 0;
-    let stopped = false;
-    const interruptKeys = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "]);
-
-    const cleanup = () => {
-      window.removeEventListener("wheel", interrupt, { passive: true });
-      window.removeEventListener("touchstart", interrupt, { passive: true });
-      window.removeEventListener("keydown", interrupt);
-      if (stopActiveScroll === interrupt) stopActiveScroll = null;
-    };
-
-    const interrupt = (event) => {
-      if (event?.type === "keydown" && !interruptKeys.has(event.key)) return;
-      stopped = true;
-      cancelAnimationFrame(activeScrollFrame);
-      cleanup();
-      resolve(false);
-    };
-
-    stopActiveScroll = interrupt;
-    window.addEventListener("wheel", interrupt, { passive: true });
-    window.addEventListener("touchstart", interrupt, { passive: true });
-    window.addEventListener("keydown", interrupt);
-
-    const easeInOutQuint = (progress) => progress < 0.5
-      ? 16 * progress ** 5
-      : 1 - ((-2 * progress + 2) ** 5) / 2;
-
-    const step = (timestamp) => {
-      if (stopped) return;
-      if (!startedAt) startedAt = timestamp;
-      const progress = Math.min((timestamp - startedAt) / duration, 1);
-      window.scrollTo(0, start + distance * easeInOutQuint(progress));
-
-      if (progress < 1) {
-        activeScrollFrame = requestAnimationFrame(step);
-      } else {
-        cleanup();
-        resolve(true);
-      }
-    };
-
-    activeScrollFrame = requestAnimationFrame(step);
-  });
-}
-
-function initialiseMorphicNavbar() {
-  const header = document.querySelector("[data-site-header]");
-  if (!header) return;
-  const dropdowns = [...header.querySelectorAll(".nav-dropdown")];
-  const toggle = header.querySelector("[data-nav-toggle]");
-  const mobile = header.querySelector("[data-nav-mobile]");
-
-  const closeNavigation = () => {
-    dropdowns.forEach((dropdown) => dropdown.removeAttribute("open"));
-    if (toggle && mobile) {
-      toggle.setAttribute("aria-expanded", "false");
-      mobile.hidden = true;
-    }
-  };
-
-  dropdowns.forEach((dropdown) => {
-    dropdown.addEventListener("toggle", () => {
-      if (!dropdown.open) return;
-      dropdowns.forEach((other) => {
-        if (other !== dropdown) other.removeAttribute("open");
-      });
+  const glide = () => new Promise((resolve) => {
+    lenis.scrollTo(target, {
+      offset: -offset,
+      duration: 1.15,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      onComplete: () => resolve(true),
     });
   });
 
-  toggle?.addEventListener("click", () => {
-    const willOpen = toggle.getAttribute("aria-expanded") !== "true";
-    toggle.setAttribute("aria-expanded", String(willOpen));
-    if (mobile) mobile.hidden = !willOpen;
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!header.contains(event.target)) closeNavigation();
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeNavigation();
-  });
-
-  header.querySelectorAll("[data-mock-link]").forEach((link) => {
-    link.addEventListener("click", (event) => event.preventDefault());
-  });
-
-  document.querySelectorAll('a[href^="#"]:not([data-mock-link])').forEach((link) => {
-    link.addEventListener("click", (event) => {
-      const targetId = link.getAttribute("href");
-      const target = targetId ? document.querySelector(targetId) : null;
-      if (!target) return;
-      event.preventDefault();
-      closeNavigation();
-      smoothScrollToElement(target).then((completed) => {
-        if (completed) history.pushState(null, "", targetId);
-      });
-    });
+  // Lazy demos above the target can grow or shrink while the page glides past
+  // them, leaving Lenis aimed at a stale position. Snap to the settled spot.
+  return glide().then(() => {
+    const drift = target.getBoundingClientRect().top - offset;
+    if (Math.abs(drift) > SCROLL_DRIFT_TOLERANCE_PX) lenis.scrollTo(target, { offset: -offset, immediate: true });
+    return true;
   });
 }
 
 function initialiseScrollParallax() {
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const motionScale = reducedMotion ? 0.56 : 1;
+  if (window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches) return;
   const layers = [];
   const register = (selector, speed, maxTravel = 30) => {
     document.querySelectorAll(selector).forEach((element, index) => {
       layers.push({
         element,
-        speed: (Array.isArray(speed) ? speed[index % speed.length] : speed) * motionScale,
-        maxTravel: maxTravel * motionScale,
+        speed: Array.isArray(speed) ? speed[index % speed.length] : speed,
+        maxTravel,
       });
       element.classList.add("is-parallax-layer");
     });
   };
 
-  register(".graph-background", 0.13, 74);
-  register(".benefit-header", 0.048, 38);
-  register(".benefit-bento-item", [0.018, 0.03, 0.022, 0.026], 22);
-  register(".command-header", 0.042, 34);
-  register(".terminal-window", 0.02, 22);
-  register(".about-header", 0.04, 34);
-  register(".about-principles, .about-contact", [0.018, 0.032], 24);
-  register(".footer-brand", 0.022, 18);
+  // Keep parallax exclusively on the depth canvas to avoid layout jitter on text/headers
+  register(".graph-background", 0.08, 48);
   if (!layers.length) return;
 
-  let parallaxFrame = 0;
-  const clamp = (value, max) => Math.min(Math.max(value, -max), max);
-  const update = () => {
-    parallaxFrame = 0;
-    const viewportCenter = window.innerHeight / 2;
-
-    layers.forEach(({ element, speed, maxTravel }) => {
-      const bounds = element.getBoundingClientRect();
-      if (bounds.bottom < -180 || bounds.top > window.innerHeight + 180) return;
-      const layerCenter = bounds.top + bounds.height / 2;
-      const offset = clamp(-(layerCenter - viewportCenter) * speed, maxTravel);
-      element.style.setProperty("--parallax-y", `${offset.toFixed(2)}px`);
+  let cachedLayers = [];
+  const measure = () => {
+    const scrollY = lenis.scroll || window.scrollY;
+    cachedLayers = layers.map((layer) => {
+      const rect = layer.element.getBoundingClientRect();
+      return {
+        ...layer,
+        top: rect.top + scrollY,
+        height: rect.height,
+      };
     });
   };
 
-  const queueUpdate = () => {
-    if (parallaxFrame) return;
-    parallaxFrame = requestAnimationFrame(update);
+  const clamp = (value, max) => Math.min(Math.max(value, -max), max);
+  const update = (scrollVal) => {
+    const scroll = typeof scrollVal === "number" ? scrollVal : (lenis.scroll || window.scrollY);
+    const viewportCenter = window.innerHeight / 2;
+
+    cachedLayers.forEach((layer) => {
+      const layerTopOnScreen = layer.top - scroll;
+      if (layerTopOnScreen + layer.height < -120 || layerTopOnScreen > window.innerHeight + 120) return;
+      const layerCenter = layerTopOnScreen + layer.height / 2;
+      const offset = clamp(-(layerCenter - viewportCenter) * layer.speed, layer.maxTravel);
+      layer.element.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+    });
   };
 
+  measure();
   update();
-  window.addEventListener("scroll", queueUpdate, { passive: true });
-  window.addEventListener("resize", queueUpdate, { passive: true });
+
+  lenis.on("scroll", ({ scroll }) => {
+    update(scroll);
+  });
+
+  window.addEventListener("resize", () => {
+    measure();
+    update();
+  }, { passive: true });
 }
 
 function initialiseToTopButton() {
@@ -189,17 +116,21 @@ function initialiseToTopButton() {
   const hero = document.querySelector("#home");
   if (!button || !hero) return;
 
-  let visibilityFrame = 0;
-  const updateVisibility = () => {
-    visibilityFrame = 0;
-    const threshold = Math.max(hero.offsetHeight * 0.72, 520);
-    button.classList.toggle("is-visible", window.scrollY > threshold);
+  let threshold = 520;
+  const updateThreshold = () => {
+    threshold = Math.max(hero.offsetHeight * 0.72, 520);
+  };
+  updateThreshold();
+  window.addEventListener("resize", updateThreshold, { passive: true });
+
+  const updateVisibility = (scrollY) => {
+    const scroll = typeof scrollY === "number" ? scrollY : (lenis.scroll || window.scrollY);
+    button.classList.toggle("is-visible", scroll > threshold);
   };
 
-  window.addEventListener("scroll", () => {
-    if (visibilityFrame) return;
-    visibilityFrame = requestAnimationFrame(updateVisibility);
-  }, { passive: true });
+  lenis.on("scroll", ({ scroll }) => {
+    updateVisibility(scroll);
+  });
 
   button.addEventListener("click", () => {
     smoothScrollToElement(hero, { offset: 0 }).then((completed) => {
@@ -214,15 +145,23 @@ function initialiseGraphBackground() {
   const canvas = document.querySelector("#graph-background");
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
+  const staticCanvas = document.createElement("canvas");
+  const staticContext = staticCanvas.getContext("2d");
+  if (!staticContext) return;
   const hero = canvas.closest(".hero");
   if (!hero) return;
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let width = 0;
   let height = 0;
   let dpr = 1;
-  let particles = [];
+  let staticParticles = [];
+  let movingParticles = [];
   let frame = 0;
   let visible = true;
+  let lastDraw = -Infinity;
+  let ink = groundInkRgb();
+  let signal = themeToken("--signal-rgb", "36 87 214").replace(/\s+/g, ", ");
+  const frameInterval = 1000 / 24;
   const cursor = {
     x: -1000,
     y: -1000,
@@ -235,8 +174,9 @@ function initialiseGraphBackground() {
   };
 
   function buildSheet() {
-    particles = [];
-    const spacing = width < 640 ? 17 : 14;
+    staticParticles = [];
+    movingParticles = [];
+    const spacing = Math.max(18, Math.sqrt(width * height / 3400));
     const columns = Math.ceil(width / spacing) + 2;
     const rows = Math.ceil(height / spacing) + 2;
 
@@ -244,32 +184,112 @@ function initialiseGraphBackground() {
       for (let column = -1; column < columns; column += 1) {
         const seed = ((column * 73856093) ^ (row * 19349663)) >>> 0;
         const random = (seed % 1000) / 1000;
-        particles.push({
+        const particle = {
           x: column * spacing + (random - 0.5) * 4,
           y: row * spacing + (((seed >> 8) % 1000) / 1000 - 0.5) * 4,
           phase: random * Math.PI * 2,
           size: 1.05 + ((seed >> 5) % 9) * 0.11,
           accent: seed % 31 === 0,
           bright: seed % 97 === 0,
-        });
+        };
+        if (seed % 3 === 0 || particle.accent || particle.bright) movingParticles.push(particle);
+        else staticParticles.push(particle);
       }
+    }
+  }
+
+  const particleBuckets = Array.from({ length: 16 }, () => []);
+  const bucketColors = Array.from({ length: 16 }, () => "");
+
+  function updateBucketColors() {
+    for (let index = 0; index < 16; index += 1) {
+      bucketColors[index] = `rgba(${index < 8 ? ink : signal}, ${(index % 8 + 1) / 8})`;
+    }
+  }
+
+  function paintParticles(target, collection, time, interact = false) {
+    for (let index = 0; index < 16; index += 1) {
+      particleBuckets[index].length = 0;
+    }
+    const influenceRadius = Math.min(240, Math.max(155, width * 0.16));
+    const speed = Math.hypot(cursor.velocityX, cursor.velocityY);
+    const swirl = Math.max(-34, Math.min(34, (cursor.velocityX - cursor.velocityY) * 1.4));
+
+    for (let i = 0; i < collection.length; i += 1) {
+      const particle = collection[i];
+      const broadWave = Math.sin(particle.x * 0.011 + time * 1.7 + particle.phase * 0.16);
+      const crossWave = Math.sin((particle.x + particle.y) * 0.007 - time * 1.25 + particle.phase);
+      const ribbon = (1 - Math.abs(Math.sin(particle.x * 0.008 + particle.y * 0.004 - time))) ** 3;
+      let x = particle.x + Math.sin(particle.y * 0.012 - time + particle.phase * 0.1) * 9 + crossWave * 3;
+      let y = particle.y + broadWave * 21 + crossWave * 7;
+      let energy = Math.min(1, (broadWave + 1) * 0.32 + ribbon * 0.7);
+
+      if (interact) {
+        const deltaX = x - cursor.x;
+        const deltaY = y - cursor.y;
+        const distanceSquared = deltaX * deltaX + deltaY * deltaY;
+        if (distanceSquared < influenceRadius * influenceRadius) {
+          const distance = Math.sqrt(distanceSquared);
+          const force = (1 - distance / influenceRadius) ** 1.55 * cursor.strength;
+          const angle = Math.atan2(deltaY, deltaX);
+          const ripple = Math.sin(distance * 0.082 - time * 11) * force;
+          x += Math.cos(angle) * force * 62 - Math.sin(angle) * force * swirl + cursor.velocityX * force * 0.8;
+          y += Math.sin(angle) * force * 62 + Math.cos(angle) * force * swirl + cursor.velocityY * force * 0.8 + ripple * 24;
+          energy = Math.min(1, energy + force * (2.1 + speed * 0.035));
+        }
+      }
+
+      const alpha = particle.accent ? 0.44 + energy * 0.52 : particle.bright ? 0.58 : 0.12 + energy * 0.27;
+      const bucket = Math.max(0, Math.min(7, Math.round(alpha * 8) - 1));
+      const radius = particle.accent
+        ? particle.size * 0.95
+        : particle.size * (0.45 + energy * 0.18);
+      const bucketIndex = bucket + (particle.accent ? 8 : 0);
+      particleBuckets[bucketIndex].push(x, y, radius);
+    }
+
+    for (let index = 0; index < 16; index += 1) {
+      const bucketData = particleBuckets[index];
+      if (bucketData.length === 0) continue;
+      target.fillStyle = bucketColors[index];
+      target.beginPath();
+      for (let j = 0; j < bucketData.length; j += 3) {
+        const px = bucketData[j];
+        const py = bucketData[j + 1];
+        const pr = bucketData[j + 2];
+        target.moveTo(px + pr, py);
+        target.arc(px, py, pr, 0, Math.PI * 2);
+      }
+      target.fill();
     }
   }
 
   function resize() {
     const bounds = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 1.6);
+    dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     width = bounds.width;
     height = bounds.height;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
+    staticCanvas.width = canvas.width;
+    staticCanvas.height = canvas.height;
     buildSheet();
-    if (reducedMotion) draw(0);
+    ink = groundInkRgb();
+    signal = themeToken("--signal-rgb", "36 87 214").replace(/\s+/g, ", ");
+    updateBucketColors();
+    staticContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+    staticContext.clearRect(0, 0, width, height);
+    paintParticles(staticContext, staticParticles, 0);
+    lastDraw = -Infinity;
+    if (motion.matches) draw(0);
   }
 
   function draw(timestamp) {
-    const ink = groundInkRgb();
-    const signal = themeToken("--signal-rgb", "36 87 214").replace(/\s+/g, ", ");
+    frame = 0;
+    if (!motion.matches && visible && !document.hidden) frame = requestAnimationFrame(draw);
+    if (lenis.isScrolling) return;
+    if (timestamp - lastDraw < frameInterval - 1) return;
+    lastDraw = timestamp;
     const time = timestamp * 0.00034;
     cursor.x += (cursor.targetX - cursor.x) * 0.22;
     cursor.y += (cursor.targetY - cursor.y) * 0.22;
@@ -279,6 +299,7 @@ function initialiseGraphBackground() {
 
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, width, height);
+    context.drawImage(staticCanvas, 0, 0, width, height);
 
     if (cursor.active && cursor.strength > 0.02) {
       const glowRadius = Math.min(260, Math.max(170, width * 0.16));
@@ -290,43 +311,8 @@ function initialiseGraphBackground() {
       context.fillRect(cursor.x - glowRadius, cursor.y - glowRadius, glowRadius * 2, glowRadius * 2);
     }
 
-    for (const particle of particles) {
-      const broadWave = Math.sin(particle.x * 0.011 + time * 1.7 + particle.phase * 0.16);
-      const crossWave = Math.sin((particle.x + particle.y) * 0.007 - time * 1.25 + particle.phase);
-      const ribbon = (1 - Math.abs(Math.sin(particle.x * 0.008 + particle.y * 0.004 - time))) ** 3;
-      let x = particle.x + Math.sin(particle.y * 0.012 - time + particle.phase * 0.1) * 9 + crossWave * 3;
-      let y = particle.y + broadWave * 21 + crossWave * 7;
-      let energy = Math.min(1, (broadWave + 1) * 0.32 + ribbon * 0.7);
-
-      if (!reducedMotion) {
-        const deltaX = x - cursor.x;
-        const deltaY = y - cursor.y;
-        const distance = Math.hypot(deltaX, deltaY);
-        const radius = Math.min(240, Math.max(155, width * 0.16));
-        if (distance < radius) {
-          const force = (1 - distance / radius) ** 1.55 * cursor.strength;
-          const angle = Math.atan2(deltaY, deltaX);
-          const speed = Math.hypot(cursor.velocityX, cursor.velocityY);
-          const swirl = Math.max(-34, Math.min(34, (cursor.velocityX - cursor.velocityY) * 1.4));
-          const ripple = Math.sin(distance * 0.082 - time * 11) * force;
-          x += Math.cos(angle) * force * 62 - Math.sin(angle) * force * swirl + cursor.velocityX * force * 0.8;
-          y += Math.sin(angle) * force * 62 + Math.cos(angle) * force * swirl + cursor.velocityY * force * 0.8 + ripple * 24;
-          energy = Math.min(1, energy + force * (2.1 + speed * 0.035));
-        }
-      }
-
-      context.save();
-      context.translate(x, y);
-      context.rotate(Math.atan(Math.cos(particle.x * 0.011 + time * 1.7) * 0.22));
-      context.fillStyle = particle.accent
-        ? `rgba(${signal}, ${0.44 + energy * 0.52})`
-        : `rgba(${ink}, ${particle.bright ? 0.58 : 0.12 + energy * 0.27})`;
-      const length = particle.accent ? particle.size * 3.5 : particle.size * (1.5 + energy * 1.65);
-      context.fillRect(-length / 2, -particle.size / 2, length, particle.size);
-      context.restore();
-    }
-
-    if (!reducedMotion && visible) frame = requestAnimationFrame(draw);
+    const interact = !motion.matches && cursor.strength > 0.01;
+    paintParticles(context, movingParticles, time, interact);
   }
 
   hero.addEventListener("pointermove", (event) => {
@@ -351,18 +337,51 @@ function initialiseGraphBackground() {
     cursor.targetY = -1000;
   }, { passive: true });
 
+  const sync = () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    lastDraw = -Infinity;
+    hero.classList.toggle("is-animation-paused", !visible || document.hidden || motion.matches);
+    if (visible && !document.hidden) {
+      if (motion.matches) draw(0);
+      else frame = requestAnimationFrame(draw);
+    }
+  };
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
-    if (visible && !reducedMotion && !frame) frame = requestAnimationFrame(draw);
-    if (!visible && frame) {
-      cancelAnimationFrame(frame);
-      frame = 0;
-    }
+    sync();
   }, { threshold: 0.01 }).observe(hero);
+  document.addEventListener("visibilitychange", sync);
+  motion.addEventListener("change", sync);
 
   resize();
   new ResizeObserver(resize).observe(canvas);
-  if (!reducedMotion) frame = requestAnimationFrame(draw);
+  sync();
+}
+
+function initialiseOffscreenMotion() {
+  const regions = document.querySelectorAll("main > section, footer");
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => entry.target.classList.toggle("is-offscreen-motion", !entry.isIntersecting));
+  }, { rootMargin: "180px 0px" });
+  regions.forEach((region) => observer.observe(region));
+}
+
+function initialiseLazyDemos() {
+  document.querySelectorAll("iframe[data-lazy-demo]").forEach((iframe) => {
+    let visible = false;
+    const sync = () => {
+      if (!iframe.hasAttribute("src")) return;
+      iframe.contentWindow?.postMessage({ type: "opengraph-demo-visibility", visible: visible && !document.hidden }, location.origin);
+    };
+    iframe.addEventListener("load", sync);
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+      if (visible && !iframe.hasAttribute("src")) iframe.src = iframe.dataset.src;
+      sync();
+    }, { threshold: [0, 0.25] }).observe(iframe);
+    document.addEventListener("visibilitychange", sync);
+  });
 }
 
 const graphEntities = [
@@ -480,7 +499,7 @@ function buildEntityGraph(map) {
 function initialiseCompilerRail() {
   const rail = document.querySelector(".compiler-rail");
   const stages = [...document.querySelectorAll(".compiler-stage")];
-  if (!rail || !stages.length) return;
+  if (!rail || rail.hidden || !stages.length) return;
 
   const graphMap = rail.querySelector("[data-graph-map]");
   if (!graphMap) return;
@@ -883,37 +902,17 @@ function initialiseBenefitHighlights() {
   const section = document.querySelector(".benefit-section");
   if (!section) return;
 
-  const cards = [...section.querySelectorAll("[data-benefit-card]")];
-  const headerParts = [...section.querySelectorAll(".benefit-header > *")];
   const counters = [...section.querySelectorAll("[data-benefit-count]")];
   const velocityBars = [...section.querySelectorAll(".velocity-bars i")];
   const tokenUnits = [...section.querySelectorAll(".token-field i")];
   const modalityParts = [...section.querySelectorAll(".modality-pills span, .modality-pills > i")];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (reduceMotion) return;
+  if (reduceMotion || (!counters.length && !velocityBars.length && !tokenUnits.length && !modalityParts.length)) return;
 
   counters.forEach((counter) => { counter.textContent = "00"; });
 
   const reveal = () => {
-    animate(headerParts, {
-      opacity: [0, 1],
-      translateY: [28, 0],
-      duration: 820,
-      delay: stagger(100),
-      ease: "outExpo",
-    });
-
-    animate(cards, {
-      opacity: [0, 1],
-      translateY: [54, 0],
-      scale: [0.955, 1],
-      rotateX: [5, 0],
-      duration: 1050,
-      delay: stagger(150),
-      ease: "outExpo",
-    });
-
     counters.forEach((counter, index) => {
       const state = { value: 0 };
       const target = Number(counter.dataset.benefitCount || 0);
@@ -964,6 +963,32 @@ function initialiseBenefitHighlights() {
   observer.observe(section);
 }
 
+// A link such as /#faq-does-my-data-leave-my-machine opens that answer, not just the section.
+function initialiseFaqDeepLinks() {
+  const itemFromHash = () => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const item = id ? document.getElementById(id) : null;
+    return item instanceof HTMLDetailsElement && item.classList.contains("faq-item") ? item : null;
+  };
+
+  const openFromHash = () => {
+    const item = itemFromHash();
+    if (!item) return;
+    item.open = true;
+    smoothScrollToElement(item);
+  };
+
+  window.addEventListener("hashchange", openFromHash);
+
+  // On first load, open right away but scroll only once fonts and media above
+  // have settled; scrolling earlier lands short as the layout grows.
+  const initial = itemFromHash();
+  if (!initial) return;
+  initial.open = true;
+  const settled = document.readyState === "complete" ? Promise.resolve() : new Promise((resolve) => window.addEventListener("load", resolve, { once: true }));
+  settled.then(() => document.fonts.ready).then(() => smoothScrollToElement(initial));
+}
+
 function initialiseMultimodalExpansion() {
   const card = document.querySelector("[data-expand-modalities]");
   const overlay = document.querySelector("[data-modalities-overlay]");
@@ -995,6 +1020,7 @@ function initialiseMultimodalExpansion() {
     dialog.style.transform = "";
     dialog.style.borderRadius = "";
     document.body.classList.remove("modal-open");
+    lenis.start();
     card.setAttribute("aria-expanded", "false");
     isOpen = false;
     isClosing = false;
@@ -1009,6 +1035,7 @@ function initialiseMultimodalExpansion() {
     overlay.hidden = false;
     overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("modal-open");
+    lenis.stop();
     card.setAttribute("aria-expanded", "true");
 
     const destinationRect = dialog.getBoundingClientRect();
@@ -1149,6 +1176,8 @@ function initialiseTerminalDemo() {
   const heading = terminal?.querySelector("[data-terminal-heading]");
   const description = terminal?.querySelector("[data-terminal-description]");
   const code = terminal?.querySelector("[data-terminal-code]");
+  const copyButton = terminal?.querySelector("[data-terminal-copy]");
+  const copyLabel = copyButton?.querySelector("span");
   const modeButtons = [...(terminal?.querySelectorAll("[data-terminal-mode]") || [])];
   if (!terminal || !transcript || !code) return;
 
@@ -1215,6 +1244,9 @@ agent.run("which customers mentioned pricing in Q3?")`,
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let activeRun = 0;
+  let activeCode = sequences.cli.code;
+  let activeLabel = sequences.cli.label;
+  let copyResetTimer = 0;
   let hasEntered = false;
 
   const tokenPattern = /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|https?:\/\/[^\s'"\\]+|--?[\w-]+|\b(?:from|import|as)\b|\b(?:curl|claude|extract_graph|query_graph|summarize_graph|sync_graph_to_vector_db|create_agent|GraphSkill|run)\b|\b(?:opengraph|mcp|add|npx)\b)/g;
@@ -1260,6 +1292,40 @@ agent.run("which customers mentioned pricing in Q3?")`,
     });
   };
 
+  const setCopyState = (state = "idle") => {
+    if (!copyButton || !copyLabel) return;
+    const feedback = state === "copied" ? "Copied" : state === "error" ? "Copy unavailable" : "Copy";
+    copyButton.dataset.state = state;
+    copyLabel.textContent = feedback;
+    copyButton.title = feedback;
+    copyButton.setAttribute(
+      "aria-label",
+      state === "copied"
+        ? `${activeLabel} code copied`
+        : state === "error"
+          ? `${activeLabel} code could not be copied`
+          : `Copy ${activeLabel} code`,
+    );
+  };
+
+  const copyToClipboard = async (value) => {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const fallback = document.createElement("textarea");
+    fallback.value = value;
+    fallback.setAttribute("readonly", "");
+    fallback.style.position = "fixed";
+    fallback.style.opacity = "0";
+    document.body.append(fallback);
+    fallback.select();
+    const copied = document.execCommand("copy");
+    fallback.remove();
+    if (!copied) throw new Error("Clipboard copy failed");
+  };
+
   const run = (mode = "cli") => {
     const session = sequences[mode] || sequences.cli;
     const runId = ++activeRun;
@@ -1268,6 +1334,10 @@ agent.run("which customers mentioned pricing in Q3?")`,
     if (title) title.textContent = session.title;
     if (heading) heading.textContent = session.label;
     if (description) description.textContent = session.description;
+    activeCode = session.code;
+    activeLabel = session.label;
+    window.clearTimeout(copyResetTimer);
+    setCopyState();
     code.replaceChildren(...session.code.split("\n").map((line) => buildCodeLine(line, session.language)));
     transcript.scrollTop = 0;
 
@@ -1300,6 +1370,17 @@ agent.run("which customers mentioned pricing in Q3?")`,
     });
   });
 
+  copyButton?.addEventListener("click", async () => {
+    window.clearTimeout(copyResetTimer);
+    try {
+      await copyToClipboard(activeCode);
+      setCopyState("copied");
+    } catch {
+      setCopyState("error");
+    }
+    copyResetTimer = window.setTimeout(() => setCopyState(), 1800);
+  });
+
   const observer = new IntersectionObserver((entries) => {
     if (!entries[0]?.isIntersecting) return;
     if (!hasEntered) {
@@ -1310,6 +1391,116 @@ agent.run("which customers mentioned pricing in Q3?")`,
   }, { threshold: 0.28 });
 
   observer.observe(terminal);
+}
+
+function initialiseUseCaseCarousel() {
+  const carousel = document.querySelector("[data-use-case-carousel]");
+  if (!carousel) return;
+
+  const slides = [...carousel.querySelectorAll("[data-use-case-slide]")];
+  const selectors = [...carousel.querySelectorAll("[data-use-case-select]")];
+  const stage = carousel.querySelector("[data-use-case-stage]");
+  const playback = carousel.querySelector("[data-use-case-playback]");
+  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const duration = 7000;
+  let activeIndex = 0;
+  let elapsed = 0;
+  let startedAt = 0;
+  let timer = 0;
+  let progress = null;
+  let inView = false;
+  let hovered = false;
+  let stopped = motionPreference.matches;
+
+  const canPlay = () => inView && !document.hidden && !hovered && !stopped;
+
+  const showSlide = (index) => {
+    activeIndex = (index + slides.length) % slides.length;
+    elapsed = 0;
+    progress?.cancel();
+    progress = selectors[activeIndex].querySelector("i").animate(
+      [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }],
+      { duration, fill: "both", easing: "linear" },
+    );
+    progress.pause();
+    slides.forEach((slide, slideIndex) => {
+      const active = slideIndex === activeIndex;
+      slide.classList.toggle("is-active", active);
+      slide.setAttribute("aria-hidden", String(!active));
+      slide.inert = !active;
+      selectors[slideIndex].setAttribute("aria-pressed", String(active));
+    });
+  };
+
+  const syncPlayback = () => {
+    if (timer) elapsed = Math.min(duration, elapsed + performance.now() - startedAt);
+    window.clearTimeout(timer);
+    timer = 0;
+    progress.pause();
+    carousel.dataset.paused = String(!canPlay());
+    playback.dataset.stopped = String(stopped);
+    playback.setAttribute("aria-label", `${stopped ? "Play" : "Pause"} use-case slideshow`);
+    stage.setAttribute("aria-live", stopped ? "polite" : "off");
+    if (canPlay()) {
+      startedAt = performance.now();
+      progress.play();
+      timer = window.setTimeout(() => {
+        timer = 0;
+        showSlide(activeIndex + 1);
+        syncPlayback();
+      }, duration - elapsed);
+    }
+  };
+
+  selectors.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      stopped = true;
+      syncPlayback();
+      showSlide(index);
+    });
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? slides.length - 1
+        : (index + (event.key === "ArrowRight" ? 1 : -1) + slides.length) % slides.length;
+      selectors[next].focus();
+      selectors[next].click();
+    });
+  });
+
+  playback.addEventListener("click", () => {
+    stopped = !stopped;
+    syncPlayback();
+  });
+
+  // Let readers finish the current card without losing their place in the timer.
+  stage.addEventListener("pointerenter", (event) => {
+    if (event.pointerType !== "mouse") return;
+    hovered = true;
+    syncPlayback();
+  });
+  stage.addEventListener("pointerleave", () => {
+    hovered = false;
+    syncPlayback();
+  });
+  carousel.addEventListener("focusin", (event) => {
+    if (!event.target.matches(":focus-visible")) return;
+    stopped = true;
+    syncPlayback();
+  });
+  document.addEventListener("visibilitychange", syncPlayback);
+  motionPreference.addEventListener("change", () => {
+    stopped = motionPreference.matches;
+    syncPlayback();
+  });
+
+  const observer = new IntersectionObserver(([entry]) => {
+    inView = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+    syncPlayback();
+  }, { threshold: [0, 0.25] });
+  observer.observe(carousel);
+  showSlide(0);
+  syncPlayback();
 }
 
 // PLACEHOLDER - confirm the real inbox before this ships.
@@ -1371,10 +1562,14 @@ function initialiseContactForm() {
 }
 
 initialiseContactForm();
-initialiseMorphicNavbar();
+initialiseMorphicNavbar({ scrollToTarget: smoothScrollToElement });
+initialiseOffscreenMotion();
 initialiseScrollParallax();
 initialiseToTopButton();
 initialiseGraphBackground();
+initialiseLazyDemos();
 initialiseBenefitHighlights();
+initialiseUseCaseCarousel();
 initialiseTerminalDemo();
 initialiseMultimodalExpansion();
+initialiseFaqDeepLinks();

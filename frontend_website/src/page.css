@@ -1,0 +1,490 @@
+/* Markdown-backed pages (products, use cases). Reads palette tokens from
+   theme.css and the --sans / --display / --mono stacks from styles.css. */
+
+.page-main {
+  /* One gutter for header, body, and closing card so their left edges line up. */
+  --page-width: min(1120px, calc(100% - 2 * clamp(20px, 5vw, 76px)));
+  padding-top: 72px;
+  background: var(--ground);
+  color: var(--ground-ink);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.page-hero {
+  padding: clamp(56px, 8vw, 112px) 0 clamp(44px, 5vw, 72px);
+  border-bottom: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+}
+
+.page-hero-inner {
+  width: var(--page-width);
+  margin-inline: auto;
+}
+
+.page-eyebrow {
+  margin: 0 0 22px;
+  color: rgb(var(--ground-ink-rgb) / 0.6);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.page-hero h1 {
+  max-width: 17ch;
+  margin: 0;
+  color: var(--ground-ink);
+  font-family: "Inter Tight", var(--sans);
+  font-size: clamp(40px, 5.6vw, 76px);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.page-lede {
+  max-width: 56ch;
+  margin: 26px 0 0;
+  color: rgb(var(--ground-ink-rgb) / 0.72);
+  font-family: var(--sans);
+  font-size: clamp(17px, 1.5vw, 20px);
+  line-height: 1.55;
+}
+
+.page-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-facts li {
+  padding: 7px 11px;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.14);
+  border-radius: 999px;
+  background: rgb(var(--ground-glass-rgb) / 0.5);
+  color: rgb(var(--ground-ink-rgb) / 0.78);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.page-facts a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--ground-ink-rgb) / 0.3);
+  text-underline-offset: 3px;
+}
+
+.page-facts a:hover,
+.page-facts a:focus-visible {
+  color: var(--signal);
+  text-decoration-color: currentColor;
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.page-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.page-button:hover {
+  transform: translateY(-1px);
+}
+
+.page-button:focus-visible {
+  outline: 2px solid rgb(var(--signal-rgb) / 0.72);
+  outline-offset: 3px;
+}
+
+.page-button-primary {
+  background: var(--ground-ink);
+  color: var(--ground);
+}
+
+.page-button-primary:hover {
+  box-shadow: 0 8px 20px rgb(var(--shadow-rgb) / 0.2);
+}
+
+.page-button-secondary {
+  border-color: rgb(var(--ground-ink-rgb) / 0.2);
+  color: var(--ground-ink);
+}
+
+.page-button-secondary:hover {
+  background: rgb(var(--ground-ink-rgb) / 0.05);
+}
+
+/* ── Body: prose column plus a sticky aside ─────────────────────────────── */
+.page-layout {
+  width: var(--page-width);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 68ch) minmax(200px, 260px);
+  justify-content: space-between;
+  gap: 64px;
+  padding: clamp(48px, 6vw, 80px) 0 clamp(56px, 7vw, 96px);
+}
+
+.page-prose {
+  min-width: 0;
+  color: rgb(var(--ground-ink-rgb) / 0.86);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.72;
+}
+
+.page-prose > :first-child {
+  margin-top: 0;
+}
+
+.page-prose h2 {
+  margin: 56px 0 16px;
+  color: var(--ground-ink);
+  font-family: var(--display);
+  font-size: clamp(24px, 2.4vw, 30px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  scroll-margin-top: 96px;
+}
+
+.page-prose h3 {
+  margin: 34px 0 10px;
+  color: var(--ground-ink);
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.page-prose p {
+  margin: 0 0 18px;
+}
+
+.page-prose ul,
+.page-prose ol {
+  margin: 0 0 22px;
+  padding-left: 22px;
+}
+
+.page-prose li {
+  margin: 7px 0;
+}
+
+.page-prose li::marker {
+  color: rgb(var(--ground-ink-rgb) / 0.4);
+}
+
+.page-prose a {
+  color: var(--signal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.page-prose strong {
+  color: var(--ground-ink);
+  font-weight: 600;
+}
+
+.page-prose :not(pre) > code {
+  padding: 0.12em 0.38em;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+  border-radius: 6px;
+  background: rgb(var(--ground-ink-rgb) / 0.05);
+  color: var(--ground-ink);
+  font-family: var(--mono);
+  font-size: 0.8em;
+}
+
+.page-prose blockquote {
+  margin: 28px 0;
+  padding: 18px 22px;
+  border-left: 2px solid var(--signal);
+  border-radius: 0 12px 12px 0;
+  background: rgb(var(--ground-glass-rgb) / 0.55);
+}
+
+.page-prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.page-table {
+  margin: 24px 0 30px;
+  overflow-x: auto;
+}
+
+.page-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.page-prose th {
+  padding: 10px 16px 10px 0;
+  border-bottom: 1px solid rgb(var(--ground-ink-rgb) / 0.2);
+  color: rgb(var(--ground-ink-rgb) / 0.6);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.page-prose td {
+  padding: 12px 16px 12px 0;
+  border-bottom: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+  vertical-align: top;
+}
+
+.page-prose td code {
+  white-space: nowrap;
+}
+
+/* Code panels borrow the dark instrument surface used across the home page. */
+.page-prose .code-block {
+  position: relative;
+  margin: 24px 0 30px;
+}
+
+.page-prose pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 18px 88px 18px 20px;
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--panel-ink);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  scrollbar-color: rgb(var(--panel-ink-rgb) / 0.25) transparent;
+  scrollbar-width: thin;
+}
+
+.page-prose pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+/* Sits on the wrapper, not in <pre>, so it stays put while code scrolls. */
+.code-copy {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 7px 10px;
+  border: 1px solid rgb(var(--panel-ink-rgb) / 0.16);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: -14px 0 12px var(--panel);
+  color: rgb(var(--panel-ink-rgb) / 0.72);
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.code-copy:hover,
+.code-copy:focus-visible {
+  border-color: rgb(var(--panel-ink-rgb) / 0.32);
+  color: var(--panel-ink-bright);
+}
+
+.page-prose .hljs-comment,
+.page-prose .hljs-quote { color: rgb(var(--panel-ink-rgb) / 0.5); font-style: italic; }
+.page-prose .hljs-keyword,
+.page-prose .hljs-literal,
+.page-prose .hljs-built_in { color: #c9a7e8; }
+.page-prose .hljs-string { color: #9bc791; }
+.page-prose .hljs-number,
+.page-prose .hljs-variable,
+.page-prose .hljs-meta { color: #e0c67f; }
+.page-prose .hljs-title,
+.page-prose .hljs-function { color: #dba8b7; }
+.page-prose .hljs-attr,
+.page-prose .hljs-params { color: #b8cba9; }
+
+.page-aside {
+  position: sticky;
+  top: 104px;
+  align-self: start;
+}
+
+.page-aside-section + .page-aside-section {
+  margin-top: 40px;
+}
+
+.page-aside-heading {
+  margin: 0 0 12px;
+  color: rgb(var(--ground-ink-rgb) / 0.55);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.page-toc a {
+  display: block;
+  padding: 6px 0 6px 13px;
+  border-left: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+  color: rgb(var(--ground-ink-rgb) / 0.64);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.page-toc a:hover,
+.page-toc a:focus-visible {
+  border-left-color: var(--ground-ink);
+  color: var(--ground-ink);
+}
+
+.page-related {
+  display: grid;
+  gap: 8px;
+}
+
+.page-related .page-aside-heading {
+  margin-bottom: 4px;
+}
+
+.page-related a {
+  display: grid;
+  gap: 3px;
+  padding: 13px 15px;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+  border-radius: 12px;
+  background: rgb(var(--ground-glass-rgb) / 0.45);
+  color: var(--ground-ink);
+  font-family: var(--sans);
+  text-decoration: none;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.page-related a:hover,
+.page-related a:focus-visible {
+  border-color: rgb(var(--ground-ink-rgb) / 0.3);
+  background: rgb(var(--ground-glass-rgb) / 0.8);
+}
+
+.page-related b {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.page-related span {
+  color: rgb(var(--ground-ink-rgb) / 0.58);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+/* ── Closing call to action ────────────────────────────────────────────── */
+.page-cta {
+  width: var(--page-width);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto clamp(64px, 8vw, 112px);
+  padding: clamp(28px, 4vw, 44px);
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+  border-radius: 20px;
+  background: var(--paper);
+}
+
+.page-cta h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(24px, 2.6vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.page-cta p {
+  max-width: 46ch;
+  margin: 8px 0 0;
+  color: rgb(var(--ground-ink-rgb) / 0.66);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.page-cta .page-actions {
+  margin-top: 0;
+}
+
+@media (max-width: 960px) {
+  .page-main {
+    padding-top: 68px;
+  }
+
+  .page-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .page-aside {
+    position: static;
+  }
+
+  .page-toc {
+    display: none;
+  }
+
+  .page-related {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .page-related .page-aside-heading {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .page-main {
+    padding-top: 64px;
+  }
+
+  .page-prose {
+    font-size: 16px;
+  }
+
+  .page-prose h2 {
+    margin-top: 44px;
+  }
+
+  .page-prose pre {
+    padding-right: 72px;
+  }
+
+  .page-actions .page-button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

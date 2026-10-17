@@ -5,7 +5,7 @@
    ============================================================ */
 @font-face {
   font-family:"Anthropic Sans";
-  src:url("fonts/AnthropicSans-Romans-Variable-25x258.ttf") format("truetype-variations");
+  src:url("fonts/anthropic-sans-latin.woff2") format("woff2");
   font-weight:300 800; font-style:normal; font-display:swap;
 }
 @font-face {
@@ -15,7 +15,7 @@
 }
 @font-face {
   font-family:"Anthropic Serif";
-  src:url("fonts/AnthropicSerif-Romans-Variable-25x258.ttf") format("truetype-variations");
+  src:url("fonts/anthropic-serif-latin.woff2") format("woff2");
   font-weight:300 800; font-style:normal; font-display:swap;
 }
 @font-face {
@@ -38,6 +38,9 @@
 }
 
 /* ---- dark (the reference) ---- */
+.demo-paused *, .demo-paused *::before, .demo-paused *::after { animation-play-state: paused !important; }
+.demo-complete .burst svg { animation: none; }
+
 :root[data-theme="dark"] {
   --desk:#060606;
   --app:#0b0b0b;

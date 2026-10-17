@@ -1,0 +1,4 @@
+# Local env files (e.g. VERCEL_OIDC_TOKEN from `vercel link`) must never be uploaded.
+.env*
+# Vercel builds the site itself.
+dist

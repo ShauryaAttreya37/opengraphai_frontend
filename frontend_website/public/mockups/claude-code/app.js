@@ -305,7 +305,17 @@ $('#send').onclick = send;
 if (promptDemo) {
   const prompt = 'Build a graph from ./robot-observations. How is the gripper related to the yellow cloth?';
   const demoBlocks = [];
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const timers = new Set();
+  let visible = window.parent === window;
+  let running = false;
+  const schedule = (callback, delay) => {
+    const timer = window.setTimeout(() => {
+      timers.delete(timer);
+      callback();
+    }, delay);
+    timers.add(timer);
+  };
 
   const showResult = () => {
     demoBlocks.length = 0;
@@ -326,35 +336,34 @@ if (promptDemo) {
     render(demoBlocks);
   };
 
-  if (reducedMotion) {
-    showResult();
-  } else {
     const runDemo = (shouldFade = false) => {
       const begin = () => {
+        document.documentElement.classList.remove('demo-complete');
         demoBlocks.length = 0;
-        input.value = '';
+        // Reserve the complete prompt height once, avoiding layout per letter.
+        input.value = prompt;
         sync();
+        input.value = '';
         render(demoBlocks);
         document.documentElement.classList.remove('demo-resetting');
 
         let index = 0;
         const typeNext = () => {
           input.value = prompt.slice(0, index);
-          sync();
           index += 1;
 
           if (index <= prompt.length) {
-            window.setTimeout(typeNext, 24);
+            schedule(typeNext, 40);
             return;
           }
 
-          window.setTimeout(() => {
+          schedule(() => {
             demoBlocks.push({ t: 'said', text: prompt });
             input.value = '';
             sync();
             render(demoBlocks);
 
-            window.setTimeout(() => {
+            schedule(() => {
               demoBlocks.push({
                 t: 'act',
                 label: 'Called OpenGraph build_graph',
@@ -363,29 +372,48 @@ if (promptDemo) {
               render(demoBlocks);
             }, 650);
 
-            window.setTimeout(() => {
+            schedule(() => {
               demoBlocks.push({
                 t: 'prose',
                 html: '<p><strong>Found the connection.</strong> In <code>observation_03</code>, the <code>robot_gripper</code> is holding the <code>yellow_cloth</code>.</p>',
               });
               render(demoBlocks);
+              document.documentElement.classList.add('demo-complete');
             }, 1450);
-
-            window.setTimeout(() => runDemo(true), 5400);
           }, 560);
         };
 
-        window.setTimeout(typeNext, shouldFade ? 320 : 700);
+        schedule(typeNext, shouldFade ? 320 : 700);
       };
 
       if (shouldFade) {
         document.documentElement.classList.add('demo-resetting');
-        window.setTimeout(begin, 300);
+        schedule(begin, 300);
       } else {
         begin();
       }
     };
 
-    runDemo(false);
-  }
+  const syncPlayback = () => {
+    const shouldRun = visible && !document.hidden && !motion.matches;
+    document.documentElement.classList.toggle('demo-paused', !shouldRun);
+    if (!shouldRun) {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers.clear();
+      running = false;
+      document.documentElement.classList.remove('demo-resetting');
+      showResult();
+    } else if (!running) {
+      running = true;
+      runDemo(false);
+    }
+  };
+  window.addEventListener('message', (event) => {
+    if (event.source !== window.parent || event.origin !== location.origin || event.data?.type !== 'opengraph-demo-visibility') return;
+    visible = event.data.visible === true;
+    syncPlayback();
+  });
+  document.addEventListener('visibilitychange', syncPlayback);
+  motion.addEventListener('change', syncPlayback);
+  syncPlayback();
 }

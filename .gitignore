@@ -6,3 +6,11 @@ build
 .agents/
 skills-lock.json
 upstream-frontend-website/
+renders/
+*.blend
+*.blend1
+*.mp4
+# The landing page loop is a site asset and must ship with deploys.
+!frontend_website/public/video/graph-loop-1440.mp4
+claude-desktop-mockup/
+.claude/worktrees/

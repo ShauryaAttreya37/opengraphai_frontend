@@ -1,0 +1,54 @@
+/* The canvas is transparent: the page ground shows through, so the loop has
+   no rectangle of its own. On the landing page the section already draws the
+   technical grid; `data-grid` adds one (radially faded, so it has no edge)
+   for standalone use such as the video export. */
+.graph-loop {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  margin: 0;
+  background: transparent;
+  isolation: isolate;
+}
+
+.graph-loop[data-grid]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse 62% 70% at 50% 52%, #000 30%, transparent 100%);
+}
+
+.graph-loop canvas,
+.graph-loop video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Blend the rendered loop into the page, as the transparent live scene did. */
+.graph-loop video {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6% 94%, transparent), linear-gradient(0deg, transparent, #000 10% 92%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 6% 94%, transparent), linear-gradient(0deg, transparent, #000 10% 92%, transparent);
+  mask-composite: intersect;
+}
+
+/* The loop uses the full frame width (sources at both edges, the agent on the
+   right), so phones show the whole frame edge to edge rather than a centre crop. */
+@media (max-width: 720px) {
+  .graph-loop {
+    width: auto;
+    aspect-ratio: 1440 / 608;
+    margin-inline: calc(50% - 50vw);
+  }
+}

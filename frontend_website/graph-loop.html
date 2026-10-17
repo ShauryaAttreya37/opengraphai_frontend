@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="paper">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenGraph AI — graph loop</title>
+    <style>
+      :root {
+        --ground: #f4f2ed;
+        --ground-ink-rgb: 17 19 23;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--ground);
+      }
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+      }
+      .graph-loop {
+        width: min(100vw, 1600px);
+      }
+      .graph-loop[data-capture] {
+        width: 2560px;
+        height: 1080px;
+        aspect-ratio: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Preview: /graph-loop.html. Frame export: /graph-loop.html?capture -->
+    <figure class="graph-loop" data-graph-loop data-grid aria-hidden="true"><canvas></canvas></figure>
+    <script type="module">
+      if (new URLSearchParams(location.search).has("capture")) {
+        document.querySelector("[data-graph-loop]").setAttribute("data-capture", "");
+      }
+    </script>
+    <script type="module" src="/src/graph-loop/mount.js"></script>
+  </body>
+</html>

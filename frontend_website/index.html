@@ -6,82 +6,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="OpenGraph AI turns multimodal data into queryable knowledge graphs for AI agents."
+      content="Turn multimodal data into knowledge graphs for AI agents. Connect entities, retrieve relationships, and trace answers to source evidence with OpenGraph AI."
     />
-    <title>OpenGraph AI</title>
+    <title>Knowledge Graphs for AI Agents | OpenGraph AI</title>
+    <link rel="canonical" href="https://opengraphai.io/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#f4f3ef" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OpenGraph AI" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://opengraphai.io/" />
+    <meta property="og:title" content="Knowledge Graphs for AI Agents | OpenGraph AI" />
+    <meta property="og:description" content="Connect multimodal data, retrieve relationships, and trace answers to evidence. An open context layer for AI agents." />
+    <meta property="og:image" content="https://opengraphai.io/social-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OpenGraph AI — Knowledge graphs for agents that need to reason." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Knowledge Graphs for AI Agents | OpenGraph AI" />
+    <meta name="twitter:description" content="Connect multimodal data, retrieve relationships, and trace answers to evidence." />
+    <meta name="twitter:image" content="https://opengraphai.io/social-card.png" />
+    <meta name="twitter:image:alt" content="OpenGraph AI — Knowledge graphs for agents that need to reason." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://opengraphai.io/#organization",
+            "name": "OpenGraph AI",
+            "url": "https://opengraphai.io/",
+            "logo": "https://opengraphai.io/opengraph-logo.svg",
+            "sameAs": ["https://github.com/OpenGraphAI/opengraph-ai", "https://www.linkedin.com/company/opengraph-ai/"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://opengraphai.io/#website",
+            "name": "OpenGraph AI",
+            "url": "https://opengraphai.io/",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://opengraphai.io/#organization" },
+            "description": "An open context layer that turns multimodal data into queryable knowledge graphs for AI agents."
+          }
+        ]
+      }
+    </script>
+    <link rel="icon" href="/opengraph-logo.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&family=Instrument+Sans:opsz,wght@12..32,400;12..32,500;12..32,600;12..32,700&family=Inter+Tight:wght@400;500;600&family=Jersey+25&family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Inter+Tight:wght@400&family=Jersey+25&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600&family=Inter+Tight:wght@400&family=Jersey+25&display=swap" /></noscript>
   </head>
   <body>
-    <header class="morphic-navbar" data-site-header>
-      <nav class="nav-shell" aria-label="Primary navigation">
-        <a class="nav-brand" href="#home" aria-label="OpenGraph AI home">
-          <svg class="nav-brand-mark" viewBox="0 0 28 28" aria-hidden="true">
-            <path d="M7 18.5 13.8 6l7.4 13.7" />
-            <circle cx="7" cy="18.5" r="2.3" />
-            <circle cx="13.8" cy="6" r="2.3" />
-            <circle cx="21.2" cy="19.7" r="2.3" />
-          </svg>
-          <span>OpenGraph <b>AI</b></span>
-        </a>
-
-        <div class="nav-desktop" data-nav-menu>
-          <details class="nav-dropdown">
-            <summary>Products <span class="nav-chevron" aria-hidden="true"></span></summary>
-            <div class="nav-popover">
-              <a href="#how-it-works"><b>How it works</b><span>See the context pipeline</span></a>
-              <a href="#playground"><b>Playground</b><span>Try the developer workflow</span></a>
-              <a href="#about"><b>Open source</b><span>Explore the project</span></a>
-            </div>
-          </details>
-          <details class="nav-dropdown">
-            <summary>Use Cases <span class="nav-chevron" aria-hidden="true"></span></summary>
-            <div class="nav-popover">
-              <a href="#use-cases"><b>Research agents</b><span>Answers grounded in evidence</span></a>
-              <a href="#use-cases"><b>Enterprise memory</b><span>Connect operational knowledge</span></a>
-              <a href="#use-cases"><b>Multimodal RAG</b><span>Reason across every source</span></a>
-            </div>
-          </details>
-          <a class="nav-link" href="#" data-mock-link>Pricing</a>
-          <a class="nav-link" href="#" data-mock-link>Enterprise</a>
-          <details class="nav-dropdown">
-            <summary>Resources <span class="nav-chevron" aria-hidden="true"></span></summary>
-            <div class="nav-popover nav-popover-right">
-              <a href="/docs/"><b>Documentation</b><span>Guides and API reference</span></a>
-              <a href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer"><b>GitHub</b><span>Source, issues, and releases</span></a>
-              <a href="#about"><b>About</b><span>Why we're building OpenGraph</span></a>
-            </div>
-          </details>
-        </div>
-
-        <div class="nav-actions">
-          <a class="nav-social" href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer" aria-label="OpenGraph AI on GitHub">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.7a9.5 9.5 0 0 0-3 18.5c.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.3-.3-4.6-1.1-4.6-4.7 0-1 .4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.6 1 2.6 0 3.7-2.3 4.5-4.6 4.7.4.3.7 1 .7 1.9v2.8c0 .4.2.7.7.5A9.5 9.5 0 0 0 12 2.7Z" /></svg>
-          </a>
-          <a class="nav-social" href="https://www.linkedin.com/company/opengraph-ai/" target="_blank" rel="noopener noreferrer" aria-label="OpenGraph AI on LinkedIn">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 8.5H3.4V19h3.2V8.5ZM5 3a1.9 1.9 0 1 0 0 3.8A1.9 1.9 0 0 0 5 3Zm7 5.5H8.9V19H12v-5.2c0-1.4.3-2.7 2-2.7 1.7 0 1.7 1.6 1.7 2.8V19H19v-5.8c0-2.9-.6-5-3.9-5-1.6 0-2.6.9-3.1 1.7V8.5Z" /></svg>
-          </a>
-          <a class="nav-cta" href="#playground">Try playground</a>
-          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-navigation" data-nav-toggle>
-            <span class="visually-hidden">Toggle navigation</span>
-            <i></i><i></i>
-          </button>
-        </div>
-      </nav>
-
-      <div class="nav-mobile" id="mobile-navigation" data-nav-mobile hidden>
-        <a href="#how-it-works">Product</a>
-        <a href="#use-cases">Use cases</a>
-        <a href="#" data-mock-link>Pricing <small>SOON</small></a>
-        <a href="#" data-mock-link>Enterprise <small>SOON</small></a>
-        <a href="/docs/">Documentation</a>
-        <a href="#about">About</a>
-      </div>
-    </header>
+    <!-- site-header home -->
 
     <main class="site-main">
     <section class="hero" id="home">
@@ -100,8 +82,6 @@
       ></canvas>
 
       <section class="hero-content" aria-labelledby="hero-title">
-        <p class="category">MULTIMODAL CONTEXT INFRASTRUCTURE</p>
-
         <h1 id="hero-title" class="hero-title">
           Context graphs for agents<br />
           that need to reason.
@@ -113,13 +93,21 @@
         </p>
 
         <div class="hero-actions" aria-label="OpenGraph AI actions">
-          <a class="hero-button hero-button-primary" href="#playground">
+          <a
+            class="hero-button hero-button-primary"
+            href="https://opengraphai.github.io/opengraph-samples-robot-scene-memory/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <span class="terminal-mark" aria-hidden="true">&gt;_</span>
             <span>Try the playground</span>
+            <span class="external-mark" aria-hidden="true">↗</span>
           </a>
           <a
             class="hero-button hero-button-secondary"
             href="/docs/"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <span>Read documentation</span>
             <span class="external-mark" aria-hidden="true">↗</span>
@@ -127,7 +115,6 @@
         </div>
       </section>
 
-      <div class="corner-label corner-bottom" aria-hidden="true">OPEN SOURCE · APACHE 2.0</div>
     </section>
 
     <section class="compiler-section" id="how-it-works" aria-labelledby="compiler-title">
@@ -143,6 +130,17 @@
             </div>
           </div>
         </header>
+
+        <figure
+          class="graph-loop"
+          data-graph-loop
+          role="img"
+          aria-label="Documents, tables, audio, images, code and databases turn into a knowledge graph; an agent's query traces a cited evidence path back to its sources."
+        >
+          <video data-graph-video muted loop playsinline preload="none" poster="/video/graph-loop-poster.webp" width="1440" height="608" aria-hidden="true">
+            <source data-src="/video/graph-loop-1440.mp4" type="video/mp4" />
+          </video>
+        </figure>
 
         <div class="compiler-rail" data-active-stage="0" hidden>
           <div class="pipeline-orbit" aria-hidden="true">
@@ -326,13 +324,13 @@
         <div class="benefit-bento">
           <article class="benefit-bento-item benefit-bento-item-agent" data-benefit-card>
             <div class="benefit-bento-copy">
-              <p>AGENT INTERFACE</p>
               <h3>Works inside your agent.</h3>
               <span>Prompt naturally. OpenGraph builds and queries the connected context behind the answer.</span>
             </div>
             <div class="benefit-bento-visual benefit-bento-agent">
               <iframe
-                src="/mockups/claude-code/index.html?theme=light&amp;demo=prompt"
+                data-src="/mockups/claude-code/index.html?theme=light&amp;demo=prompt"
+                data-lazy-demo
                 title="Claude Code prompting OpenGraph AI"
                 loading="lazy"
                 tabindex="-1"
@@ -340,40 +338,138 @@
             </div>
           </article>
 
-          <article class="benefit-bento-item benefit-bento-item-wide" data-benefit-card>
-            <div class="benefit-bento-visual benefit-bento-flow" aria-hidden="true">
-              <span></span><span></span><span></span>
-              <i></i><i></i>
+          <article class="benefit-bento-item benefit-bento-item-wide use-case-carousel" data-benefit-card data-use-case-carousel role="region" aria-roledescription="carousel" aria-label="OpenGraph use cases">
+            <div class="use-case-stage" aria-live="off" data-use-case-stage>
+              <div class="use-case-slide is-active" data-use-case-slide role="group" aria-roledescription="slide" aria-label="1 of 4: Robotics">
+                <div class="use-case-scene" aria-hidden="true">
+                  <svg viewBox="0 0 520 190" fill="none">
+                    <path class="case-edge" d="M115 96H208M312 96H408M260 55V28H380M260 136V162H142" />
+                    <path class="case-route" d="M115 96H208M312 96H408" />
+                    <circle class="case-dot" cx="380" cy="28" r="4" /><circle class="case-dot" cx="142" cy="162" r="4" />
+                    <rect class="case-node" x="18" y="70" width="110" height="52" rx="12" /><text x="73" y="100">Environment</text>
+                    <rect class="case-node" x="394" y="70" width="110" height="52" rx="12" /><text x="449" y="100">Task plan</text>
+                    <rect class="case-hub-halo" x="202" y="38" width="116" height="116" rx="32" />
+                    <rect class="case-hub" x="214" y="50" width="92" height="92" rx="23" />
+                    <g class="case-icon"><rect x="237" y="80" width="46" height="32" rx="9" /><path d="M260 70V80M231 92V102M289 92V102M250 104H270" /><circle cx="250" cy="92" r="2" /><circle cx="270" cy="92" r="2" /><circle cx="260" cy="66" r="3" /></g>
+                    <text class="case-note" x="334" y="18">spatial context</text><text class="case-note" x="180" y="180">shared knowledge</text>
+                  </svg>
+                </div>
+                <div class="use-case-copy">
+                  <h3>Robotics</h3>
+                  <p>Give robots a connected understanding of their world.</p>
+                  <ul>
+                    <li>Connect objects, locations, and tasks.</li>
+                    <li>Plan actions around tools and dependencies.</li>
+                    <li>Share context across robots to coordinate work.</li>
+                  </ul>
+                  <a class="use-case-link" href="/use-cases/robotics/">Explore robotics</a>
+                </div>
+              </div>
+
+              <div class="use-case-slide" data-use-case-slide role="group" aria-roledescription="slide" aria-label="2 of 4: Image and Video Search" aria-hidden="true" inert>
+                <div class="use-case-scene" aria-hidden="true">
+                  <svg viewBox="0 0 520 190" fill="none">
+                    <path class="case-edge" d="M140 75H218Q240 75 240 98V134M380 75H302Q280 75 280 98V134" />
+                    <path class="case-route" d="M140 75H218Q240 75 240 98V134M380 75H302Q280 75 280 98V134" />
+                    <rect class="case-node" x="48" y="20" width="128" height="96" rx="14" /><rect class="case-node" x="344" y="20" width="128" height="96" rx="14" />
+                    <g class="case-icon"><circle cx="124" cy="45" r="7" /><path d="M64 89L91 59L111 80L126 68L159 98M362 94V48H392V94M382 94V62H411V94" /><circle cx="425" cy="83" r="10" /><path d="M425 64V73M415 83H435" /></g>
+                    <rect class="case-hub" x="119" y="130" width="282" height="43" rx="21" />
+                    <text x="260" y="157">person → riding → bicycle</text>
+                    <circle class="case-dot" cx="260" cy="75" r="5" /><text class="case-note" x="260" y="38">search the relationship</text>
+                  </svg>
+                </div>
+                <div class="use-case-copy">
+                  <h3>Image &amp; Video Search</h3>
+                  <p>Find the moment by how things relate.</p>
+                  <ul>
+                    <li>Connect objects, scenes, and event sequences.</li>
+                    <li>Search “a person riding a bicycle near a building.”</li>
+                    <li>Retrieve visual context beyond keyword matches.</li>
+                  </ul>
+                  <a class="use-case-link" href="/use-cases/image-video-search/">Explore image &amp; video search</a>
+                </div>
+              </div>
+
+              <div class="use-case-slide" data-use-case-slide role="group" aria-roledescription="slide" aria-label="3 of 4: Multimodal AI Agents" aria-hidden="true" inert>
+                <div class="use-case-scene" aria-hidden="true">
+                  <svg viewBox="0 0 520 190" fill="none">
+                    <path class="case-edge" d="M142 48H190Q214 48 214 72L230 94M142 142H190Q214 142 214 118L230 96M378 48H330Q306 48 306 72L290 94M378 142H330Q306 142 306 118L290 96" />
+                    <path class="case-route" d="M142 48H190Q214 48 214 72L230 94M378 142H330Q306 142 306 118L290 96" />
+                    <rect class="case-node" x="48" y="27" width="100" height="42" rx="11" /><text x="98" y="53">Text</text>
+                    <rect class="case-node" x="48" y="121" width="100" height="42" rx="11" /><text x="98" y="147">Images</text>
+                    <rect class="case-node" x="372" y="27" width="100" height="42" rx="11" /><text x="422" y="53">Audio</text>
+                    <rect class="case-node" x="372" y="121" width="100" height="42" rx="11" /><text x="422" y="147">Video</text>
+                    <circle class="case-hub-halo" cx="260" cy="95" r="52" /><circle class="case-hub" cx="260" cy="95" r="40" />
+                    <g class="case-icon"><path d="M245 80L275 110M245 110L275 80" /><circle cx="245" cy="80" r="4" /><circle cx="245" cy="110" r="4" /><circle cx="275" cy="80" r="4" /><circle cx="275" cy="110" r="4" /><circle cx="260" cy="95" r="6" /></g>
+                    <text class="case-note" x="260" y="171">one context graph</text>
+                  </svg>
+                </div>
+                <div class="use-case-copy">
+                  <h3>Multimodal AI Agents</h3>
+                  <p>One connected memory for every kind of input.</p>
+                  <ul>
+                    <li>Unify text, images, audio, and video in a graph.</li>
+                    <li>Retrieve context across formats and sources.</li>
+                    <li>Follow relationships for explainable reasoning.</li>
+                  </ul>
+                  <a class="use-case-link" href="/use-cases/multimodal-agents/">Explore multimodal agents</a>
+                </div>
+              </div>
+
+              <div class="use-case-slide" data-use-case-slide role="group" aria-roledescription="slide" aria-label="4 of 4: Research" aria-hidden="true" inert>
+                <div class="use-case-scene" aria-hidden="true">
+                  <svg viewBox="0 0 520 190" fill="none">
+                    <path class="case-edge" d="M140 56H186L226 95M140 142H186L226 95M380 56H334L294 95M380 142H334L294 95" />
+                    <path class="case-route" d="M140 56H186L226 95M380 142H334L294 95" />
+                    <rect class="case-node" x="30" y="35" width="120" height="42" rx="11" /><text x="90" y="61">Papers</text>
+                    <rect class="case-node" x="30" y="121" width="120" height="42" rx="11" /><text x="90" y="147">Data tables</text>
+                    <rect class="case-node" x="370" y="35" width="120" height="42" rx="11" /><text x="430" y="61">Figures</text>
+                    <rect class="case-node" x="370" y="121" width="120" height="42" rx="11" /><text x="430" y="147">Notes</text>
+                    <circle class="case-hub-halo" cx="260" cy="95" r="52" /><circle class="case-hub" cx="260" cy="95" r="40" />
+                    <g class="case-icon"><path d="M247 72H266L275 81V118H247ZM266 72V81H275M253 92H269M253 100H269M253 108H263" /></g>
+                    <text class="case-note" x="260" y="176">claims traced to sources</text>
+                  </svg>
+                </div>
+                <div class="use-case-copy">
+                  <h3>Research</h3>
+                  <p>Connect papers, figures, and data.</p>
+                  <ul>
+                    <li>Link claims, figures, and data tables in one graph.</li>
+                    <li>Explore connections across findings and concepts.</li>
+                    <li>Trace every answer back to the file it came from.</li>
+                  </ul>
+                  <a class="use-case-link" href="/use-cases/research/">Explore research</a>
+                </div>
+              </div>
             </div>
-            <div class="benefit-bento-copy">
-              <p>PLACEHOLDER 01</p>
-              <h3>Feature title</h3>
-              <span>Supporting description will go here.</span>
+
+            <div class="use-case-controls">
+              <div class="use-case-pagination" role="group" aria-label="Choose a use case">
+                <button type="button" data-use-case-select="0" aria-label="Show Robotics" aria-pressed="true"><span><i></i></span></button>
+                <button type="button" data-use-case-select="1" aria-label="Show Image and Video Search" aria-pressed="false"><span><i></i></span></button>
+                <button type="button" data-use-case-select="2" aria-label="Show Multimodal AI Agents" aria-pressed="false"><span><i></i></span></button>
+                <button type="button" data-use-case-select="3" aria-label="Show Research" aria-pressed="false"><span><i></i></span></button>
+              </div>
+              <button class="use-case-playback" type="button" data-use-case-playback aria-label="Pause use-case slideshow">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path class="case-pause-icon" d="M5 4V12M11 4V12" /><path class="case-play-icon" d="M5 3L12 8L5 13Z" /></svg>
+              </button>
             </div>
           </article>
 
           <article class="benefit-bento-item benefit-bento-item-orbit" data-benefit-card>
             <div class="benefit-bento-copy">
-              <p>PLACEHOLDER 03</p>
-              <h3>Feature title</h3>
-              <span>Supporting description will go here.</span>
+              <p>3 BENEFITS</p>
+              <h3>More reasoning. Less retrieval glue.</h3>
+              <span>Relationships and provenance stay attached from source to answer, making context reusable instead of disposable.</span>
             </div>
             <div class="benefit-bento-visual benefit-bento-globe" aria-hidden="true">
               <i></i><span></span>
+              <small class="benefit-path-label benefit-path-label-a">multi-hop retrieval</small>
+              <small class="benefit-path-label benefit-path-label-b">reusable context</small>
+              <small class="benefit-path-label benefit-path-label-c">cited evidence</small>
             </div>
           </article>
 
-          <article class="benefit-bento-item benefit-bento-item-full" data-benefit-card>
-            <div class="benefit-bento-copy">
-              <p>PLACEHOLDER 04</p>
-              <h3>Feature title</h3>
-              <span>Supporting description will go here.</span>
-            </div>
-            <div class="benefit-bento-visual benefit-bento-dashboard" aria-hidden="true">
-              <i></i>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-            </div>
-          </article>
         </div>
       </div>
     </section>
@@ -382,7 +478,6 @@
       <span class="section-anchor" id="playground" aria-hidden="true"></span>
       <div class="command-shell">
         <header class="command-header">
-          <p class="command-eyebrow"><i aria-hidden="true"></i> DEVELOPER WORKFLOW</p>
           <h2 id="command-title">From raw context to a queryable graph.</h2>
           <p>
             Start from the terminal, connect your sources, and query the same
@@ -395,7 +490,16 @@
           <div class="terminal-toolbar">
             <span class="terminal-lights" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="terminal-title">opengraph — CLI</span>
-            <span aria-hidden="true"></span>
+            <button class="terminal-copy" type="button" data-terminal-copy aria-label="Copy CLI code" title="Copy code">
+              <svg class="terminal-copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+                <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+              </svg>
+              <svg class="terminal-copy-success" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 12 4 4 8-9"></path>
+              </svg>
+              <span class="visually-hidden" aria-live="polite">Copy</span>
+            </button>
           </div>
 
           <div class="terminal-modebar" role="tablist" aria-label="OpenGraph interfaces">
@@ -446,10 +550,36 @@
       </div>
     </section>
 
+    <section class="faq-section" id="faq" aria-labelledby="faq-title">
+      <div class="faq-shell">
+        <header class="faq-header">
+          <h2 id="faq-title">Questions, answered.</h2>
+          <p class="faq-lede">
+            What OpenGraph AI does today, where your data goes, and how to
+            start building.
+          </p>
+
+          <div class="faq-help">
+            <p><b>Still have a question?</b> Ask us directly or dig into the docs.</p>
+            <div class="faq-help-actions">
+              <a class="faq-help-primary" href="#about">Talk to us</a>
+              <a class="faq-help-secondary" href="/docs/" target="_blank" rel="noopener noreferrer">
+                Read the docs <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- Questions come from content/faq.md (scripts/faq.mjs). -->
+        <div class="faq-list">
+          <!-- site-faq -->
+        </div>
+      </div>
+    </section>
+
     <section class="about-section" id="about" aria-labelledby="about-title">
       <div class="about-shell">
         <header class="about-header">
-          <p class="about-eyebrow"><i aria-hidden="true"></i> ABOUT</p>
           <h2 id="about-title">The open context layer for reasoning agents.</h2>
           <p class="about-lede">
             We started OpenGraph AI because retrieval-augmented agents are stuck
@@ -558,47 +688,12 @@
     </section>
     </main>
 
-    <footer class="site-footer" aria-labelledby="footer-title">
-      <h2 class="visually-hidden" id="footer-title">OpenGraph AI site links</h2>
-      <div class="footer-shell">
-        <div class="footer-brand">
-          <p class="footer-wordmark"><i aria-hidden="true">✕</i> OpenGraph <b>AI</b></p>
-          <p>
-            Heterogeneous data into queryable knowledge graphs. Context for
-            agents that need to reason.
-          </p>
-        </div>
-
-        <nav class="footer-column" aria-label="Product">
-          <p class="footer-heading">PRODUCT</p>
-          <a href="#home">Home</a>
-          <a href="#playground">Playground</a>
-        </nav>
-
-        <nav class="footer-column" aria-label="Community">
-          <p class="footer-heading">COMMUNITY</p>
-          <a href="https://www.linkedin.com/company/opengraph-ai/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://opengraphai.io" target="_blank" rel="noopener noreferrer">Website</a>
-        </nav>
-
-        <nav class="footer-column" aria-label="Developers">
-          <p class="footer-heading">DEVELOPERS</p>
-          <a href="/docs/">Documentation</a>
-          <a href="https://github.com/OpenGraphAI/opengraph-ai" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </nav>
-      </div>
-
-      <div class="footer-base">
-        <span>OPEN SOURCE · APACHE 2.0</span>
-        <span>© 2026 OpenGraph AI</span>
-      </div>
-    </footer>
+    <!-- site-footer home -->
 
     <button class="to-top-button" type="button" data-to-top aria-label="Back to the top">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" />
       </svg>
-      <span>TOP</span>
     </button>
 
     <div class="modalities-overlay" data-modalities-overlay hidden aria-hidden="true">
@@ -617,11 +712,6 @@
         </button>
 
         <div class="modalities-dialog-copy">
-          <div class="modalities-dialog-kicker">
-            <span><i aria-hidden="true">✦</i> MULTIMODAL BY DESIGN</span>
-            <em>05 → 01</em>
-          </div>
-
           <h2 id="multimodal-dialog-title">Five kinds of context. One place to reason.</h2>
           <p class="modalities-dialog-description">
             OpenGraph AI understands each source in its native form, then connects
@@ -655,5 +745,6 @@
     </div>
 
     <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/graph-loop/video.js"></script>
   </body>
 </html>
