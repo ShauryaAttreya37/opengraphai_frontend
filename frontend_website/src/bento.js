@@ -6,6 +6,41 @@ const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: r
 const TRACE_FINAL_STEP = 3;
 const TRACE_STEP_MS = 1000;
 const TRACE_START_DELAY_MS = 450;
+// Start the trace anyway if its photo is slow, rather than leave the card blank.
+const TRACE_IMAGE_WAIT_MS = 2500;
+// Slider steps are decimals, so compare scores with a little slack.
+const SCORE_EPSILON = 1e-9;
+
+/** Photo viewers: fade each photo in once it loads, and say so when it fails. */
+export function initialiseShots() {
+  document.querySelectorAll("[data-shot-img]").forEach((img) => {
+    const shot = img.closest(".shot");
+    if (!shot) return;
+
+    const settle = () => {
+      shot.dataset.state = img.naturalWidth > 0 ? "ready" : "error";
+    };
+
+    // Cached photos are already complete; broken ones are complete with no pixels.
+    if (img.complete) {
+      settle();
+      return;
+    }
+    shot.dataset.state = "loading";
+    img.addEventListener("load", settle, { once: true });
+    img.addEventListener("error", settle, { once: true });
+  });
+}
+
+/** Resolves once an image has loaded or failed, or after `timeout` ms. */
+function whenImageSettles(img, timeout) {
+  if (!img || img.complete) return Promise.resolve();
+  return new Promise((resolve) => {
+    img.addEventListener("load", resolve, { once: true });
+    img.addEventListener("error", resolve, { once: true });
+    window.setTimeout(resolve, timeout);
+  });
+}
 
 /** Evidence trace: lights each hop of a query in order the first time the card is seen. */
 export function initialiseEvidenceTrace() {
@@ -15,6 +50,7 @@ export function initialiseEvidenceTrace() {
 
   const parts = [...stage.querySelectorAll("[data-hop]")];
   const replay = stage.querySelector("[data-trace-replay]");
+  const photo = stage.querySelector("[data-shot-img]");
   let timers = [];
 
   const showStep = (step) => {
@@ -33,19 +69,23 @@ export function initialiseEvidenceTrace() {
       window.setTimeout(() => showStep(step), TRACE_START_DELAY_MS + step * TRACE_STEP_MS));
   };
 
+  replay?.addEventListener("click", play);
+
   // Hidden until the first play so the drawing reads as the agent working.
   showStep(prefersReducedMotion() ? TRACE_FINAL_STEP : -1);
-  replay?.addEventListener("click", play);
 
   const observer = new IntersectionObserver(([entry]) => {
     if (!entry.isIntersecting) return;
-    play();
     observer.disconnect();
+    whenImageSettles(photo, TRACE_IMAGE_WAIT_MS).then(play);
   }, { threshold: 0.45 });
   observer.observe(stage);
 }
 
-/** Confidence threshold: edges below the slider value drop out of the graph. */
+/**
+ * Confidence threshold: detections and relations below the slider value drop
+ * out. A relation also drops when either object it connects has dropped.
+ */
 export function initialiseConfidenceThreshold() {
   const card = document.querySelector("[data-confidence]");
   const input = card?.querySelector("[data-confidence-input]");
@@ -54,36 +94,47 @@ export function initialiseConfidenceThreshold() {
 
   const value = card.querySelector("[data-confidence-value]");
   const readout = card.querySelector("[data-confidence-readout]");
-  const edges = [...graph.querySelectorAll("line[data-edge]")].map((line) => ({
-    line,
-    score: Number(line.dataset.edge),
-    label: line.dataset.label,
-    ends: [`${line.getAttribute("x1")},${line.getAttribute("y1")}`, `${line.getAttribute("x2")},${line.getAttribute("y2")}`],
-  }));
-  const nodes = [...graph.querySelectorAll(".confidence-node")].map((node) => {
-    const circle = node.querySelector("circle");
-    return { node, key: `${circle.getAttribute("cx")},${circle.getAttribute("cy")}` };
-  });
+  const objects = [...graph.querySelectorAll("[data-object]")]
+    .map((node) => ({ node, name: node.dataset.object, score: Number(node.dataset.score) }))
+    .filter(({ score }) => Number.isFinite(score));
+  const relations = [...graph.querySelectorAll("[data-relation]")]
+    .map((line) => ({
+      line,
+      label: line.dataset.relation,
+      from: line.dataset.from,
+      to: line.dataset.to,
+      score: Number(line.dataset.score),
+    }))
+    .filter(({ score }) => Number.isFinite(score));
+  const nodeDots = [...graph.querySelectorAll("[data-node]")];
+  if (!objects.length) return;
 
   // Stronger links draw heavier, so the score is visible before anyone drags.
-  edges.forEach(({ line, score }) => line.style.setProperty("--weight", ((score - 0.4) / 0.6).toFixed(2)));
+  relations.forEach(({ line, score }) => line.style.setProperty("--weight", ((score - 0.4) / 0.6).toFixed(2)));
+
+  const describe = (threshold, keptObjects, keptRelations) => {
+    if (!keptObjects.size) return `No detection reaches ${threshold.toFixed(2)}. Lower the bar to bring them back.`;
+    const counts = `${keptObjects.size} of ${objects.length} objects and ${keptRelations.length} of ${relations.length} relations kept.`;
+    const weakest = keptRelations.reduce((low, relation) => (!low || relation.score < low.score ? relation : low), null);
+    return weakest
+      ? `${counts} Weakest relation kept: ${weakest.label}, ${weakest.score.toFixed(2)}.`
+      : `${counts} No relation reaches ${threshold.toFixed(2)} with both of its objects kept.`;
+  };
 
   const update = () => {
     const threshold = Number(input.value);
-    const kept = edges.filter(({ score }) => score >= threshold - 1e-9);
-    const keptEnds = new Set(kept.flatMap(({ ends }) => ends));
+    const keptObjects = new Set(objects.filter(({ score }) => score >= threshold - SCORE_EPSILON).map(({ name }) => name));
+    const keptRelations = relations.filter(({ score, from, to }) =>
+      score >= threshold - SCORE_EPSILON && keptObjects.has(from) && keptObjects.has(to));
 
-    edges.forEach((edge) => edge.line.classList.toggle("is-dropped", !kept.includes(edge)));
-    nodes.forEach(({ node, key }) => node.classList.toggle("is-isolated", !keptEnds.has(key)));
+    objects.forEach(({ node, name }) => node.classList.toggle("is-dropped", !keptObjects.has(name)));
+    nodeDots.forEach((dot) => dot.classList.toggle("is-dropped", !keptObjects.has(dot.dataset.node)));
+    relations.forEach((relation) => relation.line.classList.toggle("is-dropped", !keptRelations.includes(relation)));
 
     const fill = ((threshold - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100;
     input.style.setProperty("--fill", `${fill}%`);
     if (value) value.textContent = threshold.toFixed(2);
-    if (!readout) return;
-    const weakest = kept.reduce((low, edge) => (!low || edge.score < low.score ? edge : low), null);
-    readout.textContent = weakest
-      ? `${kept.length} of ${edges.length} links kept. Weakest kept: ${weakest.label}, ${weakest.score.toFixed(2)}.`
-      : `No links meet ${threshold.toFixed(2)}. Lower the bar to bring them back.`;
+    if (readout) readout.textContent = describe(threshold, keptObjects, keptRelations);
   };
 
   input.addEventListener("input", update);

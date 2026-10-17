@@ -1,0 +1,491 @@
+/* Use-case bento grid: card layout, the use-case carousel, and the photo
+   viewer the evidence demos share. Styles for each demo live in
+   bento-demos.css. */
+
+.benefit-bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(470px, auto);
+  gap: clamp(14px, 1.5vw, 24px);
+  perspective: 1200px;
+}
+
+.benefit-bento-item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  flex-direction: column;
+  padding: clamp(24px, 2.4vw, 36px);
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+  border-radius: 26px;
+  color: var(--ground-ink);
+  background:
+    linear-gradient(rgb(var(--ground-ink-rgb) / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--ground-ink-rgb) / 0.025) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(247, 247, 245, 0.92));
+  background-size: 22px 22px, 22px 22px, auto;
+  box-shadow:
+    0 22px 52px rgb(var(--shadow-rgb) / 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  transform-style: preserve-3d;
+  transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
+}
+
+.benefit-bento-item::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 84% 14%, rgb(var(--signal-rgb) / 0.07), transparent 33%);
+  content: "";
+  pointer-events: none;
+}
+
+.benefit-bento-item:hover {
+  border-color: rgb(var(--ground-ink-rgb) / 0.2);
+  box-shadow:
+    0 30px 68px rgb(var(--shadow-rgb) / 0.12),
+    inset 0 1px 0 #fff;
+  transform: translateY(-4px);
+}
+
+.benefit-bento-item-agent { grid-column: 1 / -1; }
+.benefit-bento-item-wide,
+.benefit-bento-item-provenance { grid-column: span 7; }
+.benefit-bento-item-trace,
+.benefit-bento-item-confidence { grid-column: span 5; }
+
+.benefit-bento-item-agent {
+  min-height: 600px;
+  padding: clamp(28px, 3.2vw, 48px);
+}
+
+.benefit-bento-item-agent .benefit-bento-copy {
+  max-width: 640px;
+}
+
+.benefit-bento-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 480px;
+}
+
+.benefit-bento-copy h3 {
+  margin: 0 0 10px;
+  font-family: var(--display);
+  font-size: clamp(25px, 2vw, 34px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.benefit-bento-copy > span {
+  display: block;
+  color: rgb(var(--ground-ink-rgb) / 0.56);
+  font-size: clamp(14px, 1.15vw, 17px);
+  line-height: 1.5;
+}
+
+.benefit-bento-visual {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.09);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 16px 34px rgb(var(--shadow-rgb) / 0.08),
+    inset 0 1px 0 #fff;
+}
+
+.benefit-bento-agent {
+  contain: layout paint;
+  width: min(1060px, calc(100% - clamp(32px, 7vw, 112px)));
+  height: 342px;
+  min-height: 342px;
+  margin: clamp(30px, 4vw, 48px) auto 0;
+  overflow: hidden;
+  border-color: rgb(var(--ground-ink-rgb) / 0.12);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow:
+    0 24px 56px rgb(var(--shadow-rgb) / 0.14),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  isolation: isolate;
+}
+
+.benefit-bento-agent::after { display: none; }
+
+.benefit-bento-agent iframe {
+  display: block;
+  width: 100%;
+  height: 342px;
+  border: 0;
+  background: #fff;
+  pointer-events: none;
+}
+
+/* Use-case carousel. Stacked grid cells reserve the tallest slide's space,
+   so switching slides never shifts the page. */
+.use-case-carousel { min-height: 570px; }
+
+/* Vertical drags scroll the page; horizontal ones are left to the swipe handler. */
+.use-case-stage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  flex: 1;
+  margin: 0 0 20px;
+  touch-action: pan-y pinch-zoom;
+}
+
+.use-case-slide {
+  display: flex;
+  min-width: 0;
+  grid-area: 1 / 1;
+  flex-direction: column;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 450ms cubic-bezier(0.22, 1, 0.36, 1), visibility 450ms;
+}
+
+.use-case-slide.is-active {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition: opacity 420ms ease 160ms, transform 620ms cubic-bezier(0.22, 1, 0.36, 1) 120ms, visibility 0s;
+}
+
+/* Each slide opens on a screen from the product: a camera frame, a search,
+   an agent run, or a paper with its evidence. Screens size themselves to the
+   scene's width, so the scene is their query container. */
+.use-case-scene {
+  display: flex;
+  margin: 0 0 24px;
+  flex: none;
+  align-items: flex-start;
+  container-type: inline-size;
+  contain: layout;
+}
+
+.use-case-scene > * { width: 100%; }
+
+.use-case-copy { padding-bottom: 5px; }
+
+.use-case-copy h3 {
+  margin: 0 0 12px;
+  font-family: var(--display);
+  font-size: clamp(28px, 2.7vw, 42px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.use-case-copy > p {
+  max-width: 390px;
+  margin: 0 0 18px;
+  color: rgb(var(--ground-ink-rgb) / 0.65);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.use-case-copy ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.use-case-copy li { position: relative; padding-left: 15px; color: rgb(var(--ground-ink-rgb) / 0.56); font-size: 13px; line-height: 1.5; }
+.use-case-copy li::before { position: absolute; top: 8px; left: 0; width: 4px; height: 4px; border-radius: 50%; background: rgb(var(--signal-rgb) / 0.65); content: ""; }
+.use-case-link { display: inline-flex; gap: 6px; margin-top: 18px; color: var(--signal); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase; }
+.use-case-link::after { content: "→"; transition: transform 160ms ease; }
+.use-case-link:hover::after,
+.use-case-link:focus-visible::after { transform: translateX(3px); }
+
+.use-case-controls {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  margin-top: auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.use-case-count {
+  margin: 0;
+  color: rgb(var(--ground-ink-rgb) / 0.5);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.use-case-nav { display: flex; gap: 8px; }
+
+.use-case-arrow {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.14);
+  border-radius: 50%;
+  color: rgb(var(--ground-ink-rgb) / 0.72);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.use-case-arrow:hover { border-color: rgb(var(--signal-rgb) / 0.45); color: var(--signal); background: #fff; }
+.use-case-arrow:active { transform: scale(0.94); }
+.use-case-arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.use-case-controls button:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
+
+/* Photo viewer shared by the demos.
+   .shot-layer is the whole photo at its natural aspect. --cx/--cy/--cw/--ch
+   (fractions of the photo) crop it to the visible frame, so every box can use
+   the same normalised [x, y, w, h] the graph stores, cropped or not. */
+.shot {
+  --cx: 0;
+  --cy: 0;
+  --cw: 1;
+  --ch: 1;
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--shot-fill, #a99c88);
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+.shot-layer {
+  position: absolute;
+  top: calc(var(--cy) / var(--ch) * -100%);
+  left: calc(var(--cx) / var(--cw) * -100%);
+  width: calc(100% / var(--cw));
+  height: calc(100% / var(--ch));
+}
+
+.shot-img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 360ms ease;
+}
+
+.shot-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 360ms ease;
+}
+
+/* bento.js sets data-state only while it can watch the image, so the photo
+   stays visible when scripts never run. */
+.shot[data-state="loading"] .shot-img,
+.shot[data-state="loading"] .shot-marks { opacity: 0; }
+
+.shot[data-state="error"] .shot-layer { display: none; }
+
+.shot[data-state="error"]::before {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  padding: 16px;
+  place-items: center;
+  color: rgb(255 255 255 / 0.86);
+  background:
+    repeating-linear-gradient(135deg, rgb(255 255 255 / 0.05) 0 8px, transparent 8px 16px),
+    rgb(var(--ground-ink-rgb) / 0.55);
+  content: "This photo didn't load. Refresh the page to try again.";
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.shot-links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 1.5px rgb(17 19 23 / 0.7));
+}
+
+.shot-links line {
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Each detection's node, where its relations meet. */
+.shot-links circle {
+  fill: #fff;
+  stroke: rgb(17 19 23 / 0.5);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A detection: the box the vision pass drew, with its label and score. */
+.det {
+  position: absolute;
+  top: calc(var(--y) * 100%);
+  left: calc(var(--x) * 100%);
+  width: calc(var(--w) * 100%);
+  height: calc(var(--h) * 100%);
+  border: 1.5px solid rgb(255 255 255 / 0.94);
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 1px rgb(17 19 23 / 0.32),
+    inset 0 0 0 1px rgb(17 19 23 / 0.2);
+  transition: opacity 260ms ease, border-color 260ms ease, background-color 260ms ease;
+}
+
+/* Labels paint above every box, so a neighbouring box never crosses one. */
+.det > b {
+  position: absolute;
+  z-index: 2;
+  bottom: calc(100% + 3px);
+  left: -1.5px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 2px 6px 2px 5px;
+  border-radius: 4px;
+  background: rgb(17 19 23 / 0.92);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+  white-space: nowrap;
+  transition: background-color 260ms ease, opacity 260ms ease;
+}
+
+.det > b i {
+  color: rgb(255 255 255 / 0.66);
+  font-style: normal;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.det[data-chip="below"] > b { top: calc(100% + 3px); bottom: auto; }
+.det[data-chip="inside"] > b { top: 3px; bottom: auto; left: 3px; }
+.det[data-chip="inside-end"] > b { top: 3px; right: 3px; bottom: auto; left: auto; }
+.det[data-chip="inside-bottom"] > b { bottom: 3px; left: 3px; }
+.det[data-chip="inside-bottom-end"] > b { right: 3px; bottom: 3px; left: auto; }
+.det[data-chip="end"] > b { right: -1.5px; left: auto; }
+.det[data-chip="left"] > b { top: -1.5px; right: calc(100% + 4px); bottom: auto; left: auto; }
+
+.det-quiet {
+  border-width: 1px;
+  border-color: rgb(255 255 255 / 0.5);
+  box-shadow: none;
+}
+
+.det-cited {
+  border-color: var(--cited);
+  background: rgb(var(--cited-rgb) / 0.1);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.75),
+    0 0 0 4px rgb(var(--cited-rgb) / 0.2);
+}
+
+.det-cited > b { background: var(--cited); color: var(--cited-contrast); }
+.det-cited > b i { color: rgb(255 255 255 / 0.8); }
+
+/* The filename of the frame, pinned to its corner like a viewer would. */
+.shot-file {
+  position: absolute;
+  z-index: 3;
+  bottom: 8px;
+  left: 8px;
+  max-width: calc(100% - 16px);
+  overflow: hidden;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgb(17 19 23 / 0.72);
+  color: rgb(255 255 255 / 0.9);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background-color 260ms ease, color 260ms ease;
+}
+
+/* For frames whose bottom left is busy with boxes. */
+.shot-file-top { top: 8px; right: 8px; bottom: auto; left: auto; }
+
+/* Narrow frames keep every box but drop scores and minor labels that would
+   otherwise collide. */
+@container (max-width: 340px) {
+  .det.is-minor > b,
+  .det > b i { display: none; }
+  .det > b { font-size: 9px; }
+}
+
+@media (forced-colors: active) {
+  .det,
+  .det-cited { border-color: CanvasText; forced-color-adjust: none; }
+  .det > b { border: 1px solid CanvasText; background: Canvas; color: CanvasText; forced-color-adjust: none; }
+  .det > b i { color: CanvasText; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .use-case-slide,
+  .use-case-slide.is-active { transition: none; transform: none; }
+  .use-case-arrow { transition: none; }
+  .use-case-arrow:active { transform: none; }
+  .shot-img,
+  .shot-marks,
+  .det,
+  .det > b,
+  .shot-file { transition: none; }
+}
+
+@media (max-width: 1050px) {
+  .benefit-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(440px, auto);
+  }
+
+  .benefit-bento-item-agent { grid-column: 1 / -1; }
+
+  .benefit-bento-item-wide,
+  .benefit-bento-item-trace,
+  .benefit-bento-item-confidence,
+  .benefit-bento-item-provenance { grid-column: span 1; }
+}
+
+@media (max-width: 700px) {
+  .benefit-bento {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .benefit-bento-item { min-height: 390px; }
+
+  .benefit-bento-item-agent {
+    min-height: 660px;
+    padding: 24px;
+  }
+
+  .use-case-carousel { min-height: 560px; }
+  .use-case-copy h3 { font-size: 31px; }
+
+  .benefit-bento-agent {
+    width: calc(100% - 8px);
+    height: 430px;
+    min-height: 430px;
+    margin-top: 24px;
+    border-radius: 18px;
+  }
+
+  .benefit-bento-agent iframe { height: 430px; }
+}

@@ -2,8 +2,11 @@ import { animate, createTimeline, stagger, svg } from "animejs";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import "./styles.css";
+import "./bento.css";
+import "./bento-demos.css";
+import "./bento-scenes.css";
 import { initialiseMorphicNavbar } from "./site-nav.js";
-import { initialiseConfidenceThreshold, initialiseEvidenceTrace, initialiseProvenanceInspector } from "./bento.js";
+import { initialiseConfidenceThreshold, initialiseEvidenceTrace, initialiseProvenanceInspector, initialiseShots } from "./bento.js";
 
 const lenis = new Lenis({
   autoRaf: true,
@@ -1143,114 +1146,69 @@ for src, dst, edge in g.edges(data=True):
   observer.observe(terminal);
 }
 
+// A horizontal drag of at least this many pixels counts as a swipe.
+const USE_CASE_SWIPE_PX = 48;
+
+// Use-case carousel. Readers move between slides with the arrow buttons, the
+// arrow keys while a button has focus, or a swipe; nothing advances on its own,
+// so nobody waits for a timer.
 function initialiseUseCaseCarousel() {
   const carousel = document.querySelector("[data-use-case-carousel]");
-  if (!carousel) return;
+  const stage = carousel?.querySelector("[data-use-case-stage]");
+  if (!carousel || !stage) return;
 
   const slides = [...carousel.querySelectorAll("[data-use-case-slide]")];
-  const selectors = [...carousel.querySelectorAll("[data-use-case-select]")];
-  const stage = carousel.querySelector("[data-use-case-stage]");
-  const playback = carousel.querySelector("[data-use-case-playback]");
-  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const duration = 7000;
+  if (!slides.length) return;
+  const controls = carousel.querySelector(".use-case-controls");
+  const current = carousel.querySelector("[data-use-case-current]");
+  const total = carousel.querySelector("[data-use-case-total]");
+  const status = carousel.querySelector("[data-use-case-status]");
   let activeIndex = 0;
-  let elapsed = 0;
-  let startedAt = 0;
-  let timer = 0;
-  let progress = null;
-  let inView = false;
-  let hovered = false;
-  let stopped = motionPreference.matches;
 
-  const canPlay = () => inView && !document.hidden && !hovered && !stopped;
-
-  const showSlide = (index) => {
+  const showSlide = (index, { announce = true } = {}) => {
     activeIndex = (index + slides.length) % slides.length;
-    elapsed = 0;
-    progress?.cancel();
-    progress = selectors[activeIndex].querySelector("i").animate(
-      [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }],
-      { duration, fill: "both", easing: "linear" },
-    );
-    progress.pause();
     slides.forEach((slide, slideIndex) => {
       const active = slideIndex === activeIndex;
       slide.classList.toggle("is-active", active);
       slide.setAttribute("aria-hidden", String(!active));
       slide.inert = !active;
-      selectors[slideIndex].setAttribute("aria-pressed", String(active));
     });
+    if (current) current.textContent = String(activeIndex + 1);
+    // Each slide's label already reads "2 of 4: Image and Video Search".
+    if (announce && status) status.textContent = slides[activeIndex].getAttribute("aria-label") || "";
   };
 
-  const syncPlayback = () => {
-    if (timer) elapsed = Math.min(duration, elapsed + performance.now() - startedAt);
-    window.clearTimeout(timer);
-    timer = 0;
-    progress.pause();
-    carousel.dataset.paused = String(!canPlay());
-    playback.dataset.stopped = String(stopped);
-    playback.setAttribute("aria-label", `${stopped ? "Play" : "Pause"} use-case slideshow`);
-    stage.setAttribute("aria-live", stopped ? "polite" : "off");
-    if (canPlay()) {
-      startedAt = performance.now();
-      progress.play();
-      timer = window.setTimeout(() => {
-        timer = 0;
-        showSlide(activeIndex + 1);
-        syncPlayback();
-      }, duration - elapsed);
-    }
-  };
+  carousel.querySelector("[data-use-case-prev]")?.addEventListener("click", () => showSlide(activeIndex - 1));
+  carousel.querySelector("[data-use-case-next]")?.addEventListener("click", () => showSlide(activeIndex + 1));
 
-  selectors.forEach((button, index) => {
-    button.addEventListener("click", () => {
-      stopped = true;
-      syncPlayback();
-      showSlide(index);
-    });
-    button.addEventListener("keydown", (event) => {
-      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-      event.preventDefault();
-      const next = event.key === "Home" ? 0 : event.key === "End" ? slides.length - 1
-        : (index + (event.key === "ArrowRight" ? 1 : -1) + slides.length) % slides.length;
-      selectors[next].focus();
-      selectors[next].click();
-    });
+  // Only the controls take arrow keys, so focus never sits inside a slide as it hides.
+  controls?.addEventListener("keydown", (event) => {
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+    if (!step || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    showSlide(activeIndex + step);
   });
 
-  playback.addEventListener("click", () => {
-    stopped = !stopped;
-    syncPlayback();
+  // Touch and pen swipes turn the slide; vertical drags still scroll the page.
+  let swipeStart = null;
+  stage.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" || !event.isPrimary) return;
+    swipeStart = { x: event.clientX, y: event.clientY };
+  });
+  stage.addEventListener("pointerup", (event) => {
+    if (!swipeStart) return;
+    const dx = event.clientX - swipeStart.x;
+    const dy = event.clientY - swipeStart.y;
+    swipeStart = null;
+    if (Math.abs(dx) < USE_CASE_SWIPE_PX || Math.abs(dx) <= Math.abs(dy)) return;
+    showSlide(activeIndex + (dx < 0 ? 1 : -1));
+  });
+  stage.addEventListener("pointercancel", () => {
+    swipeStart = null;
   });
 
-  // Let readers finish the current card without losing their place in the timer.
-  stage.addEventListener("pointerenter", (event) => {
-    if (event.pointerType !== "mouse") return;
-    hovered = true;
-    syncPlayback();
-  });
-  stage.addEventListener("pointerleave", () => {
-    hovered = false;
-    syncPlayback();
-  });
-  carousel.addEventListener("focusin", (event) => {
-    if (!event.target.matches(":focus-visible")) return;
-    stopped = true;
-    syncPlayback();
-  });
-  document.addEventListener("visibilitychange", syncPlayback);
-  motionPreference.addEventListener("change", () => {
-    stopped = motionPreference.matches;
-    syncPlayback();
-  });
-
-  const observer = new IntersectionObserver(([entry]) => {
-    inView = entry.isIntersecting && entry.intersectionRatio >= 0.25;
-    syncPlayback();
-  }, { threshold: [0, 0.25] });
-  observer.observe(carousel);
-  showSlide(0);
-  syncPlayback();
+  if (total) total.textContent = String(slides.length);
+  showSlide(0, { announce: false });
 }
 
 // PLACEHOLDER - confirm the real inbox before this ships.
@@ -1319,6 +1277,7 @@ initialiseToTopButton();
 initialiseGraphBackground();
 initialiseLazyDemos();
 initialiseUseCaseCarousel();
+initialiseShots();
 initialiseEvidenceTrace();
 initialiseConfidenceThreshold();
 initialiseProvenanceInspector();

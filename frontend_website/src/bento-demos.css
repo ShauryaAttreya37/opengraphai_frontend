@@ -1,0 +1,494 @@
+/* The bento demos. Each one shows a real artifact (a camera frame, a PDF
+   page, a spreadsheet, an agent run) with OpenGraph's output laid over it.
+   Blue always marks the evidence an answer cites. */
+
+/* Identifiers in the mocks share the site's monospace, not the browser's. */
+.benefit-bento code,
+.provenance-node,
+.confidence-control output {
+  font-family: var(--mono);
+}
+
+/* Evidence trace: one question walking typed relations to a cited frame. */
+.trace {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.trace-prompt {
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+  border-radius: 12px;
+  background: rgb(var(--ground-glass-rgb) / 0.86);
+  color: rgb(var(--ground-ink-rgb) / 0.82);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.trace-prompt span {
+  margin-right: 4px;
+  color: var(--signal);
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.trace-shot {
+  box-shadow: 0 14px 30px rgb(var(--shadow-rgb) / 0.12);
+}
+
+/* Boxes on the path stay hidden until the agent reaches them. */
+.trace-det { opacity: 0; }
+
+.trace-det.is-lit {
+  border-color: var(--cited);
+  background: rgb(var(--cited-rgb) / 0.12);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.75),
+    0 0 0 4px rgb(var(--cited-rgb) / 0.2);
+  opacity: 1;
+}
+
+.trace-det.is-lit > b { background: var(--cited); color: var(--cited-contrast); }
+.trace-det-area.is-lit { border-style: dashed; background: rgb(var(--cited-rgb) / 0.05); }
+
+.trace-frame.is-lit { background: var(--cited); color: var(--cited-contrast); }
+
+.trace-hops {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: hop;
+}
+
+/* The step number hangs in a gutter so wrapped hops stay indented. */
+.trace-hops li {
+  position: relative;
+  padding-left: 24px;
+  color: rgb(var(--ground-ink-rgb) / 0.62);
+  font-size: 13px;
+  line-height: 1.45;
+  counter-increment: hop;
+  opacity: 0.32;
+  transition: opacity 300ms ease;
+}
+
+.trace-hops li::before {
+  position: absolute;
+  top: 0.2em;
+  left: 0;
+  color: rgb(var(--ground-ink-rgb) / 0.45);
+  font-family: var(--mono);
+  font-size: 10px;
+  content: counter(hop);
+}
+
+.trace-hops li.is-lit { opacity: 1; }
+.trace-hops li.is-lit::before { color: var(--signal); }
+.trace-hops code { color: var(--ground-ink); font-size: 11.5px; }
+.trace-hops em { color: var(--signal); font-family: var(--mono); font-size: 11px; font-style: normal; }
+
+.trace-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+}
+
+.trace-answer {
+  margin: 0;
+  color: rgb(var(--ground-ink-rgb) / 0.55);
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+
+.trace-answer b { margin-left: 6px; color: var(--ground-ink); font-family: var(--mono); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.trace-answer.is-lit { opacity: 1; transform: none; }
+
+.trace-replay,
+.provenance-tabs button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.14);
+  border-radius: 999px;
+  background: rgb(var(--ground-glass-rgb) / 0.7);
+  color: rgb(var(--ground-ink-rgb) / 0.72);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.trace-replay:hover,
+.provenance-tabs button:hover { border-color: rgb(var(--signal-rgb) / 0.45); color: var(--signal); }
+
+.trace-replay:focus-visible,
+.provenance-tabs button:focus-visible,
+.confidence-control input:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+/* Confidence threshold: raise the bar and weak detections and links drop out. */
+.confidence {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.confidence-shot line {
+  stroke-width: calc(1px + var(--weight, 1) * 1.5px);
+  opacity: calc(0.45 + var(--weight, 1) * 0.55);
+  transition: opacity 260ms ease;
+}
+
+.confidence-shot line.is-dropped,
+.confidence-shot circle.is-dropped { opacity: 0; }
+.confidence-shot circle { transition: opacity 260ms ease; }
+
+.confidence-shot .det.is-dropped {
+  border-style: dashed;
+  border-color: rgb(255 255 255 / 0.6);
+  box-shadow: none;
+}
+
+.confidence-shot .det.is-dropped > b {
+  background: rgb(17 19 23 / 0.42);
+  color: rgb(255 255 255 / 0.62);
+}
+
+.confidence-control {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.confidence-control label { color: rgb(var(--ground-ink-rgb) / 0.72); font-size: 13px; font-weight: 600; }
+.confidence-control output { color: var(--signal); font-size: 13px; font-weight: 600; }
+
+.confidence-control input {
+  --fill: 22%;
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+.confidence-control input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgb(var(--ground-ink-rgb) / 0.14) var(--fill), var(--signal) var(--fill));
+}
+
+.confidence-control input::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgb(var(--ground-ink-rgb) / 0.14) var(--fill), var(--signal) var(--fill));
+}
+
+.confidence-control input::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(var(--shadow-rgb) / 0.2);
+  appearance: none;
+}
+
+.confidence-control input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(var(--shadow-rgb) / 0.2);
+}
+
+/* High-contrast modes drop the custom track, so give it a system colour. */
+@media (forced-colors: active) {
+  .confidence-control input::-webkit-slider-runnable-track { background: CanvasText; }
+  .confidence-control input::-moz-range-track { background: CanvasText; }
+}
+
+.confidence-readout {
+  min-height: 2.9em;
+  margin: 0;
+  color: rgb(var(--ground-ink-rgb) / 0.6);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Provenance inspector: a node next to the pixels, sentence, or cell behind it. */
+.provenance {
+  container-type: inline-size;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.provenance-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.provenance-tabs button[aria-selected="true"] {
+  border-color: var(--ground-ink);
+  background: var(--ground-ink);
+  color: var(--ground);
+}
+
+.provenance-panel {
+  display: grid;
+  flex: 1;
+  align-items: center;
+  gap: 16px;
+}
+
+.provenance-panel[hidden] { display: none; }
+
+@container (min-width: 560px) {
+  .provenance-panel { grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 22px; }
+}
+
+/* A viewer frame around a source: photo, PDF page, or sheet. */
+.source-frame {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 30px rgb(var(--shadow-rgb) / 0.09);
+}
+
+.source-frame > figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-top: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+  color: rgb(var(--ground-ink-rgb) / 0.6);
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+
+.source-frame > figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-frame > figcaption span:first-child { flex: none; }
+.source-frame > figcaption span:last-child { color: rgb(var(--ground-ink-rgb) / 0.42); }
+.source-frame .shot { border-radius: 0; }
+
+/* Document tab: a page as a PDF viewer shows it. */
+.pdf-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 12px;
+  border-bottom: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+  background: #f6f5f2;
+  color: rgb(var(--ground-ink-rgb) / 0.62);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.pdf-toolbar span:last-child { color: rgb(var(--ground-ink-rgb) / 0.45); font-weight: 500; }
+
+.pdf-desk {
+  padding: 12px 14px 0;
+  background: #e8e6e1;
+}
+
+.pdf-page {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px 18px;
+  background: #fffefb;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 6px 16px rgb(0 0 0 / 0.08);
+  color: #34322e;
+  font-family: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.pdf-page p { margin: 0; }
+
+.pdf-running {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e6e2da;
+  color: #8a857b;
+  font-family: var(--sans);
+  font-size: 9.5px;
+}
+
+.pdf-heading {
+  margin: 2px 0 0;
+  color: #1f1e1b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.source-frame mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: rgb(var(--cited-rgb) / 0.16);
+  box-shadow: inset 0 -1.5px 0 var(--cited);
+  color: #1f1e1b;
+}
+
+/* Table tab: the sheet as a spreadsheet app shows it. */
+.xlsx-formula {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #dadce0;
+  background: #fff;
+  color: #202124;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.xlsx-ref {
+  min-width: 34px;
+  padding: 1px 6px;
+  border: 1px solid #dadce0;
+  border-radius: 3px;
+  color: #3c4043;
+  text-align: center;
+}
+
+.xlsx-fx { color: #80868b; font-style: italic; }
+
+.xlsx-grid { overflow: hidden; }
+
+.xlsx-grid table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: #202124;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+.xlsx-grid th,
+.xlsx-grid td {
+  height: 26px;
+  padding: 0 8px;
+  overflow: hidden;
+  border: 1px solid #e2e3e3;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xlsx-grid thead th,
+.xlsx-grid tbody th {
+  background: #f8f9fa;
+  color: #5f6368;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.xlsx-grid thead th:first-child { width: 28px; }
+.xlsx-grid thead th:nth-child(2) { width: 50%; }
+.xlsx-grid .xlsx-head { font-weight: 700; }
+.xlsx-grid tr.is-cited th { background: #e8eefc; color: var(--cited); }
+
+.xlsx-grid .xlsx-active {
+  position: relative;
+  background: rgb(var(--cited-rgb) / 0.07);
+  outline: 2px solid var(--cited);
+  outline-offset: -2px;
+}
+
+/* The fill handle every spreadsheet draws on the selected cell. */
+.xlsx-active::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #fff;
+  background: var(--cited);
+  content: "";
+}
+
+.xlsx-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 8px;
+  border-top: 1px solid #dadce0;
+  background: #f8f9fa;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 11.5px;
+}
+
+.xlsx-tabs span { padding: 6px 12px; color: #5f6368; }
+.xlsx-tabs .is-active { background: #fff; box-shadow: inset 0 2px 0 var(--cited); color: var(--cited); font-weight: 700; }
+
+.provenance-node {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--panel);
+  color: rgb(var(--panel-ink-rgb) / 0.86);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.provenance-node > div {
+  display: grid;
+  grid-template-columns: minmax(84px, auto) minmax(0, 1fr);
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 7px;
+}
+
+.provenance-node dt { color: var(--code-obj-dark); }
+.provenance-node dd { margin: 0; color: var(--code-arg-dark); overflow-wrap: anywhere; }
+.provenance-node .is-cited { background: rgb(var(--signal-rgb) / 0.32); }
+.provenance-node .is-cited dt { color: var(--panel-ink-bright); }
+
+.provenance-panel.is-entering .det-cited,
+.provenance-panel.is-entering mark,
+.provenance-panel.is-entering .xlsx-active,
+.provenance-panel.is-entering .provenance-node .is-cited {
+  animation: provenance-ping 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes provenance-ping {
+  0% { opacity: 0; }
+  35% { opacity: 1; }
+  55% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace-hops li,
+  .trace-answer,
+  .confidence-shot line,
+  .confidence-shot circle { transition: none; }
+  .provenance-panel.is-entering * { animation: none !important; }
+}

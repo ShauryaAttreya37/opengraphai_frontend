@@ -339,20 +339,24 @@
           </article>
 
           <article class="benefit-bento-item benefit-bento-item-wide use-case-carousel" data-benefit-card data-use-case-carousel role="region" aria-roledescription="carousel" aria-label="OpenGraph use cases">
-            <div class="use-case-stage" aria-live="off" data-use-case-stage>
+            <div class="use-case-stage" id="use-case-stage" data-use-case-stage>
               <div class="use-case-slide is-active" data-use-case-slide role="group" aria-roledescription="slide" aria-label="1 of 4: Robotics">
                 <div class="use-case-scene" aria-hidden="true">
-                  <svg viewBox="0 0 520 190" fill="none">
-                    <path class="case-edge" d="M115 96H208M312 96H408M260 55V28H380M260 136V162H142" />
-                    <path class="case-route" d="M115 96H208M312 96H408" />
-                    <circle class="case-dot" cx="380" cy="28" r="4" /><circle class="case-dot" cx="142" cy="162" r="4" />
-                    <rect class="case-node" x="18" y="70" width="110" height="52" rx="12" /><text x="73" y="100">Environment</text>
-                    <rect class="case-node" x="394" y="70" width="110" height="52" rx="12" /><text x="449" y="100">Task plan</text>
-                    <rect class="case-hub-halo" x="202" y="38" width="116" height="116" rx="32" />
-                    <rect class="case-hub" x="214" y="50" width="92" height="92" rx="23" />
-                    <g class="case-icon"><rect x="237" y="80" width="46" height="32" rx="9" /><path d="M260 70V80M231 92V102M289 92V102M250 104H270" /><circle cx="250" cy="92" r="2" /><circle cx="270" cy="92" r="2" /><circle cx="260" cy="66" r="3" /></g>
-                    <text class="case-note" x="334" y="18">spatial relations</text><text class="case-note" x="180" y="180">frame-by-frame memory</text>
-                  </svg>
+                  <figure class="shot robot-cam-shot" style="--shot-fill: #8a8272">
+                    <div class="shot-layer">
+                      <img class="shot-img" src="/bento/kitchen-01-640.webp" srcset="/bento/kitchen-01-640.webp 640w, /bento/kitchen-01-1200.webp 1200w" sizes="(min-width: 1051px) 680px, (min-width: 701px) 46vw, 92vw" width="1600" height="1067" alt="" loading="lazy" decoding="async" data-shot-img />
+                      <div class="shot-marks">
+                        <span class="det" data-chip="inside" style="--x: 0.316; --y: 0.405; --w: 0.354; --h: 0.42"><b>tablet <i>0.97</i></b></span>
+                        <span class="det is-minor" data-chip="inside-bottom" style="--x: 0.09; --y: 0.4; --w: 0.17; --h: 0.33"><b>potted_plant <i>0.93</i></b></span>
+                        <span class="det" data-chip="inside-end" style="--x: 0.71; --y: 0.49; --w: 0.29; --h: 0.31"><b>fruit_basket <i>0.95</i></b></span>
+                        <span class="det det-cited" style="--x: 0.68; --y: 0.735; --w: 0.082; --h: 0.065"><b>mouse <i>0.89</i></b></span>
+                      </div>
+                    </div>
+                    <figcaption class="robot-cam-hud">
+                      <span class="robot-cam-bar"><span class="robot-cam-feed"><i></i>head_rgb</span><span>ep03_step-025.jpg</span></span>
+                      <span class="robot-cam-query"><span>Where was the mouse?</span><code>mouse</code><em>next_to</em><code>tablet</code></span>
+                    </figcaption>
+                  </figure>
                 </div>
                 <div class="use-case-copy">
                   <h3>Robotics</h3>
@@ -368,15 +372,53 @@
 
               <div class="use-case-slide" data-use-case-slide role="group" aria-roledescription="slide" aria-label="2 of 4: Image and Video Search" aria-hidden="true" inert>
                 <div class="use-case-scene" aria-hidden="true">
-                  <svg viewBox="0 0 520 190" fill="none">
-                    <path class="case-edge" d="M140 75H218Q240 75 240 98V134M380 75H302Q280 75 280 98V134" />
-                    <path class="case-route" d="M140 75H218Q240 75 240 98V134M380 75H302Q280 75 280 98V134" />
-                    <rect class="case-node" x="48" y="20" width="128" height="96" rx="14" /><rect class="case-node" x="344" y="20" width="128" height="96" rx="14" />
-                    <g class="case-icon"><circle cx="124" cy="45" r="7" /><path d="M64 89L91 59L111 80L126 68L159 98M362 94V48H392V94M382 94V62H411V94" /><circle cx="425" cy="83" r="10" /><path d="M425 64V73M415 83H435" /></g>
-                    <rect class="case-hub" x="119" y="130" width="282" height="43" rx="21" />
-                    <text x="260" y="157">person → holding → umbrella</text>
-                    <circle class="case-dot" cx="260" cy="75" r="5" /><text class="case-note" x="260" y="38">search the relationship</text>
-                  </svg>
+                  <div class="search-ui">
+                    <div class="search-bar">
+                      <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" /><path d="M10.4 10.4L14 14" /></svg>
+                      <span>person holding umbrella</span>
+                      <small>./media</small>
+                    </div>
+                    <p class="search-parse"><code>person</code><em>holding</em><code>umbrella</code><span>4 matches</span></p>
+                    <ol class="search-results">
+                      <li>
+                        <figure class="shot" style="--shot-fill: #473e29; aspect-ratio: 3 / 2">
+                          <div class="shot-layer">
+                            <img class="shot-img" src="/bento/street-03-480.webp" width="480" height="320" alt="" loading="lazy" decoding="async" data-shot-img />
+                            <div class="shot-marks"><span class="det det-cited" style="--x: 0.1; --y: 0.15; --w: 0.62; --h: 0.25"></span></div>
+                          </div>
+                        </figure>
+                        <p><code>street-03.jpg</code><span>0.96</span></p>
+                      </li>
+                      <li>
+                        <figure class="shot" style="--shot-fill: #7b5863; aspect-ratio: 3 / 2">
+                          <div class="shot-layer">
+                            <img class="shot-img" src="/bento/street-11-480.webp" width="480" height="320" alt="" loading="lazy" decoding="async" data-shot-img />
+                            <div class="shot-marks"><span class="det det-cited" style="--x: 0.27; --y: 0.25; --w: 0.5; --h: 0.52"></span></div>
+                          </div>
+                        </figure>
+                        <p><code>street-11.jpg</code><span>0.94</span></p>
+                      </li>
+                      <li>
+                        <figure class="shot" style="--shot-fill: #282f2a; aspect-ratio: 3 / 2">
+                          <div class="shot-layer">
+                            <img class="shot-img" src="/bento/street-14-480.webp" width="480" height="320" alt="" loading="lazy" decoding="async" data-shot-img />
+                            <div class="shot-marks"><span class="det det-cited" style="--x: 0.5; --y: 0.32; --w: 0.28; --h: 0.23"></span></div>
+                          </div>
+                        </figure>
+                        <p><code>street-14.jpg</code><span>0.91</span></p>
+                      </li>
+                      <li>
+                        <figure class="shot" style="--shot-fill: #3e3f3b; aspect-ratio: 3 / 2">
+                          <div class="shot-layer">
+                            <img class="shot-img" src="/bento/walkthrough-t00042-480.webp" width="480" height="320" alt="" loading="lazy" decoding="async" data-shot-img />
+                            <div class="shot-marks"><span class="det det-cited" style="--x: 0.43; --y: 0.51; --w: 0.13; --h: 0.1"></span></div>
+                          </div>
+                          <span class="search-timecode">0:41</span>
+                        </figure>
+                        <p><code>t00042.jpg</code><span>0.88</span></p>
+                      </li>
+                    </ol>
+                  </div>
                 </div>
                 <div class="use-case-copy">
                   <h3>Image &amp; Video Search</h3>
@@ -392,17 +434,24 @@
 
               <div class="use-case-slide" data-use-case-slide role="group" aria-roledescription="slide" aria-label="3 of 4: Multimodal AI Agents" aria-hidden="true" inert>
                 <div class="use-case-scene" aria-hidden="true">
-                  <svg viewBox="0 0 520 190" fill="none">
-                    <path class="case-edge" d="M142 48H190Q214 48 214 72L230 94M142 142H190Q214 142 214 118L230 96M378 48H330Q306 48 306 72L290 94M378 142H330Q306 142 306 118L290 96" />
-                    <path class="case-route" d="M142 48H190Q214 48 214 72L230 94M378 142H330Q306 142 306 118L290 96" />
-                    <rect class="case-node" x="48" y="27" width="100" height="42" rx="11" /><text x="98" y="53">Text</text>
-                    <rect class="case-node" x="48" y="121" width="100" height="42" rx="11" /><text x="98" y="147">Images</text>
-                    <rect class="case-node" x="372" y="27" width="100" height="42" rx="11" /><text x="422" y="53">Tables</text>
-                    <rect class="case-node" x="372" y="121" width="100" height="42" rx="11" /><text x="422" y="147">PDFs</text>
-                    <circle class="case-hub-halo" cx="260" cy="95" r="52" /><circle class="case-hub" cx="260" cy="95" r="40" />
-                    <g class="case-icon"><path d="M245 80L275 110M245 110L275 80" /><circle cx="245" cy="80" r="4" /><circle cx="245" cy="110" r="4" /><circle cx="275" cy="80" r="4" /><circle cx="275" cy="110" r="4" /><circle cx="260" cy="95" r="6" /></g>
-                    <text class="case-note" x="260" y="171">one agent, cited steps</text>
-                  </svg>
+                  <div class="agent-log">
+                    <p class="agent-ask">Which sites were marked damaged, what does the manual say to do, and do the photos show it?</p>
+                    <ol class="agent-calls">
+                      <li>
+                        <span class="agent-tool">opengraph-table <span>query_graph</span></span>
+                        <span class="agent-result"><span><code>north_yard</code> status “damaged”</span><small>site-reports.xlsx, Sites, row 7</small></span>
+                      </li>
+                      <li>
+                        <span class="agent-tool">opengraph-text <span>query_graph</span></span>
+                        <span class="agent-result"><span>“Replace cracked roof panels within 48 hours of inspection.”</span><small>maintenance-manual.pdf</small></span>
+                      </li>
+                      <li>
+                        <span class="agent-tool">opengraph-image <span>get_image_entities</span></span>
+                        <span class="agent-result"><span><code>cracked_panel</code> 0.88</span><small>north-yard-04.jpg</small></span>
+                      </li>
+                    </ol>
+                    <p class="agent-answer">North Yard is the only site marked damaged<sup>1</sup>. The manual says to replace cracked panels within 48 hours<sup>2</sup>, and north-yard-04.jpg shows one<sup>3</sup>.</p>
+                  </div>
                 </div>
                 <div class="use-case-copy">
                   <h3>Multimodal AI Agents</h3>
@@ -418,17 +467,46 @@
 
               <div class="use-case-slide" data-use-case-slide role="group" aria-roledescription="slide" aria-label="4 of 4: Research" aria-hidden="true" inert>
                 <div class="use-case-scene" aria-hidden="true">
-                  <svg viewBox="0 0 520 190" fill="none">
-                    <path class="case-edge" d="M140 56H186L226 95M140 142H186L226 95M380 56H334L294 95M380 142H334L294 95" />
-                    <path class="case-route" d="M140 56H186L226 95M380 142H334L294 95" />
-                    <rect class="case-node" x="30" y="35" width="120" height="42" rx="11" /><text x="90" y="61">Papers</text>
-                    <rect class="case-node" x="30" y="121" width="120" height="42" rx="11" /><text x="90" y="147">Data tables</text>
-                    <rect class="case-node" x="370" y="35" width="120" height="42" rx="11" /><text x="430" y="61">Figures</text>
-                    <rect class="case-node" x="370" y="121" width="120" height="42" rx="11" /><text x="430" y="147">Notes</text>
-                    <circle class="case-hub-halo" cx="260" cy="95" r="52" /><circle class="case-hub" cx="260" cy="95" r="40" />
-                    <g class="case-icon"><path d="M247 72H266L275 81V118H247ZM266 72V81H275M253 92H269M253 100H269M253 108H263" /></g>
-                    <text class="case-note" x="260" y="176">claims traced to sources</text>
-                  </svg>
+                  <div class="paper-ui">
+                    <div class="paper-page">
+                      <p class="paper-section">4.2 Results</p>
+                      <p class="paper-title">Electrolyte additives and cycle life in LFP cells</p>
+                      <p class="paper-body">Cells were cycled at 1C between 2.5 and 3.65 V at 25 °C, twelve cells per batch. Both batches started at full capacity. After 500 cycles, <mark>capacity retention rose from 78% to 91% with the additive</mark>, and the gap opened after cycle 200 (Fig. 3, Table S2).</p>
+                      <p class="paper-body">Impedance growth followed the same split: baseline cells added 41% to their DC resistance by cycle 500, against 17% with the additive.</p>
+                      <span class="paper-file">cycle-life-study.pdf</span>
+                    </div>
+                    <div class="paper-evidence">
+                      <figure class="paper-figure">
+                        <svg viewBox="0 0 200 92">
+                          <path class="paper-grid" d="M26 8H192M26 30H192M26 52H192" />
+                          <path class="paper-axis" d="M26 4V74H192" />
+                          <text x="22" y="10" text-anchor="end">100</text>
+                          <text x="22" y="32" text-anchor="end">90</text>
+                          <text x="22" y="54" text-anchor="end">80</text>
+                          <text x="22" y="76" text-anchor="end">70</text>
+                          <text x="26" y="84" text-anchor="middle">0</text>
+                          <text x="109" y="84" text-anchor="middle">250</text>
+                          <text x="192" y="84" text-anchor="middle">500</text>
+                          <text x="109" y="91" text-anchor="middle">Cycle</text>
+                          <polyline class="paper-line paper-line-base" points="26,8 59,15 92,23 109,34 126,39 159,48 192,55" />
+                          <polyline class="paper-line paper-line-cited" points="26,8 59,10 92,15 109,18 126,20 159,24 192,28" />
+                          <text x="190" y="22" text-anchor="end">additive</text>
+                          <text x="190" y="64" text-anchor="end">baseline</text>
+                        </svg>
+                        <figcaption><code>fig-3.png</code><span>has_text “Capacity retention (%)”</span></figcaption>
+                      </figure>
+                      <figure class="paper-sheet">
+                        <table>
+                          <thead><tr><th>Cycle</th><th>Baseline</th><th>Additive</th></tr></thead>
+                          <tbody>
+                            <tr><th>250</th><td>88.2</td><td>95.6</td></tr>
+                            <tr><th>500</th><td>78.4</td><td class="is-cited">91.1</td></tr>
+                          </tbody>
+                        </table>
+                        <figcaption><code>supplement.xlsx</code><span>sheet S2, row 14</span></figcaption>
+                      </figure>
+                    </div>
+                  </div>
                 </div>
                 <div class="use-case-copy">
                   <h3>Research</h3>
@@ -444,15 +522,16 @@
             </div>
 
             <div class="use-case-controls">
-              <div class="use-case-pagination" role="group" aria-label="Choose a use case">
-                <button type="button" data-use-case-select="0" aria-label="Show Robotics" aria-pressed="true"><span><i></i></span></button>
-                <button type="button" data-use-case-select="1" aria-label="Show Image and Video Search" aria-pressed="false"><span><i></i></span></button>
-                <button type="button" data-use-case-select="2" aria-label="Show Multimodal AI Agents" aria-pressed="false"><span><i></i></span></button>
-                <button type="button" data-use-case-select="3" aria-label="Show Research" aria-pressed="false"><span><i></i></span></button>
+              <p class="use-case-count" aria-hidden="true"><span data-use-case-current>1</span> / <span data-use-case-total>4</span></p>
+              <p class="visually-hidden" aria-live="polite" data-use-case-status></p>
+              <div class="use-case-nav" role="group" aria-label="Use cases">
+                <button class="use-case-arrow" type="button" data-use-case-prev aria-controls="use-case-stage" aria-label="Previous use case">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8L10 13" /></svg>
+                </button>
+                <button class="use-case-arrow" type="button" data-use-case-next aria-controls="use-case-stage" aria-label="Next use case">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3L11 8L6 13" /></svg>
+                </button>
               </div>
-              <button class="use-case-playback" type="button" data-use-case-playback aria-label="Pause use-case slideshow">
-                <svg viewBox="0 0 16 16" aria-hidden="true"><path class="case-pause-icon" d="M5 4V12M11 4V12" /><path class="case-play-icon" d="M5 3L12 8L5 13Z" /></svg>
-              </button>
             </div>
           </article>
 
@@ -462,41 +541,31 @@
               <span>The agent hops across typed relations to the frame that shows it, instead of guessing from the closest caption.</span>
             </div>
 
-            <div class="trace" data-trace-stage data-step="0">
-              <p class="trace-prompt"><span aria-hidden="true">&gt;</span> Which frames show the sponge inside the sink, and what was next to it?</p>
+            <div class="trace" data-trace-stage data-step="3">
+              <p class="trace-prompt"><span aria-hidden="true">&gt;</span> Where did I leave my phone, and what was next to it?</p>
 
-              <svg class="trace-graph" viewBox="0 0 360 214" aria-hidden="true">
-                <g class="trace-context">
-                  <path d="M150 20L196 4M196 4L236 24M150 20L120 96M236 24L252 112M120 96L182 128M182 128L252 112M334 196L352 132M150 206L182 128" />
-                  <circle cx="150" cy="20" r="3" /><circle cx="196" cy="4" r="3" /><circle cx="236" cy="24" r="3" /><circle cx="120" cy="96" r="3" />
-                  <circle cx="182" cy="128" r="3" /><circle cx="252" cy="112" r="3" /><circle cx="352" cy="132" r="3" /><circle cx="150" cy="206" r="3" />
-                </g>
-
-                <path class="trace-base" d="M110 54H246M92 70L210 156M290 70V152M66 70V150" />
-                <path class="trace-edge" data-hop="1" pathLength="1" d="M110 54H246" />
-                <path class="trace-edge trace-edge-cited" data-hop="2" pathLength="1" d="M92 70L210 156" />
-                <path class="trace-edge trace-edge-cited" data-hop="2" pathLength="1" d="M290 70V152" />
-                <path class="trace-edge" data-hop="3" pathLength="1" d="M66 70V150" />
-
-                <text class="trace-relation" data-hop="1" x="178" y="46">inside</text>
-                <text class="trace-relation" data-hop="2" x="164" y="104">seen_in</text>
-                <text class="trace-relation" data-hop="2" x="298" y="114" text-anchor="start">seen_in</text>
-                <text class="trace-relation" data-hop="3" x="58" y="114" text-anchor="end">next_to</text>
-
-                <g class="trace-node" data-hop="0"><rect x="24" y="38" width="86" height="32" rx="16" /><text x="67" y="58">sponge</text></g>
-                <g class="trace-node" data-hop="1"><rect x="246" y="38" width="88" height="32" rx="16" /><text x="290" y="58">sink</text></g>
-                <g class="trace-node trace-node-source" data-hop="2"><rect x="196" y="152" width="152" height="36" rx="9" /><text x="272" y="174">ep07_step-015.jpg</text></g>
-                <g class="trace-node" data-hop="3"><rect x="14" y="150" width="104" height="32" rx="16" /><text x="66" y="170">dish brush</text></g>
-              </svg>
+              <figure class="shot trace-shot" style="--cx: 0.04; --cy: 0.14; --cw: 0.58; --ch: 0.56; --shot-fill: #836d55; aspect-ratio: 928 / 598">
+                <div class="shot-layer">
+                  <img class="shot-img" src="/bento/kitchen-03-640.webp" srcset="/bento/kitchen-03-640.webp 640w, /bento/kitchen-03-1200.webp 1200w" sizes="(min-width: 1051px) 800px, (min-width: 701px) 80vw, 160vw" width="1600" height="1067" alt="Robot camera frame ep03_step-010: a phone and a glass of tea on a kitchen island beside a laptop, under a wall clock that reads 09:41." loading="lazy" decoding="async" data-shot-img />
+                  <div class="shot-marks" aria-hidden="true">
+                    <span class="det det-quiet" style="--x: 0.361; --y: 0.255; --w: 0.258; --h: 0.293"></span>
+                    <span class="det det-quiet" style="--x: 0.178; --y: 0.225; --w: 0.091; --h: 0.159"></span>
+                    <span class="det trace-det trace-det-area is-lit" data-hop="1" data-chip="inside-bottom" style="--x: 0.072; --y: 0.515; --w: 0.928; --h: 0.16"><b>kitchen_island</b></span>
+                    <span class="det trace-det is-lit" data-hop="2" style="--x: 0.124; --y: 0.506; --w: 0.075; --h: 0.105"><b>glass_mug</b></span>
+                    <span class="det trace-det is-lit" data-hop="0" data-chip="end" style="--x: 0.195; --y: 0.551; --w: 0.073; --h: 0.038"><b>phone</b></span>
+                  </div>
+                </div>
+                <figcaption class="shot-file shot-file-top trace-frame is-lit" data-hop="3">ep03_step-010.jpg</figcaption>
+              </figure>
 
               <ol class="trace-hops">
-                <li data-hop="1"><code>sponge</code> <em>inside</em> <code>sink</code></li>
-                <li data-hop="2">Both <em>seen_in</em> <code>ep07_step-015.jpg</code></li>
-                <li data-hop="3"><code>sponge</code> <em>next_to</em> <code>dish brush</code></li>
+                <li class="is-lit" data-hop="1"><code>phone</code> <em>on_top_of</em> <code>kitchen_island</code></li>
+                <li class="is-lit" data-hop="2"><code>phone</code> <em>next_to</em> <code>glass_mug</code></li>
+                <li class="is-lit" data-hop="3"><code>phone</code> <em>seen_in</em> <code>ep03_step-010.jpg</code></li>
               </ol>
 
               <div class="trace-footer">
-                <p class="trace-answer" data-hop="3">Cited frame <b>ep07_step-015.jpg</b></p>
+                <p class="trace-answer is-lit" data-hop="3">Cited frame <b>ep03_step-010.jpg</b></p>
                 <button class="trace-replay" type="button" data-trace-replay>Replay</button>
               </div>
             </div>
@@ -509,36 +578,49 @@
             </div>
 
             <div class="confidence">
-              <svg class="confidence-graph" viewBox="0 0 360 224" aria-hidden="true" data-confidence-graph>
-                <line data-edge="0.97" data-label="kitchen-01.jpg contains mug" x1="180" y1="114" x2="96" y2="58" />
-                <line data-edge="0.96" data-label="kitchen-01.jpg contains table" x1="180" y1="114" x2="92" y2="170" />
-                <line data-edge="0.91" data-label="kitchen-01.jpg contains window" x1="180" y1="114" x2="282" y2="44" />
-                <line data-edge="0.83" data-label="kitchen-01.jpg contains chair" x1="180" y1="114" x2="284" y2="178" />
-                <line data-edge="0.64" data-label="kitchen-01.jpg contains plant" x1="180" y1="114" x2="330" y2="112" />
-                <line data-edge="0.58" data-label="kitchen-01.jpg contains laptop" x1="180" y1="114" x2="186" y2="206" />
-                <line data-edge="0.94" data-label="mug on_top_of table" x1="96" y1="58" x2="92" y2="170" />
-                <line data-edge="0.88" data-label="mug has_attribute ceramic" x1="96" y1="58" x2="30" y2="110" />
-                <line data-edge="0.72" data-label="chair next_to table" x1="284" y1="178" x2="92" y2="170" />
-                <line data-edge="0.61" data-label="plant next_to window" x1="330" y1="112" x2="282" y2="44" />
-                <line data-edge="0.55" data-label="laptop on_top_of table" x1="186" y1="206" x2="92" y2="170" />
-                <line data-edge="0.52" data-label="window behind chair" x1="282" y1="44" x2="284" y2="178" />
-
-                <g class="confidence-node confidence-node-hub"><circle cx="180" cy="114" r="9" /><text x="180" y="94">kitchen-01.jpg</text></g>
-                <g class="confidence-node"><circle cx="96" cy="58" r="6" /><text x="96" y="42">mug</text></g>
-                <g class="confidence-node"><circle cx="92" cy="170" r="6" /><text x="72" y="174" text-anchor="end">table</text></g>
-                <g class="confidence-node"><circle cx="30" cy="110" r="5" /><text x="30" y="96">ceramic</text></g>
-                <g class="confidence-node"><circle cx="282" cy="44" r="6" /><text x="282" y="28">window</text></g>
-                <g class="confidence-node"><circle cx="284" cy="178" r="6" /><text x="284" y="200">chair</text></g>
-                <g class="confidence-node"><circle cx="330" cy="112" r="6" /><text x="330" y="96">plant</text></g>
-                <g class="confidence-node"><circle cx="186" cy="206" r="6" /><text x="200" y="210" text-anchor="start">laptop</text></g>
-              </svg>
+              <figure class="source-frame">
+                <div class="shot confidence-shot" style="--shot-fill: #ada089; aspect-ratio: 1600 / 1067">
+                  <div class="shot-layer">
+                    <img class="shot-img" src="/bento/kitchen-02-640.webp" srcset="/bento/kitchen-02-640.webp 640w, /bento/kitchen-02-1200.webp 1200w" sizes="(min-width: 1051px) 460px, (min-width: 701px) 46vw, 92vw" width="1600" height="1067" alt="Robot camera frame ep03_step-040: a laptop, potted plant, mouse, and fruit basket on a kitchen counter, with a tablet, clock, kettle, and coffee machine behind them." loading="lazy" decoding="async" data-shot-img />
+                    <div class="shot-marks" aria-hidden="true" data-confidence-graph>
+                      <svg class="shot-links" viewBox="0 0 1600 1067" preserveAspectRatio="none">
+                        <line data-relation="mouse next_to laptop" data-from="mouse" data-to="laptop" data-score="0.91" x1="1104" y1="835" x2="716" y2="704" />
+                        <line data-relation="potted_plant next_to laptop" data-from="potted_plant" data-to="laptop" data-score="0.92" x1="1030" y1="622" x2="716" y2="704" />
+                        <line data-relation="fruit_basket next_to potted_plant" data-from="fruit_basket" data-to="potted_plant" data-score="0.84" x1="1422" y1="742" x2="1030" y2="622" />
+                        <line data-relation="tablet behind laptop" data-from="tablet" data-to="laptop" data-score="0.79" x1="615" y1="336" x2="716" y2="704" />
+                        <line data-relation="mouse in_front_of potted_plant" data-from="mouse" data-to="potted_plant" data-score="0.71" x1="1104" y1="835" x2="1030" y2="622" />
+                        <line data-relation="digital_clock behind tablet" data-from="digital_clock" data-to="tablet" data-score="0.64" x1="834" y1="158" x2="615" y2="336" />
+                        <line class="is-dropped" data-relation="coffee_machine behind potted_plant" data-from="coffee_machine" data-to="potted_plant" data-score="0.58" x1="1228" y1="277" x2="1030" y2="622" />
+                        <line class="is-dropped" data-relation="kettle behind tablet" data-from="kettle" data-to="tablet" data-score="0.53" x1="667" y1="218" x2="615" y2="336" />
+                        <circle data-node="laptop" cx="716" cy="704" r="9" />
+                        <circle data-node="fruit_basket" cx="1422" cy="742" r="9" />
+                        <circle data-node="potted_plant" cx="1030" cy="622" r="9" />
+                        <circle data-node="mouse" cx="1104" cy="835" r="9" />
+                        <circle data-node="digital_clock" cx="834" cy="158" r="9" />
+                        <circle data-node="tablet" cx="615" cy="336" r="9" />
+                        <circle data-node="coffee_machine" cx="1228" cy="277" r="9" />
+                        <circle class="is-dropped" data-node="kettle" cx="667" cy="218" r="9" />
+                      </svg>
+                      <span class="det" data-object="laptop" data-score="0.97" data-chip="inside-bottom" style="--x: 0.205; --y: 0.405; --w: 0.485; --h: 0.51"><b>laptop <i>0.97</i></b></span>
+                      <span class="det" data-object="fruit_basket" data-score="0.95" data-chip="end" style="--x: 0.778; --y: 0.548; --w: 0.222; --h: 0.295"><b>fruit_basket <i>0.95</i></b></span>
+                      <span class="det" data-object="potted_plant" data-score="0.93" data-chip="inside-bottom-end" style="--x: 0.56; --y: 0.415; --w: 0.168; --h: 0.335"><b>potted_plant <i>0.93</i></b></span>
+                      <span class="det" data-object="mouse" data-score="0.89" data-chip="below" style="--x: 0.66; --y: 0.755; --w: 0.06; --h: 0.055"><b>mouse <i>0.89</i></b></span>
+                      <span class="det is-minor" data-object="digital_clock" data-score="0.86" data-chip="below" style="--x: 0.447; --y: 0.075; --w: 0.149; --h: 0.147"><b>digital_clock <i>0.86</i></b></span>
+                      <span class="det" data-object="tablet" data-score="0.81" data-chip="inside-bottom" style="--x: 0.294; --y: 0.204; --w: 0.181; --h: 0.222"><b>tablet <i>0.81</i></b></span>
+                      <span class="det is-minor" data-object="coffee_machine" data-score="0.74" data-chip="end" style="--x: 0.715; --y: 0.095; --w: 0.105; --h: 0.33"><b>coffee_machine <i>0.74</i></b></span>
+                      <span class="det is-minor is-dropped" data-object="kettle" data-score="0.56" data-chip="left" style="--x: 0.378; --y: 0.164; --w: 0.078; --h: 0.08"><b>kettle <i>0.56</i></b></span>
+                    </div>
+                  </div>
+                </div>
+                <figcaption><span>ep03_step-040.jpg</span><span>1600 × 1067</span></figcaption>
+              </figure>
 
               <div class="confidence-control">
                 <label for="confidence-threshold">Minimum confidence</label>
                 <output for="confidence-threshold" data-confidence-value>0.60</output>
                 <input id="confidence-threshold" type="range" min="0.5" max="0.95" step="0.05" value="0.6" data-confidence-input aria-describedby="confidence-readout" />
               </div>
-              <p class="confidence-readout" id="confidence-readout" aria-live="polite" data-confidence-readout>9 of 12 links kept. Weakest kept: plant next_to window, 0.61.</p>
+              <p class="confidence-readout" id="confidence-readout" aria-live="polite" data-confidence-readout>7 of 8 objects and 6 of 8 relations kept. Weakest relation kept: digital_clock behind tablet, 0.64.</p>
             </div>
           </article>
 
@@ -556,65 +638,74 @@
               </div>
 
               <div class="provenance-panel" role="tabpanel" id="provenance-panel-image" aria-labelledby="provenance-tab-image" data-provenance-panel>
-                <figure class="provenance-source">
-                  <svg class="provenance-photo" viewBox="0 0 320 220" role="img" aria-label="A kitchen photo with a box drawn around the mug on the table">
-                    <rect class="photo-wall" width="320" height="220" />
-                    <rect class="photo-window" x="206" y="22" width="84" height="72" rx="3" /><path class="photo-frame" d="M248 22V94M206 58H290" />
-                    <rect class="photo-table" x="22" y="152" width="276" height="10" rx="2" /><path class="photo-frame" d="M44 162V214M276 162V214" />
-                    <path class="photo-object" d="M64 152L70 118H96L102 152Z" /><path class="photo-leaf" d="M83 118C70 92 74 80 84 70C92 84 94 100 83 118ZM83 118C96 98 108 96 118 100C110 112 98 118 83 118Z" />
-                    <rect class="photo-object" x="138" y="112" width="34" height="40" rx="5" /><path class="photo-handle" d="M172 122C186 122 186 142 172 142" />
-                    <rect class="provenance-box" x="128" y="104" width="52" height="52" rx="3" />
-                    <g class="provenance-tag"><rect x="128" y="86" width="64" height="16" rx="4" /><text x="134" y="98">mug 0.94</text></g>
-                  </svg>
-                  <figcaption>kitchen-01.jpg</figcaption>
+                <figure class="source-frame">
+                  <div class="shot" style="--shot-fill: #8a8272; aspect-ratio: 1600 / 1067">
+                    <div class="shot-layer">
+                      <img class="shot-img" src="/bento/kitchen-01-640.webp" srcset="/bento/kitchen-01-640.webp 640w, /bento/kitchen-01-1200.webp 1200w" sizes="(min-width: 1051px) 360px, (min-width: 701px) 46vw, 92vw" width="1600" height="1067" alt="Robot camera frame ep03_step-025, with a box drawn around the fruit basket on the counter." loading="lazy" decoding="async" data-shot-img />
+                      <div class="shot-marks" aria-hidden="true">
+                        <span class="det det-quiet" style="--x: 0.316; --y: 0.405; --w: 0.354; --h: 0.42"></span>
+                        <span class="det det-quiet" style="--x: 0.09; --y: 0.4; --w: 0.17; --h: 0.33"></span>
+                        <span class="det det-quiet" style="--x: 0.68; --y: 0.735; --w: 0.082; --h: 0.065"></span>
+                        <span class="det det-quiet" style="--x: 0.403; --y: 0.21; --w: 0.11; --h: 0.115"></span>
+                        <span class="det det-cited" data-chip="end" style="--x: 0.71; --y: 0.49; --w: 0.29; --h: 0.31"><b>fruit_basket <i>0.95</i></b></span>
+                      </div>
+                    </div>
+                  </div>
+                  <figcaption><span>ep03_step-025.jpg</span><span>1600 × 1067</span></figcaption>
                 </figure>
                 <dl class="provenance-node">
                   <div><dt>type</dt><dd>"object"</dd></div>
-                  <div><dt>label</dt><dd>"mug"</dd></div>
-                  <div class="is-cited"><dt>bounding_box</dt><dd>[0.40, 0.47, 0.16, 0.24]</dd></div>
-                  <div><dt>confidence</dt><dd>0.94</dd></div>
-                  <div class="is-cited"><dt>seen_in</dt><dd>["kitchen-01.jpg", "kitchen-02.jpg"]</dd></div>
+                  <div><dt>label</dt><dd>"fruit_basket"</dd></div>
+                  <div class="is-cited"><dt>bounding_box</dt><dd>[0.71, 0.49, 0.29, 0.31]</dd></div>
+                  <div><dt>confidence</dt><dd>0.95</dd></div>
+                  <div class="is-cited"><dt>seen_in</dt><dd>["ep03_step-010", "ep03_step-025", "ep03_step-040"]</dd></div>
                 </dl>
               </div>
 
               <div class="provenance-panel" role="tabpanel" id="provenance-panel-document" aria-labelledby="provenance-tab-document" data-provenance-panel hidden>
-                <figure class="provenance-source">
-                  <div class="provenance-page">
-                    <p>Revenue held to plan for the quarter, with services ahead of forecast.</p>
-                    <p><mark>Acme opened a second plant in 2025.</mark> Lead times on drive units fell after the move.</p>
-                    <p>The board asked for a supplier review before the next renewal.</p>
+                <figure class="source-frame">
+                  <div class="pdf-toolbar"><span>board-notes-q3.pdf</span><span>Page 2 of 6</span></div>
+                  <div class="pdf-desk">
+                    <div class="pdf-page">
+                      <p class="pdf-running"><span>Q3 board meeting minutes</span><span>Confidential</span></p>
+                      <p class="pdf-heading">3. Operations</p>
+                      <p>Revenue held to plan for the quarter, with services 4% ahead of forecast.</p>
+                      <p><mark>Corvane Robotics opened a second plant in 2025.</mark> Lead times on drive units fell from eleven weeks to seven after the move.</p>
+                      <p>The board asked for a supplier review before the July 2026 renewal.</p>
+                    </div>
                   </div>
-                  <figcaption>board-notes-q3.pdf</figcaption>
                 </figure>
                 <dl class="provenance-node">
                   <div><dt>type</dt><dd>"claim"</dd></div>
-                  <div class="is-cited"><dt>text</dt><dd>"Acme opened a second plant in 2025."</dd></div>
+                  <div class="is-cited"><dt>text</dt><dd>"Corvane Robotics opened a second plant in 2025."</dd></div>
                   <div><dt>confidence</dt><dd>0.91</dd></div>
-                  <div class="is-cited"><dt>seen_in</dt><dd>["board-notes-q3.pdf"]</dd></div>
+                  <div class="is-cited"><dt>seen_in</dt><dd>["board-notes-q3"]</dd></div>
                 </dl>
               </div>
 
               <div class="provenance-panel" role="tabpanel" id="provenance-panel-table" aria-labelledby="provenance-tab-table" data-provenance-panel hidden>
-                <figure class="provenance-source">
-                  <div class="provenance-sheet">
+                <figure class="source-frame">
+                  <div class="xlsx-formula"><span class="xlsx-ref">A4</span><span class="xlsx-fx">fx</span><span>Corvane Robotics</span></div>
+                  <div class="xlsx-grid">
                     <table>
-                      <thead><tr><th scope="col">Supplier</th><th scope="col">Region</th><th scope="col">Renewal</th></tr></thead>
+                      <thead><tr><th></th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead>
                       <tbody>
-                        <tr><td>Northwind</td><td>EU</td><td>2026-03</td></tr>
-                        <tr><td>Brightline</td><td>US</td><td>2025-11</td></tr>
-                        <tr class="is-cited"><td><mark>Acme Robotics</mark></td><td>US</td><td>2026-07</td></tr>
-                        <tr><td>Kestrel Parts</td><td>APAC</td><td>2026-01</td></tr>
+                        <tr><th scope="row">1</th><td class="xlsx-head">Supplier</td><td class="xlsx-head">Region</td><td class="xlsx-head">Renewal</td></tr>
+                        <tr><th scope="row">2</th><td>Halden Components</td><td>EU</td><td>2026-03</td></tr>
+                        <tr><th scope="row">3</th><td>Pellworth Supply</td><td>US</td><td>2025-11</td></tr>
+                        <tr class="is-cited"><th scope="row">4</th><td class="xlsx-active">Corvane Robotics</td><td>US</td><td>2026-07</td></tr>
+                        <tr><th scope="row">5</th><td>Kessel Drive Systems</td><td>EU</td><td>2026-01</td></tr>
                       </tbody>
                     </table>
                   </div>
-                  <figcaption>suppliers.xlsx, sheet Contracts</figcaption>
+                  <div class="xlsx-tabs"><span class="is-active">Contracts</span><span>Renewals</span></div>
                 </figure>
                 <dl class="provenance-node">
                   <div><dt>type</dt><dd>"entity"</dd></div>
-                  <div class="is-cited"><dt>name</dt><dd>"Acme Robotics"</dd></div>
+                  <div class="is-cited"><dt>name</dt><dd>"Corvane Robotics"</dd></div>
                   <div><dt>entity_type</dt><dd>"organization"</dd></div>
+                  <div class="is-cited"><dt>source_cells</dt><dd>[{"row_index": 3, "col_index": 0}]</dd></div>
                   <div><dt>confidence</dt><dd>0.93</dd></div>
-                  <div class="is-cited"><dt>source</dt><dd>suppliers.xlsx, Contracts</dd></div>
                 </dl>
               </div>
             </div>
