@@ -35,5 +35,34 @@ function initialiseCodeCopy() {
   });
 }
 
+// Marks the table-of-contents link for the section being read.
+function initialiseTocHighlight() {
+  const links = [...document.querySelectorAll(".page-toc a[href^='#']")];
+  const sections = links.map((link) => document.getElementById(link.hash.slice(1))).filter(Boolean);
+  if (!sections.length) return;
+
+  const setCurrent = (id) => {
+    links.forEach((link) => {
+      if (link.hash === `#${id}`) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+  };
+
+  // The current section is the last heading that has scrolled above the reading line.
+  const update = () => {
+    const readingLine = window.innerHeight * 0.3;
+    const passed = sections.filter((section) => section.getBoundingClientRect().top <= readingLine);
+    setCurrent((passed.at(-1) || sections[0]).id);
+  };
+
+  let frame = 0;
+  window.addEventListener("scroll", () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+}
+
 initialiseMorphicNavbar();
 initialiseCodeCopy();
+initialiseTocHighlight();

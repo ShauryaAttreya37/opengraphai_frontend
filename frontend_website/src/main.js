@@ -3,6 +3,7 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import "./styles.css";
 import { initialiseMorphicNavbar } from "./site-nav.js";
+import { initialiseConfidenceThreshold, initialiseEvidenceTrace, initialiseProvenanceInspector } from "./bento.js";
 
 const lenis = new Lenis({
   autoRaf: true,
@@ -898,71 +899,6 @@ function initialiseCompilerRail() {
   visibilityObserver.observe(rail);
 }
 
-function initialiseBenefitHighlights() {
-  const section = document.querySelector(".benefit-section");
-  if (!section) return;
-
-  const counters = [...section.querySelectorAll("[data-benefit-count]")];
-  const velocityBars = [...section.querySelectorAll(".velocity-bars i")];
-  const tokenUnits = [...section.querySelectorAll(".token-field i")];
-  const modalityParts = [...section.querySelectorAll(".modality-pills span, .modality-pills > i")];
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  if (reduceMotion || (!counters.length && !velocityBars.length && !tokenUnits.length && !modalityParts.length)) return;
-
-  counters.forEach((counter) => { counter.textContent = "00"; });
-
-  const reveal = () => {
-    counters.forEach((counter, index) => {
-      const state = { value: 0 };
-      const target = Number(counter.dataset.benefitCount || 0);
-      animate(state, {
-        value: [0, target],
-        duration: 1450,
-        delay: 420 + index * 170,
-        ease: "outQuart",
-        onUpdate: () => {
-          counter.textContent = String(Math.round(state.value)).padStart(2, "0");
-        },
-      });
-    });
-
-    animate(velocityBars, {
-      opacity: [0, 1],
-      scaleY: [0, 1],
-      duration: 720,
-      delay: stagger(70),
-      ease: "outBack(1.35)",
-    });
-
-    animate(tokenUnits, {
-      opacity: [0, 1],
-      scale: [0.35, 1],
-      translateY: [9, 0],
-      duration: 540,
-      delay: stagger(55),
-      ease: "outBack(1.5)",
-    });
-
-    animate(modalityParts, {
-      opacity: [0, 1],
-      translateX: [-10, 0],
-      scale: [0.72, 1],
-      duration: 620,
-      delay: stagger(80),
-      ease: "outBack(1.45)",
-    });
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    if (!entries[0]?.isIntersecting) return;
-    reveal();
-    observer.disconnect();
-  }, { threshold: 0.18 });
-
-  observer.observe(section);
-}
-
 // A link such as /#faq-does-my-data-leave-my-machine opens that answer, not just the section.
 function initialiseFaqDeepLinks() {
   const itemFromHash = () => {
@@ -989,186 +925,6 @@ function initialiseFaqDeepLinks() {
   settled.then(() => document.fonts.ready).then(() => smoothScrollToElement(initial));
 }
 
-function initialiseMultimodalExpansion() {
-  const card = document.querySelector("[data-expand-modalities]");
-  const overlay = document.querySelector("[data-modalities-overlay]");
-  const dialog = overlay?.querySelector(".modalities-dialog");
-  const closeButton = overlay?.querySelector("[data-modalities-close]");
-  if (!card || !overlay || !dialog || !closeButton) return;
-
-  const detailParts = [...dialog.querySelectorAll(
-    ".modalities-dialog-kicker, .modalities-dialog-copy > h2, .modalities-dialog-description",
-  )];
-  const modalityCards = [...dialog.querySelectorAll(".modality-detail-grid li")];
-  const revealParts = [...detailParts, ...modalityCards];
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const expansionDuration = reduceMotion ? 720 : 900;
-  const collapseDuration = reduceMotion ? 560 : 700;
-  const detailStart = reduceMotion ? 220 : 320;
-  const cardsStart = reduceMotion ? 340 : 500;
-  let isOpen = false;
-  let isClosing = false;
-  let originRect = null;
-  let activeShellAnimation = null;
-
-  const finishClose = () => {
-    activeShellAnimation?.cancel();
-    activeShellAnimation = null;
-    overlay.hidden = true;
-    overlay.setAttribute("aria-hidden", "true");
-    overlay.style.opacity = "";
-    dialog.style.transform = "";
-    dialog.style.borderRadius = "";
-    document.body.classList.remove("modal-open");
-    lenis.start();
-    card.setAttribute("aria-expanded", "false");
-    isOpen = false;
-    isClosing = false;
-    card.focus({ preventScroll: true });
-  };
-
-  const openDialog = () => {
-    if (isOpen || isClosing) return;
-    isOpen = true;
-    originRect = card.getBoundingClientRect();
-    overlay.style.opacity = "0";
-    overlay.hidden = false;
-    overlay.setAttribute("aria-hidden", "false");
-    document.body.classList.add("modal-open");
-    lenis.stop();
-    card.setAttribute("aria-expanded", "true");
-
-    const destinationRect = dialog.getBoundingClientRect();
-    const deltaX = originRect.left - destinationRect.left;
-    const deltaY = originRect.top - destinationRect.top;
-    const scaleX = originRect.width / destinationRect.width;
-    const scaleY = originRect.height / destinationRect.height;
-    const initialTransform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`;
-    const finalTransform = "translate3d(0, 0, 0) scale(1, 1)";
-
-    revealParts.forEach((part) => { part.style.opacity = "0"; });
-    const expandedRadius = window.innerWidth <= 700 ? "0px" : "30px";
-    dialog.style.transform = initialTransform;
-    dialog.style.borderRadius = "26px";
-
-    // Give the browser a paint with the dialog sitting exactly over the source
-    // card. Starting the transition on the next frame prevents the destination
-    // layout from flashing before the FLIP transform is visible.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!isOpen || isClosing) return;
-
-        animate(overlay, {
-          opacity: [0, 1],
-          duration: reduceMotion ? 480 : 580,
-          ease: "inOutQuad",
-        });
-
-        const expandingAnimation = dialog.animate([
-          { transform: initialTransform, borderRadius: "26px" },
-          { transform: finalTransform, borderRadius: expandedRadius },
-        ], {
-          duration: expansionDuration,
-          easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-          fill: "both",
-        });
-        activeShellAnimation = expandingAnimation;
-
-        expandingAnimation.addEventListener("finish", () => {
-          dialog.style.transform = finalTransform;
-          dialog.style.borderRadius = expandedRadius;
-          expandingAnimation.cancel();
-          if (activeShellAnimation === expandingAnimation) activeShellAnimation = null;
-        }, { once: true });
-
-        animate(detailParts, {
-          opacity: [0, 1],
-          translateY: [18, 0],
-          duration: 580,
-          delay: stagger(45, { start: detailStart }),
-          ease: "outExpo",
-        });
-
-        animate(modalityCards, {
-          opacity: [0, 1],
-          translateY: [22, 0],
-          scale: [0.97, 1],
-          duration: 540,
-          delay: stagger(60, { start: cardsStart }),
-          ease: "outExpo",
-        });
-
-        closeButton.focus({ preventScroll: true });
-      });
-    });
-  };
-
-  const closeDialog = () => {
-    if (!isOpen || isClosing) return;
-    isClosing = true;
-
-    if (!originRect) {
-      finishClose();
-      return;
-    }
-
-    const currentCardRect = card.getBoundingClientRect();
-    const dialogRect = dialog.getBoundingClientRect();
-    const deltaX = currentCardRect.left - dialogRect.left;
-    const deltaY = currentCardRect.top - dialogRect.top;
-    const scaleX = currentCardRect.width / dialogRect.width;
-    const scaleY = currentCardRect.height / dialogRect.height;
-    const collapsedTransform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`;
-    const currentTransform = getComputedStyle(dialog).transform;
-    const expandedRadius = window.innerWidth <= 700 ? "0px" : "30px";
-
-    activeShellAnimation?.cancel();
-    activeShellAnimation = null;
-    dialog.style.transform = currentTransform === "none"
-      ? "translate3d(0, 0, 0) scale(1, 1)"
-      : currentTransform;
-
-    animate(revealParts, {
-      opacity: [1, 0],
-      translateY: [0, 10],
-      duration: 170,
-      ease: "inQuad",
-    });
-
-    animate(overlay, {
-      opacity: [1, 0],
-      duration: 500,
-      ease: "inOutQuad",
-    });
-
-    activeShellAnimation = dialog.animate([
-      { transform: dialog.style.transform, borderRadius: expandedRadius },
-      { transform: collapsedTransform, borderRadius: "26px" },
-    ], {
-      duration: collapseDuration,
-      delay: 45,
-      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-      fill: "both",
-    });
-    activeShellAnimation.addEventListener("finish", finishClose, { once: true });
-  };
-
-  card.addEventListener("click", openDialog);
-  card.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault();
-    openDialog();
-  });
-
-  closeButton.addEventListener("click", closeDialog);
-  overlay.addEventListener("click", (event) => {
-    if (event.target === overlay) closeDialog();
-  });
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && isOpen) closeDialog();
-  });
-}
-
 function initialiseTerminalDemo() {
   const terminal = document.querySelector("[data-terminal-demo]");
   const transcript = terminal?.querySelector("[data-terminal-transcript]");
@@ -1186,59 +942,51 @@ function initialiseTerminalDemo() {
   const sequences = {
     cli: {
       label: "CLI",
-      title: "opengraph — CLI",
+      title: "opengraph-image — CLI",
       language: "shell",
-      description: "One binary. Pipe anything in, get a queryable graph out. Perfect for scripts, CI, and local exploration.",
-      code: `# Add to Claude Code
-claude mcp add opengraph -- npx -y @opengraph/mcp
+      description: "Build, inspect, and query a graph from your terminal. Good for scripts, CI, and a first look at your data.",
+      code: `# Install, then set ANTHROPIC_API_KEY
+pip install opengraph-image
 
-# Now talk to your graph — from any IDE
-extract_graph(path="./data")
-query_graph("find all investors near Acme")
-summarize_graph()
-sync_graph_to_vector_db(target="pinecone")`,
+# Build a graph from a folder of images
+opengraph-image build ./photos
+
+# Inspect it, then ask a question
+opengraph-image summary ./photos
+opengraph-image query "Which photos show a mug on a table?" \\
+  --graph ./photos/opengraph-out/graph.json`,
     },
     mcp: {
       label: "MCP Server",
       title: "opengraph — MCP",
       language: "shell",
-      description: "Connect directly inside Claude Code, Cursor, or any MCP-compatible IDE. Your editor becomes graph-aware.",
-      code: `# Add to Claude Code
-claude mcp add opengraph -- npx -y @opengraph/mcp
+      description: "Register each server once. Claude Code, Claude Desktop, Cursor, or any MCP client picks the right tools on its own.",
+      code: `pip install opengraph-image opengraph-text
 
-# Now talk to your graph — from any IDE
-extract_graph(path="./data")
-query_graph("find all investors near Acme")
-summarize_graph()
-sync_graph_to_vector_db(target="pinecone")`,
-    },
-    rest: {
-      label: "REST API",
-      title: "opengraph — REST API",
-      language: "shell",
-      description: "A simple HTTP surface for ingestion and querying. Works from any language, any runtime.",
-      code: `curl https://api.opengraph.ai/v1/graphs \\
-  -H "Authorization: Bearer $OG_KEY" \\
-  -d '{ "sources": ["s3://acme/reports/*.pdf"] }'
+# One server per data type
+claude mcp add opengraph-image -- opengraph-image-mcp
+claude mcp add opengraph-text -- opengraph-text-mcp
 
-curl https://api.opengraph.ai/v1/query \\
-  -H "Authorization: Bearer $OG_KEY" \\
-  -d '{ "q": "find all investors" }'`,
+# Then ask in plain language:
+#   Build a graph from ./photos and list every
+#   photo that shows a mug on top of a table.`,
     },
-    skill: {
-      label: "Agent Skill",
-      title: "opengraph — Agent Skill",
+    python: {
+      label: "Python",
+      title: "graph.json — Python",
       language: "python",
-      description: "Drop OpenGraph into your agent runtime as a first-class skill. Tool-calling, structured outputs, citations.",
-      code: `from opengraph.skill import GraphSkill
-from langchain.agents import create_agent
+      description: "Every build writes graph.json in NetworkX node-link format. Load it and walk the edges in your own code.",
+      code: `import json
+import networkx as nx
 
-agent = create_agent(
-    model="gpt-5",
-    skills=[GraphSkill(graph="./graph.json")],
-)
+with open("photos/opengraph-out/graph.json") as f:
+    g = nx.node_link_graph(json.load(f), directed=True, multigraph=True)
 
-agent.run("which customers mentioned pricing in Q3?")`,
+# Walk every on_top_of relation and where each object was seen
+for src, dst, edge in g.edges(data=True):
+    if edge["relation"] == "on_top_of":
+        obj, base = g.nodes[src], g.nodes[dst]
+        print(obj["label"], "on", base["label"], obj["seen_in"])`,
     },
   };
 
@@ -1249,15 +997,17 @@ agent.run("which customers mentioned pricing in Q3?")`,
   let copyResetTimer = 0;
   let hasEntered = false;
 
-  const tokenPattern = /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|https?:\/\/[^\s'"\\]+|--?[\w-]+|\b(?:from|import|as)\b|\b(?:curl|claude|extract_graph|query_graph|summarize_graph|sync_graph_to_vector_db|create_agent|GraphSkill|run)\b|\b(?:opengraph|mcp|add|npx)\b)/g;
+  const tokenPatterns = {
+    shell: /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|--?[\w-]+|\b(?:pip|claude|opengraph-(?:image|text|table)(?:-mcp)?)\b|\b(?:install|build|summary|query|mcp|add)\b)/g,
+    python: /(#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:import|as|with|for|in|if|and)\b|\b(?:print|open)\b|\b(?:json|nx)\b)/g,
+  };
 
   const syntaxClass = (token, language) => {
     if (token.startsWith("#")) return "syntax-comment";
     if (/^['"]/.test(token)) return "syntax-string";
-    if (/^https?:/.test(token)) return "syntax-url";
-    if (/^--?/.test(token)) return "syntax-option";
-    if (language === "python" && /^(from|import|as)$/.test(token)) return "syntax-keyword";
-    if (/^(curl|claude|extract_graph|query_graph|summarize_graph|sync_graph_to_vector_db|create_agent|GraphSkill|run)$/.test(token)) return "syntax-executable";
+    if (language === "shell" && /^--?/.test(token)) return "syntax-option";
+    if (language === "python" && /^(import|as|with|for|in|if|and)$/.test(token)) return "syntax-keyword";
+    if (/^(pip|claude|opengraph-[\w-]+|print|open)$/.test(token)) return "syntax-executable";
     return "syntax-command";
   };
 
@@ -1270,7 +1020,7 @@ agent.run("which customers mentioned pricing in Q3?")`,
     }
 
     let cursor = 0;
-    value.replace(tokenPattern, (token, _capture, offset) => {
+    value.replace(tokenPatterns[language] || tokenPatterns.shell, (token, _capture, offset) => {
       if (offset > cursor) line.append(document.createTextNode(value.slice(cursor, offset)));
       const part = document.createElement("span");
       part.className = syntaxClass(token, language);
@@ -1568,8 +1318,9 @@ initialiseScrollParallax();
 initialiseToTopButton();
 initialiseGraphBackground();
 initialiseLazyDemos();
-initialiseBenefitHighlights();
 initialiseUseCaseCarousel();
+initialiseEvidenceTrace();
+initialiseConfidenceThreshold();
+initialiseProvenanceInspector();
 initialiseTerminalDemo();
-initialiseMultimodalExpansion();
 initialiseFaqDeepLinks();

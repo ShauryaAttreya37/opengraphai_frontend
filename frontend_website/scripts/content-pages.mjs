@@ -17,6 +17,8 @@ hljs.registerLanguage("text", plaintext);
 
 export const contentDir = "content";
 
+const codeLabels = { bash: "Terminal", shell: "Terminal", python: "Python", json: "JSON" };
+
 const slugify = (text) => text.toLowerCase().replace(/<[^>]+>|[`*_]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /** Fill the title, description, canonical, Open Graph and Twitter tags of a page template. */
@@ -45,7 +47,17 @@ function renderMarkdown(markdown) {
       code({ text, lang }) {
         const language = (lang || "text").split(/\s+/)[0];
         const highlighted = hljs.getLanguage(language) ? hljs.highlight(text, { language }).value : escapeHtml(text);
-        return `<div class="code-block"><pre><code class="hljs language-${escapeHtml(language)}">${highlighted}</code></pre></div>\n`;
+        const label = codeLabels[language];
+        const header = label ? `<p class="code-label">${label}</p>` : "";
+        return `<div class="code-block${label ? " has-label" : ""}">${header}<pre><code class="hljs language-${escapeHtml(language)}">${highlighted}</code></pre></div>\n`;
+      },
+      // A quote that opens with bold text ("**Preview.**") is a notice; any other quote is a prompt to type into an agent.
+      blockquote({ tokens }) {
+        const inner = this.parser.parse(tokens);
+        const isNotice = /^<p><strong>/.test(inner.trim());
+        return isNotice
+          ? `<aside class="page-notice">${inner}</aside>\n`
+          : `<figure class="page-prompt"><figcaption>Ask your agent</figcaption><blockquote>${inner}</blockquote></figure>\n`;
       },
     },
   });
@@ -89,34 +101,105 @@ const renderFact = (fact) =>
     ? escapeHtml(fact)
     : `<a href="${escapeHtml(fact.href)}"${isExternal(fact.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(fact.label)}</a>`;
 
+function renderBreadcrumb(page) {
+  const badge = page.badge ? `<span class="page-badge">${escapeHtml(page.badge)}</span>` : "";
+  return `<nav class="page-breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="/">Home</a></li>
+            <li>${escapeHtml(page.section)}</li>
+            <li aria-current="page">${escapeHtml(page.navLabel)}</li>
+          </ol>
+          ${badge}
+        </nav>`;
+}
+
+/** A short excerpt of what the build produces, so each page shows output before prose. */
+function renderSpecimen(specimen) {
+  if (!specimen) return "";
+  const commands = specimen.commands
+    .map((command) => `<p><span aria-hidden="true">$</span> <code>${escapeHtml(command)}</code></p>`)
+    .join("");
+  const inputs = specimen.inputs.map((name) => `<li>${escapeHtml(name)}</li>`).join("");
+  const edges = specimen.edges
+    .map(([from, relation, to, score], index) => `<li style="--i: ${index}">
+              <span class="specimen-node">${escapeHtml(from)}</span>
+              <span class="specimen-relation"><span class="specimen-relation-label">${escapeHtml(relation)}</span></span>
+              <span class="specimen-node">${escapeHtml(to)}</span>
+              ${score ? `<span class="specimen-score" title="Confidence">${escapeHtml(score)}</span>` : ""}
+            </li>`)
+    .join("");
+  return `<figure class="specimen">
+        <div class="specimen-commands">${commands}</div>
+        <div class="specimen-body">
+          <p class="specimen-label">Reads</p>
+          <ul class="specimen-inputs">${inputs}</ul>
+          <p class="specimen-label">Writes edges like</p>
+          <ul class="specimen-edges">
+            ${edges}
+          </ul>
+        </div>
+        <figcaption>${escapeHtml(specimen.output)}</figcaption>
+      </figure>`;
+}
+
+/** Previous and next links walk products, then use cases, in navigation order. */
+function renderPager(page) {
+  const index = contentPages.findIndex((candidate) => candidate.path === page.path);
+  const link = (target, direction) =>
+    target
+      ? `<a class="page-pager-${direction}" href="${target.path}" rel="${direction}">
+          <span>${direction === "prev" ? "Previous" : "Next"}</span>
+          <b>${escapeHtml(target.navLabel)}</b>
+        </a>`
+      : "<span></span>";
+  return `<nav class="page-pager" aria-label="More pages">
+      ${link(contentPages[index - 1], "prev")}
+      ${link(contentPages[index + 1], "next")}
+    </nav>`;
+}
+
+function renderMobileToc(headings) {
+  if (!headings.length) return "";
+  return `<details class="page-toc-mobile">
+          <summary>On this page</summary>
+          ${headings.map(({ id, label }) => `<a href="#${id}">${escapeHtml(label)}</a>`).join("\n          ")}
+        </details>`;
+}
+
 function renderPageContent(page, heading, body, headings) {
   const facts = page.facts?.length
     ? `<ul class="page-facts" aria-label="Release details">${page.facts.map((fact) => `<li>${renderFact(fact)}</li>`).join("")}</ul>`
     : "";
-  return `<header class="page-hero">
+  return `<header class="page-hero${page.specimen ? " has-specimen" : ""}">
       <div class="page-hero-inner">
-        <p class="page-eyebrow">${escapeHtml(page.eyebrow)}</p>
-        <h1>${escapeHtml(heading)}</h1>
-        <p class="page-lede">${escapeHtml(page.lede)}</p>
-        ${facts}
-        <div class="page-actions">
-          ${button(page.primaryCta, "primary")}
-          ${page.secondaryCta ? button(page.secondaryCta, "secondary") : ""}
+        <div class="page-hero-copy">
+          ${renderBreadcrumb(page)}
+          <h1>${escapeHtml(heading)}</h1>
+          <p class="page-lede">${escapeHtml(page.lede)}</p>
+          ${facts}
+          <div class="page-actions">
+            ${button(page.primaryCta, "primary")}
+            ${page.secondaryCta ? button(page.secondaryCta, "secondary") : ""}
+          </div>
         </div>
+        ${renderSpecimen(page.specimen)}
       </div>
     </header>
 
     <div class="page-layout">
       <article class="page-prose">
+        ${renderMobileToc(headings)}
 ${body}
       </article>
       ${renderAside(page, headings)}
     </div>
 
+    ${renderPager(page)}
+
     <section class="page-cta" aria-labelledby="page-cta-title">
       <div>
         <h2 id="page-cta-title">Build your first graph</h2>
-        <p>Open source under Apache-2.0. Runs locally with your own model-provider key.</p>
+        <p>Open source under Apache-2.0. Runs locally with your own Anthropic API key.</p>
       </div>
       <div class="page-actions">
         ${button({ label: "Read the docs", href: "/docs/" }, "primary")}

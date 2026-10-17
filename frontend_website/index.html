@@ -37,7 +37,7 @@
             "name": "OpenGraph AI",
             "url": "https://opengraphai.io/",
             "logo": "https://opengraphai.io/opengraph-logo.svg",
-            "sameAs": ["https://github.com/OpenGraphAI/opengraph-ai", "https://www.linkedin.com/company/opengraph-ai/"]
+            "sameAs": ["https://github.com/OpenGraphAI/opengraph-ai", "https://www.linkedin.com/company/opengraph-ai/", "https://huggingface.co/OpenGraph-AI"]
           },
           {
             "@type": "WebSite",
@@ -351,16 +351,16 @@
                     <rect class="case-hub-halo" x="202" y="38" width="116" height="116" rx="32" />
                     <rect class="case-hub" x="214" y="50" width="92" height="92" rx="23" />
                     <g class="case-icon"><rect x="237" y="80" width="46" height="32" rx="9" /><path d="M260 70V80M231 92V102M289 92V102M250 104H270" /><circle cx="250" cy="92" r="2" /><circle cx="270" cy="92" r="2" /><circle cx="260" cy="66" r="3" /></g>
-                    <text class="case-note" x="334" y="18">spatial context</text><text class="case-note" x="180" y="180">shared knowledge</text>
+                    <text class="case-note" x="334" y="18">spatial relations</text><text class="case-note" x="180" y="180">frame-by-frame memory</text>
                   </svg>
                 </div>
                 <div class="use-case-copy">
                   <h3>Robotics</h3>
-                  <p>Give robots a connected understanding of their world.</p>
+                  <p>Give robots a scene memory they can query.</p>
                   <ul>
-                    <li>Connect objects, locations, and tasks.</li>
-                    <li>Plan actions around tools and dependencies.</li>
-                    <li>Share context across robots to coordinate work.</li>
+                    <li>Record what was on, inside, or next to what.</li>
+                    <li>Ask where an object was without replaying video.</li>
+                    <li>Trace every answer to the camera frame behind it.</li>
                   </ul>
                   <a class="use-case-link" href="/use-cases/robotics/">Explore robotics</a>
                 </div>
@@ -374,7 +374,7 @@
                     <rect class="case-node" x="48" y="20" width="128" height="96" rx="14" /><rect class="case-node" x="344" y="20" width="128" height="96" rx="14" />
                     <g class="case-icon"><circle cx="124" cy="45" r="7" /><path d="M64 89L91 59L111 80L126 68L159 98M362 94V48H392V94M382 94V62H411V94" /><circle cx="425" cy="83" r="10" /><path d="M425 64V73M415 83H435" /></g>
                     <rect class="case-hub" x="119" y="130" width="282" height="43" rx="21" />
-                    <text x="260" y="157">person → riding → bicycle</text>
+                    <text x="260" y="157">person → holding → umbrella</text>
                     <circle class="case-dot" cx="260" cy="75" r="5" /><text class="case-note" x="260" y="38">search the relationship</text>
                   </svg>
                 </div>
@@ -382,9 +382,9 @@
                   <h3>Image &amp; Video Search</h3>
                   <p>Find the moment by how things relate.</p>
                   <ul>
-                    <li>Connect objects, scenes, and event sequences.</li>
-                    <li>Search “a person riding a bicycle near a building.”</li>
-                    <li>Retrieve visual context beyond keyword matches.</li>
+                    <li>Match on relations, scenes, attributes, and visible text.</li>
+                    <li>Search “a person holding an umbrella.”</li>
+                    <li>Sample video into frames and search those too.</li>
                   </ul>
                   <a class="use-case-link" href="/use-cases/image-video-search/">Explore image &amp; video search</a>
                 </div>
@@ -397,20 +397,20 @@
                     <path class="case-route" d="M142 48H190Q214 48 214 72L230 94M378 142H330Q306 142 306 118L290 96" />
                     <rect class="case-node" x="48" y="27" width="100" height="42" rx="11" /><text x="98" y="53">Text</text>
                     <rect class="case-node" x="48" y="121" width="100" height="42" rx="11" /><text x="98" y="147">Images</text>
-                    <rect class="case-node" x="372" y="27" width="100" height="42" rx="11" /><text x="422" y="53">Audio</text>
-                    <rect class="case-node" x="372" y="121" width="100" height="42" rx="11" /><text x="422" y="147">Video</text>
+                    <rect class="case-node" x="372" y="27" width="100" height="42" rx="11" /><text x="422" y="53">Tables</text>
+                    <rect class="case-node" x="372" y="121" width="100" height="42" rx="11" /><text x="422" y="147">PDFs</text>
                     <circle class="case-hub-halo" cx="260" cy="95" r="52" /><circle class="case-hub" cx="260" cy="95" r="40" />
                     <g class="case-icon"><path d="M245 80L275 110M245 110L275 80" /><circle cx="245" cy="80" r="4" /><circle cx="245" cy="110" r="4" /><circle cx="275" cy="80" r="4" /><circle cx="275" cy="110" r="4" /><circle cx="260" cy="95" r="6" /></g>
-                    <text class="case-note" x="260" y="171">one context graph</text>
+                    <text class="case-note" x="260" y="171">one agent, cited steps</text>
                   </svg>
                 </div>
                 <div class="use-case-copy">
                   <h3>Multimodal AI Agents</h3>
-                  <p>One connected memory for every kind of input.</p>
+                  <p>One agent that reasons across every format you have.</p>
                   <ul>
-                    <li>Unify text, images, audio, and video in a graph.</li>
-                    <li>Retrieve context across formats and sources.</li>
-                    <li>Follow relationships for explainable reasoning.</li>
+                    <li>Run the image, text, and table servers side by side.</li>
+                    <li>Let the agent pick the right graph for each step.</li>
+                    <li>Cite the file behind every part of the answer.</li>
                   </ul>
                   <a class="use-case-link" href="/use-cases/multimodal-agents/">Explore multimodal agents</a>
                 </div>
@@ -456,17 +456,167 @@
             </div>
           </article>
 
-          <article class="benefit-bento-item benefit-bento-item-orbit" data-benefit-card>
+          <article class="benefit-bento-item benefit-bento-item-trace" data-benefit-card data-trace>
             <div class="benefit-bento-copy">
-              <p>3 BENEFITS</p>
-              <h3>More reasoning. Less retrieval glue.</h3>
-              <span>Relationships and provenance stay attached from source to answer, making context reusable instead of disposable.</span>
+              <h3>Answers that follow the edges.</h3>
+              <span>The agent hops across typed relations to the frame that shows it, instead of guessing from the closest caption.</span>
             </div>
-            <div class="benefit-bento-visual benefit-bento-globe" aria-hidden="true">
-              <i></i><span></span>
-              <small class="benefit-path-label benefit-path-label-a">multi-hop retrieval</small>
-              <small class="benefit-path-label benefit-path-label-b">reusable context</small>
-              <small class="benefit-path-label benefit-path-label-c">cited evidence</small>
+
+            <div class="trace" data-trace-stage data-step="0">
+              <p class="trace-prompt"><span aria-hidden="true">&gt;</span> Which frames show the sponge inside the sink, and what was next to it?</p>
+
+              <svg class="trace-graph" viewBox="0 0 360 214" aria-hidden="true">
+                <g class="trace-context">
+                  <path d="M150 20L196 4M196 4L236 24M150 20L120 96M236 24L252 112M120 96L182 128M182 128L252 112M334 196L352 132M150 206L182 128" />
+                  <circle cx="150" cy="20" r="3" /><circle cx="196" cy="4" r="3" /><circle cx="236" cy="24" r="3" /><circle cx="120" cy="96" r="3" />
+                  <circle cx="182" cy="128" r="3" /><circle cx="252" cy="112" r="3" /><circle cx="352" cy="132" r="3" /><circle cx="150" cy="206" r="3" />
+                </g>
+
+                <path class="trace-base" d="M110 54H246M92 70L210 156M290 70V152M66 70V150" />
+                <path class="trace-edge" data-hop="1" pathLength="1" d="M110 54H246" />
+                <path class="trace-edge trace-edge-cited" data-hop="2" pathLength="1" d="M92 70L210 156" />
+                <path class="trace-edge trace-edge-cited" data-hop="2" pathLength="1" d="M290 70V152" />
+                <path class="trace-edge" data-hop="3" pathLength="1" d="M66 70V150" />
+
+                <text class="trace-relation" data-hop="1" x="178" y="46">inside</text>
+                <text class="trace-relation" data-hop="2" x="164" y="104">seen_in</text>
+                <text class="trace-relation" data-hop="2" x="298" y="114" text-anchor="start">seen_in</text>
+                <text class="trace-relation" data-hop="3" x="58" y="114" text-anchor="end">next_to</text>
+
+                <g class="trace-node" data-hop="0"><rect x="24" y="38" width="86" height="32" rx="16" /><text x="67" y="58">sponge</text></g>
+                <g class="trace-node" data-hop="1"><rect x="246" y="38" width="88" height="32" rx="16" /><text x="290" y="58">sink</text></g>
+                <g class="trace-node trace-node-source" data-hop="2"><rect x="196" y="152" width="152" height="36" rx="9" /><text x="272" y="174">ep07_step-015.jpg</text></g>
+                <g class="trace-node" data-hop="3"><rect x="14" y="150" width="104" height="32" rx="16" /><text x="66" y="170">dish brush</text></g>
+              </svg>
+
+              <ol class="trace-hops">
+                <li data-hop="1"><code>sponge</code> <em>inside</em> <code>sink</code></li>
+                <li data-hop="2">Both <em>seen_in</em> <code>ep07_step-015.jpg</code></li>
+                <li data-hop="3"><code>sponge</code> <em>next_to</em> <code>dish brush</code></li>
+              </ol>
+
+              <div class="trace-footer">
+                <p class="trace-answer" data-hop="3">Cited frame <b>ep07_step-015.jpg</b></p>
+                <button class="trace-replay" type="button" data-trace-replay>Replay</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="benefit-bento-item benefit-bento-item-confidence" data-benefit-card data-confidence>
+            <div class="benefit-bento-copy">
+              <h3>Every link carries a score.</h3>
+              <span>Extraction records how sure it was about each node and edge, from 0 to 1. Raise the bar to see which links hold up.</span>
+            </div>
+
+            <div class="confidence">
+              <svg class="confidence-graph" viewBox="0 0 360 224" aria-hidden="true" data-confidence-graph>
+                <line data-edge="0.97" data-label="kitchen-01.jpg contains mug" x1="180" y1="114" x2="96" y2="58" />
+                <line data-edge="0.96" data-label="kitchen-01.jpg contains table" x1="180" y1="114" x2="92" y2="170" />
+                <line data-edge="0.91" data-label="kitchen-01.jpg contains window" x1="180" y1="114" x2="282" y2="44" />
+                <line data-edge="0.83" data-label="kitchen-01.jpg contains chair" x1="180" y1="114" x2="284" y2="178" />
+                <line data-edge="0.64" data-label="kitchen-01.jpg contains plant" x1="180" y1="114" x2="330" y2="112" />
+                <line data-edge="0.58" data-label="kitchen-01.jpg contains laptop" x1="180" y1="114" x2="186" y2="206" />
+                <line data-edge="0.94" data-label="mug on_top_of table" x1="96" y1="58" x2="92" y2="170" />
+                <line data-edge="0.88" data-label="mug has_attribute ceramic" x1="96" y1="58" x2="30" y2="110" />
+                <line data-edge="0.72" data-label="chair next_to table" x1="284" y1="178" x2="92" y2="170" />
+                <line data-edge="0.61" data-label="plant next_to window" x1="330" y1="112" x2="282" y2="44" />
+                <line data-edge="0.55" data-label="laptop on_top_of table" x1="186" y1="206" x2="92" y2="170" />
+                <line data-edge="0.52" data-label="window behind chair" x1="282" y1="44" x2="284" y2="178" />
+
+                <g class="confidence-node confidence-node-hub"><circle cx="180" cy="114" r="9" /><text x="180" y="94">kitchen-01.jpg</text></g>
+                <g class="confidence-node"><circle cx="96" cy="58" r="6" /><text x="96" y="42">mug</text></g>
+                <g class="confidence-node"><circle cx="92" cy="170" r="6" /><text x="72" y="174" text-anchor="end">table</text></g>
+                <g class="confidence-node"><circle cx="30" cy="110" r="5" /><text x="30" y="96">ceramic</text></g>
+                <g class="confidence-node"><circle cx="282" cy="44" r="6" /><text x="282" y="28">window</text></g>
+                <g class="confidence-node"><circle cx="284" cy="178" r="6" /><text x="284" y="200">chair</text></g>
+                <g class="confidence-node"><circle cx="330" cy="112" r="6" /><text x="330" y="96">plant</text></g>
+                <g class="confidence-node"><circle cx="186" cy="206" r="6" /><text x="200" y="210" text-anchor="start">laptop</text></g>
+              </svg>
+
+              <div class="confidence-control">
+                <label for="confidence-threshold">Minimum confidence</label>
+                <output for="confidence-threshold" data-confidence-value>0.60</output>
+                <input id="confidence-threshold" type="range" min="0.5" max="0.95" step="0.05" value="0.6" data-confidence-input aria-describedby="confidence-readout" />
+              </div>
+              <p class="confidence-readout" id="confidence-readout" aria-live="polite" data-confidence-readout>9 of 12 links kept. Weakest kept: plant next_to window, 0.61.</p>
+            </div>
+          </article>
+
+          <article class="benefit-bento-item benefit-bento-item-provenance" data-benefit-card data-provenance>
+            <div class="benefit-bento-copy">
+              <h3>Every node points back to its source.</h3>
+              <span>Pick a source type to see the box, sentence, or cell a node was extracted from.</span>
+            </div>
+
+            <div class="provenance">
+              <div class="provenance-tabs" role="tablist" aria-label="Source type">
+                <button type="button" role="tab" id="provenance-tab-image" aria-controls="provenance-panel-image" aria-selected="true" data-provenance-tab>Image</button>
+                <button type="button" role="tab" id="provenance-tab-document" aria-controls="provenance-panel-document" aria-selected="false" tabindex="-1" data-provenance-tab>Document</button>
+                <button type="button" role="tab" id="provenance-tab-table" aria-controls="provenance-panel-table" aria-selected="false" tabindex="-1" data-provenance-tab>Table</button>
+              </div>
+
+              <div class="provenance-panel" role="tabpanel" id="provenance-panel-image" aria-labelledby="provenance-tab-image" data-provenance-panel>
+                <figure class="provenance-source">
+                  <svg class="provenance-photo" viewBox="0 0 320 220" role="img" aria-label="A kitchen photo with a box drawn around the mug on the table">
+                    <rect class="photo-wall" width="320" height="220" />
+                    <rect class="photo-window" x="206" y="22" width="84" height="72" rx="3" /><path class="photo-frame" d="M248 22V94M206 58H290" />
+                    <rect class="photo-table" x="22" y="152" width="276" height="10" rx="2" /><path class="photo-frame" d="M44 162V214M276 162V214" />
+                    <path class="photo-object" d="M64 152L70 118H96L102 152Z" /><path class="photo-leaf" d="M83 118C70 92 74 80 84 70C92 84 94 100 83 118ZM83 118C96 98 108 96 118 100C110 112 98 118 83 118Z" />
+                    <rect class="photo-object" x="138" y="112" width="34" height="40" rx="5" /><path class="photo-handle" d="M172 122C186 122 186 142 172 142" />
+                    <rect class="provenance-box" x="128" y="104" width="52" height="52" rx="3" />
+                    <g class="provenance-tag"><rect x="128" y="86" width="64" height="16" rx="4" /><text x="134" y="98">mug 0.94</text></g>
+                  </svg>
+                  <figcaption>kitchen-01.jpg</figcaption>
+                </figure>
+                <dl class="provenance-node">
+                  <div><dt>type</dt><dd>"object"</dd></div>
+                  <div><dt>label</dt><dd>"mug"</dd></div>
+                  <div class="is-cited"><dt>bounding_box</dt><dd>[0.40, 0.47, 0.16, 0.24]</dd></div>
+                  <div><dt>confidence</dt><dd>0.94</dd></div>
+                  <div class="is-cited"><dt>seen_in</dt><dd>["kitchen-01.jpg", "kitchen-02.jpg"]</dd></div>
+                </dl>
+              </div>
+
+              <div class="provenance-panel" role="tabpanel" id="provenance-panel-document" aria-labelledby="provenance-tab-document" data-provenance-panel hidden>
+                <figure class="provenance-source">
+                  <div class="provenance-page">
+                    <p>Revenue held to plan for the quarter, with services ahead of forecast.</p>
+                    <p><mark>Acme opened a second plant in 2025.</mark> Lead times on drive units fell after the move.</p>
+                    <p>The board asked for a supplier review before the next renewal.</p>
+                  </div>
+                  <figcaption>board-notes-q3.pdf</figcaption>
+                </figure>
+                <dl class="provenance-node">
+                  <div><dt>type</dt><dd>"claim"</dd></div>
+                  <div class="is-cited"><dt>text</dt><dd>"Acme opened a second plant in 2025."</dd></div>
+                  <div><dt>confidence</dt><dd>0.91</dd></div>
+                  <div class="is-cited"><dt>seen_in</dt><dd>["board-notes-q3.pdf"]</dd></div>
+                </dl>
+              </div>
+
+              <div class="provenance-panel" role="tabpanel" id="provenance-panel-table" aria-labelledby="provenance-tab-table" data-provenance-panel hidden>
+                <figure class="provenance-source">
+                  <div class="provenance-sheet">
+                    <table>
+                      <thead><tr><th scope="col">Supplier</th><th scope="col">Region</th><th scope="col">Renewal</th></tr></thead>
+                      <tbody>
+                        <tr><td>Northwind</td><td>EU</td><td>2026-03</td></tr>
+                        <tr><td>Brightline</td><td>US</td><td>2025-11</td></tr>
+                        <tr class="is-cited"><td><mark>Acme Robotics</mark></td><td>US</td><td>2026-07</td></tr>
+                        <tr><td>Kestrel Parts</td><td>APAC</td><td>2026-01</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <figcaption>suppliers.xlsx, sheet Contracts</figcaption>
+                </figure>
+                <dl class="provenance-node">
+                  <div><dt>type</dt><dd>"entity"</dd></div>
+                  <div class="is-cited"><dt>name</dt><dd>"Acme Robotics"</dd></div>
+                  <div><dt>entity_type</dt><dd>"organization"</dd></div>
+                  <div><dt>confidence</dt><dd>0.93</dd></div>
+                  <div class="is-cited"><dt>source</dt><dd>suppliers.xlsx, Contracts</dd></div>
+                </dl>
+              </div>
             </div>
           </article>
 
@@ -525,23 +675,15 @@
               role="tab"
               aria-selected="false"
               aria-controls="terminal-transcript"
-              data-terminal-mode="rest"
-            ><span>REST API</span></button>
-            <button
-              class="terminal-mode-button"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              aria-controls="terminal-transcript"
-              data-terminal-mode="skill"
-            ><span>AGENT SKILL</span></button>
+              data-terminal-mode="python"
+            ><span>PYTHON</span></button>
           </div>
 
           <div class="terminal-transcript" id="terminal-transcript" data-terminal-transcript role="tabpanel" aria-live="polite">
             <header class="terminal-profile">
               <h3 data-terminal-heading>CLI</h3>
               <p data-terminal-description>
-                One binary. Pipe anything in, get a queryable graph out. Perfect for scripts, CI, and local exploration.
+                Build, inspect, and query a graph from your terminal. Good for scripts, CI, and a first look at your data.
               </p>
             </header>
             <pre class="terminal-code"><code data-terminal-code></code></pre>
@@ -600,16 +742,16 @@
             </div>
             <ul>
               <li>
-                <b>Portable by default.</b>
-                <span>Self-host the Apache-2.0 core or use the hosted service. Keep the same graph contract either way.</span>
+                <b>Yours to run.</b>
+                <span>Apache-2.0 packages that run on your machine. The graph is a local JSON file you own.</span>
               </li>
               <li>
                 <b>Connect every signal.</b>
-                <span>Bring text, tables, images, audio, video, and code into one relationship model.</span>
+                <span>Images, documents, and tables share one node, edge, and evidence model today. Audio and video are next.</span>
               </li>
               <li>
-                <b>Bring your own stack.</b>
-                <span>Choose the extractors, models, embeddings, and graph store. OpenGraph coordinates the path between them.</span>
+                <b>Fits your stack.</b>
+                <span>graph.json loads straight into NetworkX, so it drops into the pipelines and notebooks you already run.</span>
               </li>
               <li>
                 <b>One interface for context.</b>
@@ -695,54 +837,6 @@
         <path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" />
       </svg>
     </button>
-
-    <div class="modalities-overlay" data-modalities-overlay hidden aria-hidden="true">
-      <section
-        class="modalities-dialog"
-        id="multimodal-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="multimodal-dialog-title"
-        tabindex="-1"
-      >
-        <button class="modalities-close" type="button" data-modalities-close aria-label="Close multimodal details">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
-        </button>
-
-        <div class="modalities-dialog-copy">
-          <h2 id="multimodal-dialog-title">Five kinds of context. One place to reason.</h2>
-          <p class="modalities-dialog-description">
-            OpenGraph AI understands each source in its native form, then connects
-            what they say into context an agent can query and cite.
-          </p>
-
-          <ul class="modality-detail-grid">
-            <li>
-              <h3>Text</h3>
-              <p>Documents, PDFs, and URLs become entities, concepts, and source-backed claims.</p>
-            </li>
-            <li>
-              <h3>Tables</h3>
-              <p>Rows and columns become structured records with explicit relationships.</p>
-            </li>
-            <li>
-              <h3>Images</h3>
-              <p>Objects, labels, and visual context join the same connected entity space.</p>
-            </li>
-            <li>
-              <h3>Audio</h3>
-              <p>Calls and recordings become searchable speakers, signals, and referenced facts.</p>
-            </li>
-            <li>
-              <h3>Video</h3>
-              <p>Scenes and time-based events connect back to people, objects, and claims.</p>
-            </li>
-          </ul>
-        </div>
-      </section>
-    </div>
 
     <script type="module" src="/src/main.js"></script>
     <script type="module" src="/src/graph-loop/video.js"></script>

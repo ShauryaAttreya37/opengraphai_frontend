@@ -20,14 +20,62 @@
   margin-inline: auto;
 }
 
-.page-eyebrow {
-  margin: 0 0 22px;
-  color: rgb(var(--ground-ink-rgb) / 0.6);
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.page-hero.has-specimen .page-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr);
+  align-items: center;
+  gap: clamp(36px, 5vw, 72px);
+}
+
+.page-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+}
+
+.page-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: rgb(var(--ground-ink-rgb) / 0.58);
+  font-family: var(--sans);
+  font-size: 14px;
+}
+
+.page-breadcrumb li + li::before {
+  margin: 0 8px;
+  color: rgb(var(--ground-ink-rgb) / 0.3);
+  content: "/";
+}
+
+.page-breadcrumb li[aria-current="page"] {
+  color: var(--ground-ink);
+  font-weight: 600;
+}
+
+.page-breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-breadcrumb a:hover,
+.page-breadcrumb a:focus-visible {
+  color: var(--signal);
+}
+
+.page-badge {
+  padding: 3px 9px;
+  border: 1px solid rgb(var(--signal-rgb) / 0.35);
+  border-radius: 999px;
+  background: rgb(var(--signal-rgb) / 0.07);
+  color: var(--signal);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .page-hero h1 {
@@ -131,6 +179,176 @@
 
 .page-button-secondary:hover {
   background: rgb(var(--ground-ink-rgb) / 0.05);
+}
+
+
+/* ── Specimen: what a build reads and writes ───────────────────────────── */
+.specimen {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.1);
+  border-radius: 20px;
+  background: var(--paper-active);
+  box-shadow: 0 24px 56px rgb(var(--shadow-rgb) / 0.1);
+}
+
+.specimen-commands {
+  display: grid;
+  gap: 4px;
+  padding: 14px 18px;
+  background: var(--panel);
+  color: var(--panel-ink);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.specimen-commands p {
+  margin: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.specimen-commands span {
+  color: var(--code-fn-dark);
+}
+
+.specimen-commands code {
+  font: inherit;
+}
+
+.specimen-body {
+  padding: 18px 18px 6px;
+}
+
+.specimen-label {
+  margin: 0 0 10px;
+  color: rgb(var(--ground-ink-rgb) / 0.55);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.specimen-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.specimen-inputs li {
+  padding: 5px 9px;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+  border-radius: 7px;
+  background: rgb(var(--ground-ink-rgb) / 0.03);
+  color: rgb(var(--ground-ink-rgb) / 0.75);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* Rows share one column grid so relations line up down the list. */
+.specimen-edges {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.25fr) auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.specimen-edges li {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 0;
+  border-top: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+  animation: specimen-edge 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(260ms + var(--i, 0) * 140ms);
+}
+
+.specimen-node {
+  min-width: 0;
+  padding: 5px 10px;
+  overflow: hidden;
+  justify-self: start;
+  border: 1px solid rgb(var(--signal-rgb) / 0.32);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ground-ink);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+/* The relation sits on the edge it names: a line ending in an arrowhead,
+   with a paper-coloured plate behind the label so the line passes under it. */
+.specimen-relation {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  color: var(--signal);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 72px;
+  padding: 0 10px 0 2px;
+}
+
+.specimen-relation::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: rgb(var(--signal-rgb) / 0.45);
+  content: "";
+}
+
+.specimen-relation::after {
+  position: absolute;
+  top: calc(50% - 3.5px);
+  right: -1px;
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  border-left: 6px solid rgb(var(--signal-rgb) / 0.6);
+  content: "";
+}
+
+.specimen-relation-label {
+  padding: 0 6px;
+  background: var(--paper-active);
+}
+
+.specimen-score {
+  color: rgb(var(--ground-ink-rgb) / 0.5);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.specimen figcaption {
+  padding: 11px 18px 13px;
+  border-top: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+  color: rgb(var(--ground-ink-rgb) / 0.58);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+@keyframes specimen-edge {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .specimen-edges li { animation: none; }
 }
 
 /* ── Body: prose column plus a sticky aside ─────────────────────────────── */
@@ -261,6 +479,82 @@
   white-space: nowrap;
 }
 
+
+/* A quote that is a prompt to type, set like the agent input it belongs in. */
+.page-prompt {
+  margin: 28px 0 30px;
+  overflow: hidden;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+  border-radius: 14px;
+  background: var(--paper-active);
+  box-shadow: 0 10px 28px rgb(var(--shadow-rgb) / 0.06);
+}
+
+.page-prompt figcaption {
+  padding: 9px 16px;
+  border-bottom: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+  color: rgb(var(--ground-ink-rgb) / 0.55);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.page-prose .page-prompt blockquote {
+  position: relative;
+  margin: 0;
+  padding: 16px 18px 16px 40px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ground-ink);
+}
+
+.page-prompt blockquote::before {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  color: var(--signal);
+  font-family: var(--mono);
+  font-weight: 600;
+  content: ">";
+}
+
+.page-prompt blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.page-notice {
+  margin: 0 0 28px;
+  padding: 14px 18px;
+  border: 1px solid rgb(var(--signal-rgb) / 0.28);
+  border-radius: 12px;
+  background: rgb(var(--signal-rgb) / 0.06);
+  font-size: 15.5px;
+}
+
+.page-notice p:last-child {
+  margin-bottom: 0;
+}
+
+.page-prose .code-block.has-label pre {
+  padding-top: 42px;
+}
+
+.code-label {
+  position: absolute;
+  z-index: 1;
+  top: 13px;
+  left: 20px;
+  margin: 0;
+  color: rgb(var(--panel-ink-rgb) / 0.5);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.page-toc-mobile {
+  display: none;
+}
+
 /* Code panels borrow the dark instrument surface used across the home page. */
 .page-prose .code-block {
   position: relative;
@@ -364,6 +658,13 @@
   color: var(--ground-ink);
 }
 
+.page-toc a[aria-current="location"] {
+  padding-left: 12px;
+  border-left: 2px solid var(--signal);
+  color: var(--ground-ink);
+  font-weight: 600;
+}
+
 .page-related {
   display: grid;
   gap: 8px;
@@ -401,6 +702,55 @@
   color: rgb(var(--ground-ink-rgb) / 0.58);
   font-size: 12.5px;
   line-height: 1.35;
+}
+
+
+/* ── Previous / next ───────────────────────────────────────────────────── */
+.page-pager {
+  width: var(--page-width);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 auto 24px;
+}
+
+.page-pager a {
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px;
+  border: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+  border-radius: 14px;
+  color: var(--ground-ink);
+  font-family: var(--sans);
+  text-decoration: none;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.page-pager a:hover,
+.page-pager a:focus-visible {
+  border-color: rgb(var(--signal-rgb) / 0.45);
+  background: rgb(var(--ground-glass-rgb) / 0.6);
+}
+
+.page-pager a:focus-visible {
+  outline: 2px solid rgb(var(--signal-rgb) / 0.72);
+  outline-offset: 3px;
+}
+
+.page-pager span {
+  color: rgb(var(--ground-ink-rgb) / 0.55);
+  font-size: 13px;
+}
+
+.page-pager b {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.page-pager-next {
+  grid-column: 2;
+  text-align: right;
 }
 
 /* ── Closing call to action ────────────────────────────────────────────── */
@@ -457,6 +807,39 @@
     display: none;
   }
 
+  .page-hero.has-specimen .page-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .specimen {
+    max-width: 560px;
+  }
+
+  .page-toc-mobile {
+    display: block;
+    margin: 0 0 36px;
+    border: 1px solid rgb(var(--ground-ink-rgb) / 0.12);
+    border-radius: 12px;
+    background: rgb(var(--ground-glass-rgb) / 0.45);
+  }
+
+  .page-toc-mobile summary {
+    padding: 13px 16px;
+    color: var(--ground-ink);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .page-toc-mobile a {
+    display: block;
+    padding: 9px 16px;
+    border-top: 1px solid rgb(var(--ground-ink-rgb) / 0.08);
+    color: rgb(var(--ground-ink-rgb) / 0.75);
+    font-size: 15px;
+    text-decoration: none;
+  }
+
   .page-related {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
@@ -486,5 +869,32 @@
   .page-actions .page-button {
     flex: 1 1 auto;
     justify-content: center;
+  }
+
+  /* Narrow screens: each edge flows as a sentence instead of a column grid. */
+  .specimen-edges {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .specimen-edges li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+
+  .specimen-node {
+    overflow-wrap: break-word;
+  }
+
+  .specimen-score {
+    display: none;
+  }
+
+  .page-pager {
+    grid-template-columns: 1fr;
+  }
+
+  .page-pager-next {
+    grid-column: 1;
   }
 }
