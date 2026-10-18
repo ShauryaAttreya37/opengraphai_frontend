@@ -2,22 +2,24 @@
 // roughly x in [-8, 8], y in [-3.4, 3.4] at z = 0. Graph nodes sit on three
 // depth layers (z around -1.2, 0 and +1.2) so the camera dolly gives parallax.
 
-/**
- * Source objects: where they float at rest and which graph node they become.
- * Only the inputs the released packages read: documents (opengraph-text),
- * tables (opengraph-table), and images (opengraph-image).
- */
+/** Source objects: where they float at rest and which graph node they become. */
 export const SOURCES = [
   { kind: "document", home: [-6.1, 1.35, 0.0], node: "S0" },
   { kind: "table", home: [-5.6, -1.55, 0.8], node: "S1" },
+  { kind: "waveform", home: [-3.5, 2.4, -1.2], node: "S2" },
   { kind: "image", home: [5.9, 1.45, -0.3], node: "S3" },
+  { kind: "code", home: [5.5, -1.6, 0.7], node: "S4" },
+  { kind: "database", home: [3.4, -2.45, -0.6], node: "S5" },
 ];
 
 // role: source | hub | entry | leaf. `order` staggers the build.
 export const NODES = [
   { id: "S0", pos: [-2.9, 0.9, 0.3], r: 0.19, role: "source" },
   { id: "S1", pos: [-2.6, -1.0, 0.9], r: 0.19, role: "source" },
+  { id: "S2", pos: [-1.3, 1.6, -1.2], r: 0.19, role: "source" },
   { id: "S3", pos: [2.7, 1.1, -0.5], r: 0.19, role: "source" },
+  { id: "S4", pos: [2.4, -1.1, 0.8], r: 0.19, role: "source" },
+  { id: "S5", pos: [0.9, -1.7, -0.9], r: 0.19, role: "source" },
   { id: "H0", pos: [-1.5, 0.1, 0.0], r: 0.17, role: "hub", order: 0 },
   { id: "H1", pos: [-0.2, 0.75, 0.6], r: 0.17, role: "hub", order: 2 },
   { id: "H2", pos: [0.3, -0.55, -0.4], r: 0.16, role: "hub", order: 4 },
@@ -35,13 +37,13 @@ export const NODES = [
 ];
 
 export const EDGES = [
-  ["S0", "H0"], ["S1", "H0"], ["S1", "H4"], ["S0", "H1"],
+  ["S0", "H0"], ["S1", "H0"], ["S1", "H4"], ["S2", "H1"], ["S2", "H0"],
   ["H0", "H1"], ["H0", "H4"], ["H1", "H2"], ["H1", "H5"], ["H4", "H2"],
-  ["H2", "H3"], ["H3", "S3"], ["H3", "Q"],
-  ["Q", "S3"], ["H5", "S3"], ["H5", "H3"], ["H1", "H3"],
-  ["L0", "S0"], ["L0", "H1"], ["L1", "S0"], ["L1", "S1"], ["L2", "H2"],
-  ["L2", "H3"], ["L3", "S3"], ["L4", "H4"], ["L4", "H2"], ["L5", "H5"],
-  ["L5", "H1"], ["L6", "S1"], ["L6", "H4"],
+  ["H2", "H3"], ["H2", "S5"], ["H3", "S3"], ["H3", "S4"], ["H3", "Q"],
+  ["Q", "S3"], ["Q", "S4"], ["H5", "S3"], ["H5", "H3"], ["H1", "H3"],
+  ["L0", "S0"], ["L0", "H1"], ["L1", "S0"], ["L1", "S1"], ["L2", "S5"],
+  ["L2", "S4"], ["L3", "S3"], ["L4", "H4"], ["L4", "S5"], ["L5", "H5"],
+  ["L5", "S2"], ["L6", "S1"], ["L6", "H4"],
 ];
 
 /**
@@ -53,8 +55,8 @@ export const EVIDENCE = [
   { from: "H3", to: "H1", at: 6.83, dur: 0.4 },
   { from: "H3", to: "S3", at: 6.83, dur: 0.44 },
   { from: "H1", to: "H0", at: 7.23, dur: 0.38 },
+  { from: "H1", to: "S2", at: 7.23, dur: 0.42 },
   { from: "H0", to: "S0", at: 7.61, dur: 0.4 },
-  { from: "H0", to: "S1", at: 7.61, dur: 0.42 },
 ];
 
 /** Which nodes are cited, and when the pulse reaches (locks) each of them. */
@@ -90,16 +92,16 @@ export const T = {
   agentEnter: [5.2, 6.35],
   dim: [6.9, 7.7],
   collapse: [8.55, 9.7],
-  // The agent orb morphs Claude -> Cursor (the clients the project README
-  // names), holds the last mark, then leaves.
-  agentMorph: { first: 7.6, every: 0.77, duration: 0.32 },
+  // The agent orb morphs Claude -> Codex -> Cursor -> Gemini -> Grok, holds
+  // the last mark, then leaves.
+  agentMorph: { first: 6.5, every: 0.77, duration: 0.32 },
   agentExit: [9.55, 10.5],
   markFade: [10.35, 11.0],
   sourceReturn: 10.45,
   sourceReturnEnd: 11.85,
 };
 
-export const LABELLED_NODES = ["S0", "S1", "S3", "H1", "H3", "L1"];
+export const LABELLED_NODES = ["S0", "S3", "H1", "H3", "S5", "L1"];
 
 /** Outbound flight window for source i; its node appears 70% of the way in. */
 export const sourceWindow = (i) => {

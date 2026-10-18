@@ -15,8 +15,7 @@ import { MARK, NODES, SOURCES, T, markGroupOf, returnStart, sourceWindow } from 
 // from a mark vertex and dissolves into the source again. Both flights use
 // hump() scaling, so particles are invisible at t = 0 and t = LOOP.
 
-// Twice the old per-source count keeps the density of the six-source version.
-const PER_SOURCE = 44;
+const PER_SOURCE = 22;
 const COBALT_EVERY = 5;
 
 function cubic(p0, p1, p2, p3, u, out) {
